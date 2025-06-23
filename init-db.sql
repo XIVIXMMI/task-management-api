@@ -117,13 +117,15 @@ CREATE TABLE tasks (
     tsk_id SERIAL PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
     description TEXT,
-    due_date DATE,
+    due_date DATE,-- need a table to determine exactly time of deadline
     priority SMALLINT, -- 1: low, 2: normal, 3: high
-    status VARCHAR(20), -- pending, in_progress, completed
+    status VARCHAR(20), -- pending, in_progress, completed for scalable must slpit into another table
     category_id BIGINT REFERENCES categories(c8s_id),
     user_id BIGINT REFERENCES users(id),
     created_at TIMESTAMP DEFAULT now(),
-    updated_at TIMESTAMP DEFAULT now()
+    updated_at TIMESTAMP DEFAULT now(),
+    is_deleted ,
+    deleted_at TIMESTAMP,
 );
 
 -- nhãn dán linh hoạt, mỗi task có thể có nhiều tag ( quan trọng, khẩn cấp ... )
@@ -147,6 +149,8 @@ CREATE TABLE subtasks (
     title VARCHAR(255) NOT NULL,
     is_completed BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT now()
+    is_deleted ,
+    deleted_at TIMESTAMP
 );
 
 -- có thể tạo schedule nhắc nhở
@@ -155,6 +159,7 @@ CREATE TABLE reminders (
     task_id BIGINT REFERENCES tasks(tsk_id),
     remind_at TIMESTAMP NOT NULL,
     repeat_interval VARCHAR(20) -- daily, weekly, monthly
+-- need to specify the time user need to remind them
 );
 
 -- ghi lại mọi thao tác thêm xoá sửa, trường details có thể lưu dưới dạng JSON (e.g {"title":{"Old","New"}})
