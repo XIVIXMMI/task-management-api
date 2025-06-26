@@ -15,15 +15,15 @@
 
     <name>spring-boot-boilerplate</name>
     <description>
-        Spring Boot Boilerplate is a starter kit.
+        Task management API Server.
         This project includes : Spring Boot(3.5.0), Spring Data JPA, Spring Validation, Spring Security + JWT Token, PostgreSQL, Mapstruct, Lombok, Swagger (Open API)
     </description>
 
     <developers>
         <developer>
-            <name>Faruk Genc</name>
-            <email>omer@farukgenc.com</email>
-            <url>https://farukgenc.com</url>
+            <name>Omori</name>
+            <email>nguyen.le.programmer@gmail.com</email>
+            <url>https://github/XIVIXMMI.com</url>
         </developer>
     </developers>
 
@@ -112,6 +112,12 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>io.github.cdimascio</groupId>
+            <artifactId>dotenv-java</artifactId>
+            <version>3.0.0</version>
         </dependency>
 
     </dependencies>
