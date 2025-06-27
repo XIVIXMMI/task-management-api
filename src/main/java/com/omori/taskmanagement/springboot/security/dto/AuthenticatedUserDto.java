@@ -1,6 +1,6 @@
 package com.omori.taskmanagement.springboot.security.dto;
 
-import com.omori.taskmanagement.springboot.model.UserRole;
+import com.omori.taskmanagement.springboot.model.usermgmt.Role;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,6 +17,6 @@ public class AuthenticatedUserDto {
 
 	private String password;
 
-	private UserRole Role;
+	private Role role;
 
 }

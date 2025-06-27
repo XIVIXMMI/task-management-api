@@ -4,8 +4,8 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.omori.taskmanagement.springboot.model.UserRole;
-import com.omori.taskmanagement.springboot.model.User;
+import com.omori.taskmanagement.springboot.model.usermgmt.Role;
+import com.omori.taskmanagement.springboot.model.usermgmt.User;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -21,7 +21,7 @@ public class JwtTokenManager {
 	public String generateToken(User user) {
 
 		final String username = user.getUsername();
-		final UserRole userRole = user.getRole();
+		final Role userRole = user.getRole();
 
 		//@formatter:off
 		return JWT.create()
