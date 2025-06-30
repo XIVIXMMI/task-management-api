@@ -23,15 +23,10 @@ import com.omori.taskmanagement.springboot.utils.GeneralMessageAccessor;
 public class UserServiceImpl implements UserService {
 
 	private static final String REGISTRATION_SUCCESSFUL = "registration_successful";
-
 	private final UserRepository userRepository;
-
 	private final UserValidationService userValidationService;
-
 	private final GeneralMessageAccessor generalMessageAccessor;
-
 	private final RoleRepository roleRepository;
-
 	private final UserMapper mapper;
 
 	@Override

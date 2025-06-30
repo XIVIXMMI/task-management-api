@@ -51,10 +51,10 @@ jwt:
 
 swagger:
   contact-name: Omori
-  contact-mail: omori@lazydev.com
-  contact-url: https://github/XIVIXMMI.com
-  app-name: Spring Boot Boilerplate Project
-  app-description: "Spring Boot Boilerplate is a starter kit. This project includes : Spring Boot(3.5.0), Spring Data JPA, Spring Validation, Spring Security + JWT Token, PostgreSQL, Mapstruct, Lombok, Swagger (Open API)"
-  app-version: 3.5.0
+  contact-mail: nguyen.le.programmer@gmail.com
+  contact-url: https://github.com/XIVIXMMI
+  app-name: Task Management Project
+  app-description: "This project includes : Spring Boot(3.5.0), Spring Data JPA, Spring Validation, Spring Security + JWT Token, PostgreSQL, Mapstruct, Lombok, Swagger (Open API)"
+  app-version: 1.0.0
   app-license-url: https://www.apache.org/licenses/LICENSE-2.0.html
   app-license: Apache 2.0

@@ -13,15 +13,21 @@
 
 ## Customization
 
-- You can customize ```token information (secret key, issuer, expiry date) ``` in [*application.yml*](https://github.com/Genc/spring-boot-boilerplate/blob/master/src/main/resources/application.yml#L40) file.
-- You can customize ```database connection information``` in [*application.yml*](https://github.com/Genc/spring-boot-boilerplate/blob/master/src/main/resources/application.yml#L3) file.
-- You can customize ```swagger information``` in [*application.yml*](https://github.com/Genc/spring-boot-boilerplate/blob/master/src/main/resources/application.yml#L45) file.
-- You can customize ```which endpoints are accessible without token information``` in [*SecurityConfiguration.java*](https://github.com/Genc/spring-boot-boilerplate/blob/master/src/main/java/com/farukgenc/boilerplate/springboot/configuration/SecurityConfiguration.java#L45) file.
+- You can customize ```token information (secret key, issuer, expiry date) ``` in `src/main/resources/application.yml` file.
+- You can customize ```database connection information``` in `src/main/resources/application.yml` file.
+- You can customize ```swagger information``` in `src/main/resources/application.yml` file.
+- You can customize ```which endpoints are accessible without token information``` in `src/main/java/com/omori/taskmanagement/configuration/SecurityConfiguration.java` file.
 
 ## Run the Application
 
 First you need to make sure that the database is up. 
-If you're using Docker, you can use ```docker compose up -d``` command. (If you have made changes in local, you should use the *local-docker-compose* file.)
+If you're using Docker, you can use ```docker compose up -d``` command. (If you have made changes locally, you should use the *local-docker-compose* file.)
+
+If you want to build the Docker image locally, use:
+```sh
+docker-compose -f local-docker-compose.yml up --build
+```
+Otherwise, ensure the `omori/taskmanagement` image is available for the main docker-compose file.
 
 Navigate to the root of the project. For building the project using command line, run below command :
 
