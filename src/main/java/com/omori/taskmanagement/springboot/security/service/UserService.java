@@ -1,6 +1,6 @@
 package com.omori.taskmanagement.springboot.security.service;
 
-import com.omori.taskmanagement.springboot.model.User;
+import com.omori.taskmanagement.springboot.model.usermgmt.User;
 import com.omori.taskmanagement.springboot.security.dto.AuthenticatedUserDto;
 import com.omori.taskmanagement.springboot.security.dto.RegistrationRequest;
 import com.omori.taskmanagement.springboot.security.dto.RegistrationResponse;

@@ -4,13 +4,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.antlr.v4.runtime.RuntimeMetaData;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.omori.taskmanagement.springboot.model.User;
-import com.omori.taskmanagement.springboot.model.UserRole;
-import com.omori.taskmanagement.springboot.repository.UserRoleRepository;
-import com.omori.taskmanagement.springboot.repository.UserRepository;
+import com.omori.taskmanagement.springboot.model.usermgmt.User;
+import com.omori.taskmanagement.springboot.model.usermgmt.Role;
+import com.omori.taskmanagement.springboot.repository.usermgmt.RoleRepository;
+import com.omori.taskmanagement.springboot.repository.usermgmt.UserRepository;
 import com.omori.taskmanagement.springboot.security.dto.AuthenticatedUserDto;
 import com.omori.taskmanagement.springboot.security.dto.RegistrationRequest;
 import com.omori.taskmanagement.springboot.security.dto.RegistrationResponse;
@@ -27,13 +26,13 @@ public class UserServiceImpl implements UserService {
 
 	private final UserRepository userRepository;
 
-	private final BCryptPasswordEncoder bCryptPasswordEncoder;
-
 	private final UserValidationService userValidationService;
 
 	private final GeneralMessageAccessor generalMessageAccessor;
 
-	private final UserRoleRepository roleRepository;
+	private final RoleRepository roleRepository;
+
+	private final UserMapper mapper;
 
 	@Override
 	public User findByUsername(String username) {
@@ -43,15 +42,13 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public RegistrationResponse registration(RegistrationRequest registrationRequest) {
-
 		userValidationService.validateUser(registrationRequest);
 
-		final User user = UserMapper.INSTANCE.convertToUser(registrationRequest);
-		user.setPasswordHash(bCryptPasswordEncoder.encode(user.getPasswordHash()));
+		final User user = mapper.convertToUser(registrationRequest);
 		
-		UserRole role = roleRepository
+		Role role = roleRepository
 			.findById((short) 1)
-			.orElseThrow( () -> new RuntimeException("Default role (ROLE_USER) is not found in database"));
+			.orElseThrow(() -> new RuntimeException("Default role (ROLE_USER) is not found in database"));
 			
 		user.setRole(role);
 
@@ -70,6 +67,6 @@ public class UserServiceImpl implements UserService {
 
 		final User user = findByUsername(username);
 
-		return UserMapper.INSTANCE.convertToAuthenticatedUserDto(user);
+		return mapper.convertToAuthenticatedUserDto(user);
 	}
 }

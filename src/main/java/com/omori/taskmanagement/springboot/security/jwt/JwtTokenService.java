@@ -3,10 +3,11 @@ package com.omori.taskmanagement.springboot.security.jwt;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
 
-import com.omori.taskmanagement.springboot.model.User;
+import com.omori.taskmanagement.springboot.model.usermgmt.User;
 import com.omori.taskmanagement.springboot.security.dto.AuthenticatedUserDto;
 import com.omori.taskmanagement.springboot.security.dto.LoginRequest;
 import com.omori.taskmanagement.springboot.security.dto.LoginResponse;
@@ -23,6 +24,9 @@ public class JwtTokenService {
 	private final JwtTokenManager jwtTokenManager;
 
 	private final AuthenticationManager authenticationManager;
+	
+	@Autowired
+	private UserMapper userMapper;
 
 	public LoginResponse getLoginResponse(LoginRequest loginRequest) {
 
@@ -35,7 +39,7 @@ public class JwtTokenService {
 
 		final AuthenticatedUserDto authenticatedUserDto = userService.findAuthenticatedUserByUsername(username);
 
-		final User user = UserMapper.INSTANCE.convertToUser(authenticatedUserDto);
+		final User user = userMapper.convertToUser(authenticatedUserDto);
 		final String token = jwtTokenManager.generateToken(user);
 
 		log.info("{} has successfully logged in!", user.getUsername());
