@@ -1,11 +1,13 @@
 package com.omori.taskmanagement.springboot.model.usermgmt;
 
+import com.omori.taskmanagement.springboot.hibernate.UserStatusType;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import java.time.LocalDate;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.Type;
 
 @Data
 @NoArgsConstructor
@@ -46,8 +48,8 @@ public class Profile {
     private String language;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", columnDefinition = "user_status")
-    @ColumnDefault("'offline'")
+    @Type(value = UserStatusType.class)
+    @Column(name = "status", columnDefinition = "user_mgmt.user_status")
     private UserStatus status;
 
     @Column(name = "last_login")
@@ -89,7 +91,4 @@ public class Profile {
     @Column(name = "updated_at")
     private java.sql.Timestamp updatedAt;
 
-    public enum UserStatus {
-        ONLINE, OFFLINE, BUSY, AWAY
-    }
 }

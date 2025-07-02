@@ -1,6 +1,7 @@
 package com.omori.taskmanagement.springboot.security.mapper;
 
 import org.mapstruct.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -16,11 +17,14 @@ import java.util.UUID;
         imports = {BCryptPasswordEncoder.class, PasswordEncoder.class, UUID.class, LocalDateTime.class})
 public abstract class UserMapper {
 
+    @Autowired
+    protected PasswordEncoder passwordEncoder;
+
     @Mapping(target = "passwordHash", source = "password")
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "uuid", expression = "java(UUID.randomUUID())")
-    //@Mapping(target = "emailVerifiedAt", ignore = true)
-    @Mapping(target = "mobile", ignore = true)
+    @Mapping(target = "emailVerifiedAt", ignore = true)
+    @Mapping(target = "mobile", source = "mobile")
     @Mapping(target = "mobileVerifiedAt", ignore = true)
     @Mapping(target = "role", ignore = true)
     @Mapping(target = "roleId", expression = "java((short) 1)") // should fix this hard code 
@@ -30,19 +34,17 @@ public abstract class UserMapper {
     @Mapping(target = "isVerified", expression = "java(false)")
     @Mapping(target = "createdAt", expression = "java(LocalDateTime.now())")
     @Mapping(target = "updatedAt", expression = "java(LocalDateTime.now())")
+    
     public abstract User convertToUser(RegistrationRequest registrationRequest);
 
+    @Mapping(target = "password", source = "passwordHash")
     public abstract AuthenticatedUserDto convertToAuthenticatedUserDto(User user);
 
     public abstract User convertToUser(AuthenticatedUserDto authenticatedUserDto);
 
-    /**
-     * Custom mapping for password hashing
-     */
     @AfterMapping
     protected void hashPassword(RegistrationRequest source, @MappingTarget User target) {
         if (source.getPassword() != null) {
-            PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
             target.setPasswordHash(passwordEncoder.encode(source.getPassword()));
         }
     }
