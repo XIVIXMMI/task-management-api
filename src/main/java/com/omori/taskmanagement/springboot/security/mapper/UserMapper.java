@@ -37,7 +37,6 @@ public abstract class UserMapper {
     
     public abstract User convertToUser(RegistrationRequest registrationRequest);
 
-    @Mapping(target = "password", source = "passwordHash")
     public abstract AuthenticatedUserDto convertToAuthenticatedUserDto(User user);
 
     public abstract User convertToUser(AuthenticatedUserDto authenticatedUserDto);

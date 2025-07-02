@@ -27,15 +27,15 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 	@Override
 	public UserDetails loadUserByUsername(String username) {
 
-		final AuthenticatedUserDto authenticatedUser = userService.findAuthenticatedUserByUsername(username);
+		final com.omori.taskmanagement.springboot.model.usermgmt.User user = userService.findByUsername(username);
 
-		if (Objects.isNull(authenticatedUser)) {
+		if (Objects.isNull(user)) {
 			throw new UsernameNotFoundException(USERNAME_OR_PASSWORD_INVALID);
 		}
 
-		final String authenticatedUsername = authenticatedUser.getUsername();
-		final String authenticatedPassword = authenticatedUser.getPassword();
-		final Role userRole = authenticatedUser.getRole();
+		final String authenticatedUsername = user.getUsername();
+		final String authenticatedPassword = user.getPasswordHash();
+		final Role userRole = user.getRole();
 		final SimpleGrantedAuthority grantedAuthority = new SimpleGrantedAuthority(userRole.getName());
 
 		return new User(authenticatedUsername, authenticatedPassword, Collections.singletonList(grantedAuthority));
