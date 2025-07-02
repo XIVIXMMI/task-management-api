@@ -5,11 +5,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import com.omori.taskmanagement.springboot.controller.RegistrationController;
+import com.omori.taskmanagement.springboot.controller.AuthController;
 
 import java.time.LocalDateTime;
 
-@RestControllerAdvice(basePackageClasses = RegistrationController.class)
+@RestControllerAdvice(basePackageClasses = AuthController.class)
 public class RegistrationControllerAdvice {
 
 	@ExceptionHandler(RegistrationException.class)

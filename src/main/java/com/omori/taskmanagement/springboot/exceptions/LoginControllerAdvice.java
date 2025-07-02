@@ -6,11 +6,11 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import com.omori.taskmanagement.springboot.controller.LoginController;
+import com.omori.taskmanagement.springboot.controller.AuthController;
 
 import java.time.LocalDateTime;
 
-@RestControllerAdvice(basePackageClasses = LoginController.class)
+@RestControllerAdvice(basePackageClasses = AuthController.class)
 public class LoginControllerAdvice {
 
 	@ExceptionHandler(BadCredentialsException.class)

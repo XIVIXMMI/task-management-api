@@ -10,6 +10,6 @@ import org.springframework.web.servlet.i18n.FixedLocaleResolver;
 public class LocaleConfiguration {
    @Bean
    public org.springframework.web.servlet.LocaleResolver fixedLocaleResolver() {
-        return new FixedLocaleResolver(Locale.ENGLISH);
-   } 
+      return new FixedLocaleResolver(Locale.ENGLISH);
+   }
 }

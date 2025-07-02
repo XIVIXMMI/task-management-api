@@ -7,11 +7,6 @@ import org.springframework.stereotype.Service;
 import java.util.Locale;
 import java.util.Objects;
 
-/**
- * Created on Ağustos, 2020
- *
- * @author Faruk
- */
 @Service
 public class ExceptionMessageAccessor {
 

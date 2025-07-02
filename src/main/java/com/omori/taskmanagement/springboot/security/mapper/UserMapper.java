@@ -24,7 +24,7 @@ public abstract class UserMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "uuid", expression = "java(UUID.randomUUID())")
     @Mapping(target = "emailVerifiedAt", ignore = true)
-    @Mapping(target = "mobile", ignore = true)
+    @Mapping(target = "mobile", source = "mobile")
     @Mapping(target = "mobileVerifiedAt", ignore = true)
     @Mapping(target = "role", ignore = true)
     @Mapping(target = "roleId", expression = "java((short) 1)") // should fix this hard code 
@@ -42,9 +42,6 @@ public abstract class UserMapper {
 
     public abstract User convertToUser(AuthenticatedUserDto authenticatedUserDto);
 
-    /**
-     * Custom mapping for password hashing
-     */
     @AfterMapping
     protected void hashPassword(RegistrationRequest source, @MappingTarget User target) {
         if (source.getPassword() != null) {

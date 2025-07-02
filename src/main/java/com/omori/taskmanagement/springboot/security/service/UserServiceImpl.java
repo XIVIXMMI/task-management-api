@@ -55,13 +55,19 @@ public class UserServiceImpl implements UserService {
 			.orElseThrow(() -> new RuntimeException("Default role (ROLE_USER) is not found in database"));
 			
 		user.setRole(role);
-
+		user.setMobile(registrationRequest.getMobile());
+		user.setEmail(registrationRequest.getEmail());
 		userRepository.save(user);
 
 		// Create and save Profile for the new user
 		Profile profile = Profile.builder()
-			.firstName("guest") // or use registrationRequest.getFirstName() if available
-			.lastName("") // or use registrationRequest.getLastName() if available
+			.firstName(registrationRequest.getFirstName())
+			.middleName(registrationRequest.getMiddleName())
+			.lastName(registrationRequest.getLastName())
+			.dateOfBirth(java.time.LocalDate.parse(registrationRequest.getDateOfBirth()))
+			.gender(registrationRequest.getGender())
+			.avatarPath(registrationRequest.getAvatarPath())
+			.timezone(registrationRequest.getTimezone())
 			.status(UserStatus.offline)
 			.build();
 		profileRepository.save(profile);
