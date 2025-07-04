@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.omori.taskmanagement.springboot.dto.usermgmt.UpdateUserProfileRequest;
 import com.omori.taskmanagement.springboot.exceptions.UserNotFoundException;
 import com.omori.taskmanagement.springboot.model.usermgmt.User;
+import com.omori.taskmanagement.springboot.dto.usermgmt.UpdateUserProfileResponse;
 import com.omori.taskmanagement.springboot.service.UserUpdateService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -31,12 +32,20 @@ public class UserUpdateController {
     @PatchMapping("/update-profile/{username}")
     @PreAuthorize("@authService.hasPermission(#username)")
     @Operation(summary = "Update User Profile", description = "Update user profile")
-    public ResponseEntity<User> updateProfile(
+    public ResponseEntity<UpdateUserProfileResponse> updateProfile(
             @PathVariable String username,
             @Valid @RequestBody UpdateUserProfileRequest request) {
         try {
-            final User user = userUpdateService.updateProfile(username, request);
-            return ResponseEntity.ok(user);
+            userUpdateService.updateProfile(username, request);
+            UpdateUserProfileResponse response = new UpdateUserProfileResponse(
+                "User profile updated successfully",
+                request.getFirstName(),
+                request.getLastName(),
+                request.getMiddleName(),
+                request.getDateOfBirth(),
+                request.getGender()
+            );
+            return ResponseEntity.ok(response);
         } catch (UserNotFoundException e) {
             return ResponseEntity.notFound().build();
         } catch (Exception e) {
