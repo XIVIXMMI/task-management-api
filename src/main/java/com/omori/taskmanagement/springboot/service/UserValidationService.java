@@ -21,7 +21,9 @@ public class UserValidationService {
     private static final String INVALID_PASSWORD_FORMAT = "invalid_password_format";
     private static final int PASSWORD_MIN_LENGTH = 8;
     private static final int PASSWORD_MAX_LENGTH = 32;
-    private static final String PASSWORD_PATTERN = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,}$"; // password must have uppercase, special and number character
+    // password must have uppercase, special and number character
+    private static final String PASSWORD_PATTERN = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,}$";
+    private static final String EMAIL_PATTERN = "[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}";
 
     private final UserRepository userRepository;
     private final ExceptionMessageAccessor exceptionMessageAccessor;
@@ -51,7 +53,7 @@ public class UserValidationService {
     private void checkEmail(String email) {
         if (StringUtils.hasText(email)) {
             // Check email format
-            if (!email.matches("[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}")) {
+            if (!email.matches(EMAIL_PATTERN)) {
                 throw new RegistrationException(exceptionMessageAccessor.getMessage(null, INVALID_EMAIL_FORMAT, email));
             }
 
@@ -70,14 +72,16 @@ public class UserValidationService {
         if (StringUtils.hasText(password)) {
             // Check password length
             if (password.length() < PASSWORD_MIN_LENGTH || password.length() > PASSWORD_MAX_LENGTH) {
-                throw new RegistrationException(exceptionMessageAccessor.getMessage(null, INVALID_PASSWORD_FORMAT, password));
+                throw new RegistrationException(
+                        exceptionMessageAccessor.getMessage(null, INVALID_PASSWORD_FORMAT, password));
             }
 
-            // Check password pattern (must contain: uppercase, lowercase, number, special character)
+            // Check password pattern (must contain: uppercase, lowercase, number, special
+            // character)
             if (!password.matches(PASSWORD_PATTERN)) {
-                throw new RegistrationException(exceptionMessageAccessor.getMessage(null, INVALID_PASSWORD_FORMAT, password));
+                throw new RegistrationException(
+                        exceptionMessageAccessor.getMessage(null, INVALID_PASSWORD_FORMAT, password));
             }
         }
     }
 }
-

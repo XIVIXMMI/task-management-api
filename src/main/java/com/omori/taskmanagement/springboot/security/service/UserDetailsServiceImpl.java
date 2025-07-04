@@ -10,7 +10,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import com.omori.taskmanagement.springboot.model.usermgmt.Role;
-import com.omori.taskmanagement.springboot.security.dto.AuthenticatedUserDto;
 
 import java.util.Collections;
 import java.util.Objects;

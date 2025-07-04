@@ -3,7 +3,6 @@ package com.omori.taskmanagement.springboot.security.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import org.antlr.v4.runtime.RuntimeMetaData;
 import org.springframework.stereotype.Service;
 
 import com.omori.taskmanagement.springboot.model.usermgmt.User;
@@ -40,7 +39,7 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public User findByUsername(String username) {
 
-		return userRepository.findByUsername(username);
+		return userRepository.findByUsername(username).orElse(null);
 	}
 
 	@Override

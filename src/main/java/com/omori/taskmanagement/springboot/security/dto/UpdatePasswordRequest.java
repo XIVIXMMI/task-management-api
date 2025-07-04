@@ -1,0 +1,18 @@
+package com.omori.taskmanagement.springboot.security.dto;
+
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
+
+public record UpdatePasswordRequest(
+        @NotBlank
+        String oldPassword,
+        @NotBlank
+        @Size(min = 8,message = "Password must be at least 8 characters")
+        @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{8,}$",
+                message = "Password must contain letters, numbers, and special characters")
+        String newPassword,
+        @NotBlank
+        String confirmPassword
+) {
+}
