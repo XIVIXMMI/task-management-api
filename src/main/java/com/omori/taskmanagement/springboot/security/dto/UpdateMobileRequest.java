@@ -5,6 +5,7 @@ import jakarta.validation.constraints.Pattern;
 
 public record UpdateMobileRequest (
         @NotBlank
+        @Pattern(regexp = "^[0-9]+$", message = "{mobile_invalid}")
         String oldPhoneNumber,
         @NotBlank
         @Pattern(regexp = "^[0-9]+$", message = "{mobile_invalid}")

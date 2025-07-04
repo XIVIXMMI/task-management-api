@@ -5,6 +5,8 @@ import org.springframework.stereotype.Service;
 
 import com.omori.taskmanagement.springboot.dto.usermgmt.UpdateUserAvatarRequest;
 import com.omori.taskmanagement.springboot.dto.usermgmt.UpdateUserProfileRequest;
+import com.omori.taskmanagement.springboot.exceptions.UserNotFoundException;
+import com.omori.taskmanagement.springboot.exceptions.UserProfileNotFoundException;
 import com.omori.taskmanagement.springboot.model.usermgmt.Profile;
 import com.omori.taskmanagement.springboot.model.usermgmt.User;
 import java.time.LocalDateTime;
@@ -33,11 +35,11 @@ public class UserUpdateServiceImpl implements UserUpdateService {
         
         User user = userRepository
             .findByUsername(username)
-            .orElseThrow(() -> new RuntimeException("User " + username + " not found"));
+            .orElseThrow(() -> new UserNotFoundException("User " + username + " not found"));
 
         Profile profile = user.getProfile();
         if (profile == null) {
-            throw new RuntimeException("Profile not found for user " + username);
+            throw new UserProfileNotFoundException("Profile not found for user " + username);
         }
 
         log.info("Profile found with ID: {}", profile.getId());

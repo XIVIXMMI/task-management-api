@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.omori.taskmanagement.springboot.dto.usermgmt.UpdateUserProfileRequest;
+import com.omori.taskmanagement.springboot.exceptions.UserNotFoundException;
 import com.omori.taskmanagement.springboot.model.usermgmt.User;
 import com.omori.taskmanagement.springboot.service.UserUpdateService;
 
@@ -22,19 +23,25 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @RequestMapping("api/v1/user")
 @Slf4j
-@Tag(name = "User Update", description = "User Update API")   
+@Tag(name = "User Update", description = "User Update API")
 public class UserUpdateController {
-    
+
     private final UserUpdateService userUpdateService;
-    
+
     @PatchMapping("/update-profile/{username}")
     @PreAuthorize("@authService.hasPermission(#username)")
     @Operation(summary = "Update User Profile", description = "Update user profile")
     public ResponseEntity<User> updateProfile(
-        @PathVariable String username,
-        @Valid 
-        @RequestBody UpdateUserProfileRequest request) {
-        final User user = userUpdateService.updateProfile(username, request);
-        return ResponseEntity.ok(user);
+            @PathVariable String username,
+            @Valid @RequestBody UpdateUserProfileRequest request) {
+        try {
+            final User user = userUpdateService.updateProfile(username, request);
+            return ResponseEntity.ok(user);
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            log.error("Failed to update profile for user: {}", username, e);
+            return ResponseEntity.internalServerError().build();
+        }
     }
 }
