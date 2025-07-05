@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Type;
@@ -54,16 +55,16 @@ public class Profile {
     private UserStatus status;
 
     @Column(name = "last_login")
-    private java.sql.Timestamp lastLogin;
+    private LocalDateTime lastLogin;
 
     @Column(name = "last_activity")
-    private java.sql.Timestamp lastActivity;
+    private LocalDateTime lastActivity;
 
     @Column(name = "verified_at")
-    private java.sql.Timestamp verifiedAt;
+    private LocalDateTime verifiedAt;
 
     @Column(name = "deleted_at")
-    private java.sql.Timestamp deletedAt;
+    private LocalDateTime deletedAt;
 
     @Column(name = "auth_provider")
     private String authProvider;
@@ -81,15 +82,15 @@ public class Profile {
     private Short loginAttempts;
 
     @Column(name = "locked_until")
-    private java.sql.Timestamp lockedUntil;
+    private LocalDateTime lockedUntil;
 
     @Column(name = "failed_login_at")
-    private java.sql.Timestamp failedLoginAt;
+    private LocalDateTime failedLoginAt;
 
     @Column(name = "created_at")
-    private java.sql.Timestamp createdAt;
+    private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
-    private java.sql.Timestamp updatedAt;
+    private LocalDateTime updatedAt;
 
 }

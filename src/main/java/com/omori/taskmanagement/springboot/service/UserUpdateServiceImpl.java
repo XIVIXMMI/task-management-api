@@ -50,14 +50,14 @@ public class UserUpdateServiceImpl implements UserUpdateService {
         profile.setLastName(request.getLastName());
         profile.setDateOfBirth(request.getDateOfBirth());
         profile.setGender(request.getGender());
-        profile.setUpdatedAt(Timestamp.valueOf(LocalDateTime.now()));
-        
+        // Standardize: use LocalDateTime.now() and convert to Timestamp for profile
+        LocalDateTime now = LocalDateTime.now();
+        profile.setUpdatedAt(now);
         // Save profile first
         Profile savedProfile = profileRepository.save(profile);
         log.info("Profile saved successfully with ID: {}", savedProfile.getId());
-        
-        // Update user's updated_at timestamp
-        user.setUpdatedAt(LocalDateTime.now());
+        // Update user's updated_at timestamp (LocalDateTime)
+        user.setUpdatedAt(now);
         User savedUser = userRepository.save(user);
         log.info("User updated successfully with ID: {}", savedUser.getId());
         
