@@ -50,8 +50,7 @@ docker-compose up --build
 3. Build and run:
 
 ```sh
-mvn clean install
-mvn spring-boot:run
+mvn clean install && mvn spring-boot:run
 ```
 
 ### API Documentation
