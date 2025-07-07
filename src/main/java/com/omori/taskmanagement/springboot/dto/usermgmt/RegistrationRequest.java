@@ -1,4 +1,4 @@
-package com.omori.taskmanagement.springboot.security.dto;
+package com.omori.taskmanagement.springboot.dto.usermgmt;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;

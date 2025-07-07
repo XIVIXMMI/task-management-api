@@ -7,7 +7,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.omori.taskmanagement.springboot.model.usermgmt.User;
 import com.omori.taskmanagement.springboot.security.dto.AuthenticatedUserDto;
-import com.omori.taskmanagement.springboot.security.dto.RegistrationRequest;
+import com.omori.taskmanagement.springboot.dto.usermgmt.RegistrationRequest;
 
 import java.time.LocalDateTime;
 import java.util.UUID;

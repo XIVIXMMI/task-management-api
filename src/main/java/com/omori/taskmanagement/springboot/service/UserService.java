@@ -1,9 +1,9 @@
-package com.omori.taskmanagement.springboot.security.service;
+package com.omori.taskmanagement.springboot.service;
 
 import com.omori.taskmanagement.springboot.model.usermgmt.User;
 import com.omori.taskmanagement.springboot.security.dto.AuthenticatedUserDto;
-import com.omori.taskmanagement.springboot.security.dto.RegistrationRequest;
-import com.omori.taskmanagement.springboot.security.dto.RegistrationResponse;
+import com.omori.taskmanagement.springboot.dto.usermgmt.RegistrationRequest;
+import com.omori.taskmanagement.springboot.dto.usermgmt.RegistrationResponse;
 
 public interface UserService {
 

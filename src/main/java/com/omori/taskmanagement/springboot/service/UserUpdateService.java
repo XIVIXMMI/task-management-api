@@ -3,8 +3,8 @@ package com.omori.taskmanagement.springboot.service;
 import com.omori.taskmanagement.springboot.dto.usermgmt.UpdateUserAvatarRequest;
 import com.omori.taskmanagement.springboot.dto.usermgmt.UpdateUserProfileRequest;
 import com.omori.taskmanagement.springboot.model.usermgmt.User;
-import com.omori.taskmanagement.springboot.security.dto.UpdateEmailRequest;
-import com.omori.taskmanagement.springboot.security.dto.UpdatePasswordRequest;
+import com.omori.taskmanagement.springboot.dto.usermgmt.UpdateEmailRequest;
+import com.omori.taskmanagement.springboot.dto.usermgmt.UpdatePasswordRequest;
 
 public interface UserUpdateService {
     

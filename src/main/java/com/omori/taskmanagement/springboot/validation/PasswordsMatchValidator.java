@@ -1,6 +1,6 @@
 package com.omori.taskmanagement.springboot.validation;
 
-import com.omori.taskmanagement.springboot.security.dto.UpdatePasswordRequest;
+import com.omori.taskmanagement.springboot.dto.usermgmt.UpdatePasswordRequest;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 

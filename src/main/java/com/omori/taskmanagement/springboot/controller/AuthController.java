@@ -7,12 +7,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.omori.taskmanagement.springboot.security.dto.LoginRequest;
-import com.omori.taskmanagement.springboot.security.dto.LoginResponse;
-import com.omori.taskmanagement.springboot.security.dto.RegistrationRequest;
-import com.omori.taskmanagement.springboot.security.dto.RegistrationResponse;
+import com.omori.taskmanagement.springboot.dto.usermgmt.LoginRequest;
+import com.omori.taskmanagement.springboot.dto.usermgmt.LoginResponse;
+import com.omori.taskmanagement.springboot.dto.usermgmt.RegistrationRequest;
+import com.omori.taskmanagement.springboot.dto.usermgmt.RegistrationResponse;
 import com.omori.taskmanagement.springboot.security.jwt.JwtTokenService;
-import com.omori.taskmanagement.springboot.security.service.UserService;
+import com.omori.taskmanagement.springboot.service.UserService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

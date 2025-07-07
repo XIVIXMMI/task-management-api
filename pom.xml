@@ -9,11 +9,11 @@
         <version>3.5.0</version>
     </parent>
 
-    <groupId>com.farukgenc</groupId>
-    <artifactId>springboot-boilerplate</artifactId>
+    <groupId>com.omori</groupId>
+    <artifactId>task-management</artifactId>
     <version>3.5.0</version>
 
-    <name>spring-boot-boilerplate</name>
+    <name>task-management-api</name>
     <description>
         Task management API Server.
         This project includes : Spring Boot(3.5.0), Spring Data JPA, Spring Validation, Spring Security + JWT Token, PostgreSQL, Mapstruct, Lombok, Swagger (Open API)

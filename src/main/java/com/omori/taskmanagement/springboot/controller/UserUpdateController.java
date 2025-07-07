@@ -1,5 +1,8 @@
 package com.omori.taskmanagement.springboot.controller;
 
+import com.omori.taskmanagement.springboot.dto.usermgmt.UpdateUserAvatarRequest;
+import com.omori.taskmanagement.springboot.dto.usermgmt.UpdateUserAvatarResponse;
+import com.omori.taskmanagement.springboot.model.usermgmt.Profile;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -38,7 +41,7 @@ public class UserUpdateController {
         try {
             userUpdateService.updateProfile(username, request);
             UpdateUserProfileResponse response = new UpdateUserProfileResponse(
-                "User profile updated successfully",
+                "User's profile updated successfully",
                 request.getFirstName(),
                 request.getLastName(),
                 request.getMiddleName(),
@@ -53,4 +56,21 @@ public class UserUpdateController {
             return ResponseEntity.internalServerError().build();
         }
     }
+
+    @PatchMapping("/update-avatar/{username}")
+    @PreAuthorize("@authService.hasPermission(#username)")
+    @Operation(summary = "Update User avatar", description = "Update user avatar")
+    public ResponseEntity<UpdateUserAvatarResponse> updateAvatarPath (
+            @PathVariable String username,
+            @Valid @RequestBody UpdateUserAvatarRequest request) {
+        try {
+            userUpdateService.updateAvatar(username, request);
+            UpdateUserAvatarResponse response = new UpdateUserAvatarResponse("User's Avatar update successfully");
+            return ResponseEntity.ok(response);
+        } catch (Exception e){
+            log.error("Fail to update avatar for user: {} ",username,e);
+            return  ResponseEntity.internalServerError().build();
+        }
+    }
+
 }
