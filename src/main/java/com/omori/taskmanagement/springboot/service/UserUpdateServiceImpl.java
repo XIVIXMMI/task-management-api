@@ -10,11 +10,11 @@ import com.omori.taskmanagement.springboot.exceptions.UserProfileNotFoundExcepti
 import com.omori.taskmanagement.springboot.model.usermgmt.Profile;
 import com.omori.taskmanagement.springboot.model.usermgmt.User;
 import java.time.LocalDateTime;
-import java.sql.Timestamp;
+
 import com.omori.taskmanagement.springboot.repository.usermgmt.UserRepository;
 import com.omori.taskmanagement.springboot.repository.usermgmt.ProfileRepository;
-import com.omori.taskmanagement.springboot.security.dto.UpdateEmailRequest;
-import com.omori.taskmanagement.springboot.security.dto.UpdatePasswordRequest;
+import com.omori.taskmanagement.springboot.dto.usermgmt.UpdateEmailRequest;
+import com.omori.taskmanagement.springboot.dto.usermgmt.UpdatePasswordRequest;
 
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -72,8 +72,22 @@ public class UserUpdateServiceImpl implements UserUpdateService {
 
     @Override
     public void updateAvatar(String username, UpdateUserAvatarRequest request) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'updateAvatar'");
+        log.info("Update avatar for user: " + username);
+
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException("User " + username + " not found"));
+
+        Profile profile = user.getProfile();
+        if(profile == null)
+            throw new UserProfileNotFoundException("Profile not found for user " + username);
+
+        log.info("Profile found with ID: {} ", profile.getId());
+
+        //Update avatar path
+        profile.setAvatarPath(request.avatarPath());
+
+        // Save value
+        Profile saveProfile = profileRepository.save(profile);
+        log.info("Profile saved successfully with ID: {}",saveProfile.getId());
     }
 
     @Override

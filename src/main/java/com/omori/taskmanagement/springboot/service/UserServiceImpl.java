@@ -1,4 +1,4 @@
-package com.omori.taskmanagement.springboot.security.service;
+package com.omori.taskmanagement.springboot.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,10 +16,9 @@ import com.omori.taskmanagement.springboot.repository.usermgmt.ProfileRepository
 import com.omori.taskmanagement.springboot.repository.usermgmt.SessionRepository;
 import org.springframework.transaction.annotation.Transactional;
 import com.omori.taskmanagement.springboot.security.dto.AuthenticatedUserDto;
-import com.omori.taskmanagement.springboot.security.dto.RegistrationRequest;
-import com.omori.taskmanagement.springboot.security.dto.RegistrationResponse;
+import com.omori.taskmanagement.springboot.dto.usermgmt.RegistrationRequest;
+import com.omori.taskmanagement.springboot.dto.usermgmt.RegistrationResponse;
 import com.omori.taskmanagement.springboot.security.mapper.UserMapper;
-import com.omori.taskmanagement.springboot.service.UserValidationService;
 import com.omori.taskmanagement.springboot.utils.GeneralMessageAccessor;
 
 @Slf4j

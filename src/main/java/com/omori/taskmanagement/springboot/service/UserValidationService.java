@@ -7,7 +7,7 @@ import org.springframework.util.StringUtils;
 
 import com.omori.taskmanagement.springboot.exceptions.RegistrationException;
 import com.omori.taskmanagement.springboot.repository.usermgmt.UserRepository;
-import com.omori.taskmanagement.springboot.security.dto.RegistrationRequest;
+import com.omori.taskmanagement.springboot.dto.usermgmt.RegistrationRequest;
 import com.omori.taskmanagement.springboot.utils.ExceptionMessageAccessor;
 
 @Slf4j

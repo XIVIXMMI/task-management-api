@@ -9,10 +9,10 @@ import org.springframework.stereotype.Service;
 
 import com.omori.taskmanagement.springboot.model.usermgmt.User;
 import com.omori.taskmanagement.springboot.security.dto.AuthenticatedUserDto;
-import com.omori.taskmanagement.springboot.security.dto.LoginRequest;
-import com.omori.taskmanagement.springboot.security.dto.LoginResponse;
+import com.omori.taskmanagement.springboot.dto.usermgmt.LoginRequest;
+import com.omori.taskmanagement.springboot.dto.usermgmt.LoginResponse;
 import com.omori.taskmanagement.springboot.security.mapper.UserMapper;
-import com.omori.taskmanagement.springboot.security.service.UserService;
+import com.omori.taskmanagement.springboot.service.UserService;
 
 @Slf4j
 @Service
