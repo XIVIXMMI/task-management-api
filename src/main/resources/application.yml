@@ -3,6 +3,13 @@ server:
     enabled: true
 
 spring:
+  devtools:
+    restart:
+      enabled: true
+      exclude: static/**,public/**,templates/**
+    livereload:
+      enabled: true
+      port: 35729
   datasource:
     url: ${DB_URL}
     username: ${DB_USERNAME}
@@ -16,8 +23,15 @@ spring:
       connection-timeout: 30000
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: none
     open-in-view: false
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        jdbc:
+          time_zone: UTC
   jta:
     enabled: false
 

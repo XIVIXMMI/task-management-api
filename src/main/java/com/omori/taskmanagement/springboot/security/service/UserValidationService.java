@@ -1,4 +1,4 @@
-package com.omori.taskmanagement.springboot.service;
+package com.omori.taskmanagement.springboot.security.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

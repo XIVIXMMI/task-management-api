@@ -33,11 +33,23 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 			throw new UsernameNotFoundException(USERNAME_OR_PASSWORD_INVALID);
 		}
 
-		final String authenticatedUsername = user.getUsername();
-		final String authenticatedPassword = user.getPasswordHash();
-		final Role userRole = user.getRole();
-		final SimpleGrantedAuthority grantedAuthority = new SimpleGrantedAuthority(userRole.getName());
+		Long userId = user.getId();
+		String authenticatedUsername = user.getUsername();
+		String authenticatedPassword = user.getPasswordHash();
+		Role userRole = user.getRole();
 
-		return new User(authenticatedUsername, authenticatedPassword, Collections.singletonList(grantedAuthority));
+		SimpleGrantedAuthority authority = new SimpleGrantedAuthority(userRole.getName());
+
+		return new CustomUserDetails(
+				userId,
+				authenticatedUsername,
+				authenticatedPassword,
+				Collections.singletonList(authority),
+				true, // isEnabled
+				true, // isAccountNonExpired
+				true, // isAccountNonLocked
+				true  // isCredentialsNonExpired
+		);
 	}
+
 }

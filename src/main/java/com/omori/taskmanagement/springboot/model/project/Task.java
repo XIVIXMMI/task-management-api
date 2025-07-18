@@ -1,10 +1,18 @@
 package com.omori.taskmanagement.springboot.model.project;
 
+import com.omori.taskmanagement.springboot.model.audit.JsonbConverter;
+import com.omori.taskmanagement.springboot.model.usermgmt.User;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+import org.hibernate.type.descriptor.converter.spi.JpaAttributeConverter;
+
 import java.time.LocalDateTime;
+
+import java.util.*;
 
 @Data
 @NoArgsConstructor
@@ -18,7 +26,7 @@ public class Task {
     private Long id;
 
     @Column(nullable = false, unique = true)
-    private java.util.UUID uuid;
+    private UUID uuid;
 
     @Column(nullable = false)
     private String title;
@@ -35,11 +43,13 @@ public class Task {
     private LocalDateTime completedAt;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, name = "priority", columnDefinition = "task_priority DEFAULT 'medium'")
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    @Column(nullable = false, name = "priority")
     private TaskPriority priority;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, name = "status", columnDefinition = "task_status DEFAULT 'pending'")
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    @Column(nullable = false, name = "status")
     private TaskStatus status;
 
     @Column(name = "estimated_hours")
@@ -57,11 +67,11 @@ public class Task {
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    private com.omori.taskmanagement.springboot.model.usermgmt.User user;
+    private User user;
 
     @ManyToOne
     @JoinColumn(name = "assigned_to")
-    private com.omori.taskmanagement.springboot.model.usermgmt.User assignedTo;
+    private User assignedTo;
 
     @ManyToOne
     @JoinColumn(name = "workspace_id")
@@ -78,25 +88,63 @@ public class Task {
     private Boolean isRecurring;
 
     @Column(columnDefinition = "JSONB")
-    private String recurrencePattern;
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Convert(converter = JsonbConverter.class)
+    private Map<String, Object> recurrencePattern;
 
     @Column(columnDefinition = "JSONB")
-    private String metadata;
+    @JdbcTypeCode(SqlTypes.JSON)
+    private Map<String, Object> metadata;
 
     @Column(name = "deleted_at")
-    private java.sql.Timestamp deletedAt;
+    private LocalDateTime deletedAt;
 
     @Column(name = "created_at")
-    private java.sql.Timestamp createdAt;
+    private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
-    private java.sql.Timestamp updatedAt;
+    private LocalDateTime updatedAt;
 
     public enum TaskPriority {
-        LOW, MEDIUM, HIGH, URGENT
+        low, medium, high, urgent
     }
 
     public enum TaskStatus {
-        PENDING, IN_PROGRESS, COMPLETED, CANCELLED, ON_HOLD
+        pending, in_progress, completed, cancelled, on_hold
     }
+
+    @PrePersist
+    protected void onCreate() {
+        if (uuid == null) {
+            uuid = UUID.randomUUID();
+        }
+        if (createdAt == null) {
+            createdAt = LocalDateTime.now();
+        }
+        if (updatedAt == null) {
+            updatedAt = LocalDateTime.now();
+        }
+        if (priority == null) {
+            priority = TaskPriority.medium;
+        }
+        if (status == null) {
+            status = TaskStatus.pending;
+        }
+        if (progress == null) {
+            progress = 0;
+        }
+        if (sortOrder == null) {
+            sortOrder = 0;
+        }
+        if (isRecurring == null) {
+            isRecurring = false;
+        }
+    }
+
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
+
 }

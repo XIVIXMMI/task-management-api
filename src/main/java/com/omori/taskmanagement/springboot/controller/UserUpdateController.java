@@ -2,7 +2,6 @@ package com.omori.taskmanagement.springboot.controller;
 
 import com.omori.taskmanagement.springboot.dto.usermgmt.UpdateUserAvatarRequest;
 import com.omori.taskmanagement.springboot.dto.usermgmt.UpdateUserAvatarResponse;
-import com.omori.taskmanagement.springboot.model.usermgmt.Profile;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -13,7 +12,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.omori.taskmanagement.springboot.dto.usermgmt.UpdateUserProfileRequest;
 import com.omori.taskmanagement.springboot.exceptions.UserNotFoundException;
-import com.omori.taskmanagement.springboot.model.usermgmt.User;
 import com.omori.taskmanagement.springboot.dto.usermgmt.UpdateUserProfileResponse;
 import com.omori.taskmanagement.springboot.service.UserUpdateService;
 
@@ -67,8 +65,10 @@ public class UserUpdateController {
             userUpdateService.updateAvatar(username, request);
             UpdateUserAvatarResponse response = new UpdateUserAvatarResponse("User's Avatar update successfully");
             return ResponseEntity.ok(response);
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.notFound().build();
         } catch (Exception e){
-            log.error("Fail to update avatar for user: {} ",username,e);
+            log.error("Failed to update avatar for user: {} ",username,e);
             return  ResponseEntity.internalServerError().build();
         }
     }
