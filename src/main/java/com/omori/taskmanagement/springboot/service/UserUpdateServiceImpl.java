@@ -9,6 +9,7 @@ import com.omori.taskmanagement.springboot.exceptions.UserNotFoundException;
 import com.omori.taskmanagement.springboot.exceptions.UserProfileNotFoundException;
 import com.omori.taskmanagement.springboot.model.usermgmt.Profile;
 import com.omori.taskmanagement.springboot.model.usermgmt.User;
+
 import java.time.LocalDateTime;
 
 import com.omori.taskmanagement.springboot.repository.usermgmt.UserRepository;
@@ -32,10 +33,10 @@ public class UserUpdateServiceImpl implements UserUpdateService {
     @Transactional
     public User updateProfile(String username, UpdateUserProfileRequest request) {
         log.info("Updating profile for user: {}", username);
-        
+
         User user = userRepository
-            .findByUsername(username)
-            .orElseThrow(() -> new UserNotFoundException("User " + username + " not found"));
+                .findByUsername(username)
+                .orElseThrow(() -> new UserNotFoundException("User " + username + " not found"));
 
         Profile profile = user.getProfile();
         if (profile == null) {
@@ -43,7 +44,7 @@ public class UserUpdateServiceImpl implements UserUpdateService {
         }
 
         log.info("Profile found with ID: {}", profile.getId());
-        
+
         // Update profile fields
         profile.setFirstName(request.getFirstName());
         profile.setMiddleName(request.getMiddleName());
@@ -60,7 +61,7 @@ public class UserUpdateServiceImpl implements UserUpdateService {
         user.setUpdatedAt(now);
         User savedUser = userRepository.save(user);
         log.info("User updated successfully with ID: {}", savedUser.getId());
-        
+
         return savedUser;
     }
 
@@ -72,22 +73,33 @@ public class UserUpdateServiceImpl implements UserUpdateService {
 
     @Override
     public void updateAvatar(String username, UpdateUserAvatarRequest request) {
-        log.info("Update avatar for user: " + username);
+        log.info("Updating avatar for user: " + username);
 
-        User user = userRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException("User " + username + " not found"));
+        User user = userRepository
+                .findByUsername(username)
+                .orElseThrow(() -> new UserNotFoundException("User " + username + " not found"));
 
         Profile profile = user.getProfile();
-        if(profile == null)
+        if (profile == null) {
             throw new UserProfileNotFoundException("Profile not found for user " + username);
+        }
+        log.info("Profile found with ID: {}", profile.getId());
 
-        log.info("Profile found with ID: {} ", profile.getId());
-
-        //Update avatar path
+        // Update avatar path
         profile.setAvatarPath(request.avatarPath());
 
-        // Save value
-        Profile saveProfile = profileRepository.save(profile);
-        log.info("Profile saved successfully with ID: {}",saveProfile.getId());
+        // Update timestamps
+        LocalDateTime now = LocalDateTime.now();
+        profile.setUpdatedAt(now);
+
+        // Save profile
+        Profile savedProfile = profileRepository.save(profile);
+        log.info("Profile saved successfully with ID: {}", savedProfile.getId());
+
+        // Update user's updated_at timestamp for consistency
+        user.setUpdatedAt(now);
+        User savedUser = userRepository.save(user);
+        log.info("User updated successfully with ID: {}", savedUser.getId());
     }
 
     @Override
@@ -95,5 +107,5 @@ public class UserUpdateServiceImpl implements UserUpdateService {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'updateEmail'");
     }
-    
+
 }

@@ -13,7 +13,7 @@
     <artifactId>task-management</artifactId>
     <version>3.5.0</version>
 
-    <name>task-management-api</name>
+    <name>task-management</name>
     <description>
         Task management API Server.
         This project includes : Spring Boot(3.5.0), Spring Data JPA, Spring Validation, Spring Security + JWT Token, PostgreSQL, Mapstruct, Lombok, Swagger (Open API)
@@ -68,6 +68,13 @@
         </dependency>
 
         <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+            <scope>runtime</scope>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
             <groupId>com.auth0</groupId>
             <artifactId>java-jwt</artifactId>
             <version>${jwt.version}</version>
@@ -76,7 +83,8 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <scope>runtime</scope>
+            <version>42.7.7</version>
+            <scope>compile</scope>
         </dependency>
 
         <dependency>
@@ -132,11 +140,18 @@
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>org.hibernate.orm</groupId>
+            <artifactId>hibernate-core</artifactId>
+        </dependency>
+
     </dependencies>
+
 
     <build>
 
-        <finalName>spring-boot-boilerplate</finalName>
+        <finalName>task-management</finalName>
 
         <plugins>
 
