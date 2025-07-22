@@ -50,7 +50,7 @@ public class ApiResponse<T> {
             .message(message)
             .data(null)
             .timestamp(LocalDateTime.now())
-            .traceId(traceId)
+            .traceId(MDC.get("traceId"))
             .build();
     }
 }
