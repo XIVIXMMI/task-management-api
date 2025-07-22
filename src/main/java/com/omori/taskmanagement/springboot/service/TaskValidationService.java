@@ -28,6 +28,10 @@ public class TaskValidationService {
     public void validateCreateTaskRequest(CreateTaskRequest request, Long userId) {
         log.debug("Validating create task request for user {}", userId);
 
+        if( request == null ){
+            throw new TaskValidationException("Request can not be null", Map.of("request", "Request can not be null"));
+        }
+
         Map<String,String> errors = new HashMap<>();
         
         // Validate user exists
@@ -42,17 +46,17 @@ public class TaskValidationService {
         validateStatusProgressConsistency(request.getStatus(), request.getProgress(), errors);
 
         // Validate category
-        if( request.getCategory().getId() != null && !categoryRepository.existsById(request.getCategory().getId()) ) {
+        if( request.getCategory() != null && request.getCategory().getId() != null && !categoryRepository.existsById(request.getCategory().getId()) ) {
             errors.put("categoryId", "Category not found");
         }
 
         // Validate assigned user
-        if(request.getAssignedTo().getId() != null && !userRepository.existsById(request.getAssignedTo().getId()) ) {
+        if(request.getAssignedTo() != null && request.getAssignedTo().getId() != null && !userRepository.existsById(request.getAssignedTo().getId()) ) {
             errors.put("assignedToId", "Assigned user not found");
         }
 
         // Validate workspace
-        if(request.getWorkspace().getId() != null && !workspaceRepository.existsById(request.getWorkspace().getId()) ) {
+        if(request.getWorkspace() != null && request.getWorkspace().getId() != null && !workspaceRepository.existsById(request.getWorkspace().getId()) ) {
             errors.put("workspaceId", "Workspace not found");
         }
 

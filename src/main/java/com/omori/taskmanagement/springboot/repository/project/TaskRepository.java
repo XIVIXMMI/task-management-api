@@ -15,7 +15,8 @@ import java.util.UUID;
 public interface TaskRepository extends JpaRepository<Task, Long> {
 
     // Find by UUID
-    Optional<Task> findByUuid(UUID uuid);
+    @Query("SELECT t FROM Task t WHERE t.uuid = :uuid AND t.deletedAt IS NULL")
+    Optional<Task> findByUuid(@Param("uuid") UUID uuid);
 
     // Find by user - chỉ tasks không bị xóa
     @Query("SELECT t FROM Task t WHERE t.user.id = :userId AND t.deletedAt IS NULL")

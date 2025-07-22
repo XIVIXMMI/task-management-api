@@ -28,7 +28,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<Map<String, String>> handleJsonParseError(HttpMessageNotReadableException ex) {
-        log.error("JSON parse error", ex.getMessage());
+        log.error("JSON parse error: {}", ex.getMessage());
         Map<String, String> error = new HashMap<>();
         error.put("error", "Invalid JSON: " + ex.getMessage());
         return ResponseEntity.badRequest().body(error);

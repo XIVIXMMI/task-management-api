@@ -38,9 +38,9 @@ public class CreateTaskRequest {
 
     private Task.TaskStatus status;
 
-    @NotNull( message = "Task priority is not null")
+    @NotNull( message = "Priority is not required")
     @Schema(description = "Important level of task (low,medium,high,urgent)", example = "medium")
-    private Task.TaskPriority taskPriority;
+    private Task.TaskPriority priority;
 
     @Schema(description = "Estimated completion time", example = "3.5")
     private Double estimatedHours;

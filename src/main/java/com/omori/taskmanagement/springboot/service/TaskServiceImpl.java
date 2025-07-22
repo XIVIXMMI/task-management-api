@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class TaskServiceIml implements TaskService {
+public class TaskServiceImpl implements TaskService {
 
     private final UserRepository userRepository;
     private final TaskRepository taskRepository;
@@ -46,38 +46,41 @@ public class TaskServiceIml implements TaskService {
 
     @Override
     @Transactional
-    public Task createTask(Long id,CreateTaskRequest request) {
+    public Task createTask(Long id, CreateTaskRequest request) {
         log.info("Creating task for user with id: {}", id);
-        
+
         // Validate request
         taskValidationService.validateCreateTaskRequest(request, id);
 
         try {
 
             User user = userRepository
-            .findById(id)
-            .orElseThrow(() -> new TaskBusinessException("User not found with id: " +id));
+                    .findById(id)
+                    .orElseThrow(() -> new UserNotFoundException("User not found with id: " + id));
 
             Task task = Task.builder()
-            .title(request.getTitle())
-            .description(request.getDescription())
-            .dueDate(request.getDueDate())
-            .startDate(request.getStartDate())
-            .priority(request.getTaskPriority())
-            .status(Task.TaskStatus.pending)
-            .estimatedHours(request.getEstimatedHours())
-            .actualHours(0.0)
-            .progress(0)
-            .user(user)
-            .sortOrder(request.getSortOrder() != null ? request.getSortOrder() : 0)
-            .isRecurring(request.getIsRecurring() != null ? request.getIsRecurring() : false)
-            .recurrencePattern(request.getRecurrencePattern())
-            .metadata(request.getMetadata())
-            .build();
+                    .title(request.getTitle())
+                    .description(request.getDescription())
+                    .dueDate(request.getDueDate())
+                    .startDate(request.getStartDate())
+                    .priority(request.getPriority())
+                    .status(Task.TaskStatus.pending)
+                    .estimatedHours(request.getEstimatedHours())
+                    .actualHours(0.0)
+                    .progress(0)
+                    .user(user)
+                    .sortOrder(request.getSortOrder() != null ? request.getSortOrder() : 0)
+                    .isRecurring(request.getIsRecurring() != null ? request.getIsRecurring() : false)
+                    .recurrencePattern(request.getRecurrencePattern())
+                    .metadata(request.getMetadata())
+                    .build();
 
             // Set relate with validation
-            setTaskRelations(task, request.getCategory().getId(), request.getAssignedTo().getId(), request.getWorkspace().getId());
-            
+            setTaskRelations(task,
+                    request.getCategory() != null ? request.getCategory().getId() : null,
+                    request.getAssignedTo() != null ? request.getAssignedTo().getId() : null,
+                    request.getWorkspace() != null ? request.getWorkspace().getId() : null);
+
             Task savedTask = taskRepository.save(task);
             log.info("Task created successfully with id: {}", savedTask.getId());
             return savedTask;
@@ -90,27 +93,22 @@ public class TaskServiceIml implements TaskService {
 
     // Helper method to set task relations
     private void setTaskRelations(Task task, Long categoryId, Long assignedToId, Long workspaceId) {
-        try {
-            if (categoryId != null) {
-                Category category = categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new TaskBusinessException("Category not found with id: " + categoryId));
-                task.setCategory(category);
-            }
+        if (categoryId != null) {
+            Category category = categoryRepository.findById(categoryId)
+                    .orElseThrow(() -> new TaskBusinessException("Category not found with id: " + categoryId));
+            task.setCategory(category);
+        }
 
-            if ( assignedToId != null) {
-                User assignedTo = userRepository.findById(assignedToId)
-                .orElseThrow(() -> new TaskBusinessException("User not found with id: "+ assignedToId));
-                task.setAssignedTo(assignedTo);
-            }
+        if (assignedToId != null) {
+            User assignedTo = userRepository.findById(assignedToId)
+                    .orElseThrow(() -> new UserNotFoundException("User not found with id: " + assignedToId));
+            task.setAssignedTo(assignedTo);
+        }
 
-            if ( workspaceId != null) {
-                Workspace workspace = workspaceRepository.findById(workspaceId)
-                .orElseThrow(() -> new TaskBusinessException("Workspace not found with id: "+ workspaceId));
-                task.setWorkspace(workspace);
-            }
-        } catch (Exception e){
-            log.error("Error setting relations", e);
-            throw new TaskBusinessException("Failed to set task relations: "+ e.getMessage(), e);
+        if (workspaceId != null) {
+            Workspace workspace = workspaceRepository.findById(workspaceId)
+                    .orElseThrow(() -> new TaskBusinessException("Workspace not found with id: " + workspaceId));
+            task.setWorkspace(workspace);
         }
     }
 
@@ -161,14 +159,7 @@ public class TaskServiceIml implements TaskService {
     @Override
     public GetTaskResponse updateTask(Long taskId, Long userId, UpdateTaskRequest request) {
         log.info("Updating task with id: {} for user {}", taskId, userId);
-        try {
 
-        } catch (TaskNotFoundException | TaskAccessDeniedException | TaskValidationException e) {
-            throw e;
-        } catch (Exception e) {
-            log.error("Error updating task status for task {} and user {}", taskId, userId,e);
-            throw new TaskBusinessException("Failed to update task status: " + e.getMessage(),e);
-        }
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new TaskNotFoundException("Task not found with id: " + taskId));
         validateTaskAccess(task, userId);
@@ -190,7 +181,7 @@ public class TaskServiceIml implements TaskService {
         // Update category if provided
         if (request.getCategoryId() != null) {
             Category category = categoryRepository.findById(request.getCategoryId())
-                    .orElseThrow(() -> new RuntimeException("Category not found with id: " + request.getCategoryId()));
+                    .orElseThrow(() -> new TaskBusinessException("Category not found with id: " + request.getCategoryId()));
             task.setCategory(category);
         }
 
@@ -228,27 +219,38 @@ public class TaskServiceIml implements TaskService {
     public GetTaskResponse updateTaskStatus(Long taskId, Long userId, Task.TaskStatus status) {
         log.info("Updating task status: {} to {} for user: {}", taskId, status, userId);
 
-        Task task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new TaskNotFoundException("Task not found with id: " + taskId));
+        try {
+            Task task = taskRepository.findById(taskId)
+                    .orElseThrow(() -> new TaskNotFoundException("Task not found with id: " + taskId));
 
-        validateTaskAccess(task, userId);
+            validateTaskAccess(task, userId);
 
-        task.setStatus(status);
+            // Validate status transition
+            taskValidationService.validateTaskStatusUpdate(task.getStatus(), status);
 
-        // Auto-update completion date and progress
-        if (status == Task.TaskStatus.completed) {
-            task.setCompletedAt(LocalDateTime.now());
-            task.setProgress(100);
-        } else if (status == Task.TaskStatus.in_progress && task.getProgress() == 0) {
-            task.setProgress(10); // Start with 10% when moving to in_progress
-        } else if (status != Task.TaskStatus.completed) {
-            task.setCompletedAt(null);
+            task.setStatus(status);
+
+            // Auto-update completion date and progress
+            if (status == Task.TaskStatus.completed) {
+                task.setCompletedAt(LocalDateTime.now());
+                task.setProgress(100);
+            } else if (status == Task.TaskStatus.in_progress && task.getProgress() == 0) {
+                task.setProgress(10);
+            } else if (status != Task.TaskStatus.completed) {
+                task.setCompletedAt(null);
+            }
+
+            Task updatedTask = taskRepository.save(task);
+            log.info("Task status updated successfully: {} to {} for user: {}", taskId, status, userId);
+
+            return GetTaskResponse.from(updatedTask);
+
+        } catch (TaskNotFoundException | TaskAccessDeniedException | TaskValidationException e) {
+            throw e;
+        } catch (Exception e) {
+            log.error("Error updating task status for task: {} and user: {}", taskId, userId, e);
+            throw new TaskBusinessException("Failed to update task status: " + e.getMessage(), e);
         }
-
-        Task updatedTask = taskRepository.save(task);
-        log.info("Task status updated successfully: {}", taskId);
-
-        return GetTaskResponse.from(updatedTask);
     }
 
     @Override
