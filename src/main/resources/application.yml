@@ -4,6 +4,7 @@ server:
 
 spring:
   devtools:
+    add-properties: false
     restart:
       enabled: true
       exclude: static/**,public/**,templates/**
@@ -52,9 +53,12 @@ management:
 logging:
   level:
     root: INFO
-    org.springframework.web: WARN
+    org.springframework.web: DEBUG
+    org.springframework.http.converter: DEBUG
+    org.springframework.web.servlet: DEBUG
     org.hibernate.SQL: OFF
     com.omori.taskmanagement: INFO
+    com.fasterxml.jackson.databind: DEBUG
 
 ## FIXME : Customize JWT token and Swagger information for your application
 

@@ -13,6 +13,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 
 @Getter
 @Setter
@@ -35,6 +36,8 @@ public class CreateTaskRequest {
     @Schema(description = "Date start of task, format should be YYYY-MM-DD HH:MM:SS (ISO-8601)", example = "2025-07-05T23:59:00")
     private LocalDateTime startDate;
 
+    private Task.TaskStatus status;
+
     @NotNull( message = "Task priority is not null")
     @Schema(description = "Important level of task (low,medium,high,urgent)", example = "medium")
     private Task.TaskPriority taskPriority;
@@ -50,5 +53,15 @@ public class CreateTaskRequest {
 
     @Schema(description = "ID of workspace", example = "1")
     private Workspace workspace;
+
+    private Integer progress;
+
+    private Integer sortOrder;
+
+    private Boolean isRecurring;
+
+    private Map<String, Object> recurrencePattern;
+
+    private Map<String, Object> metadata;
 
 }
