@@ -18,7 +18,7 @@ import java.util.Map;
 @Slf4j
 public class GlobalExceptionHandler {
 
-    private final String API_TASK_PATH = "/api/v1/tasks";
+    private static final String API_TASK_PATH = "/api/v1/tasks";
 
     @ExceptionHandler(UserNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
@@ -29,11 +29,17 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<Map<String, String>> handleJsonParseError(HttpMessageNotReadableException ex) {
+    public ResponseEntity<ErrorResponse> handleJsonParseError(HttpMessageNotReadableException ex) {
         log.error("JSON parse error: {}", ex.getMessage());
-        Map<String, String> error = new HashMap<>();
-        error.put("error", "Invalid JSON: " + ex.getMessage());
-        return ResponseEntity.badRequest().body(error);
+        ErrorResponse error = ErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .error("JSON Parse Error")
+                .message("Request body contains invalid JSON format")
+                .path(API_TASK_PATH)
+                .build();
+                
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
     @ExceptionHandler(TaskNotFoundException.class)
@@ -82,7 +88,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
-    // Trả lại response lỗi 1 cách rõ ràng hơn, dễ debug cho FE
+    // Return response clearer and readable for FE
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidationException(MethodArgumentNotValidException ex) {
         log.error("Validation error: {}", ex.getMessage());
