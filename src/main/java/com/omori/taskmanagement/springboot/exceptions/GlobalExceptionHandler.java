@@ -18,6 +18,8 @@ import java.util.Map;
 @Slf4j
 public class GlobalExceptionHandler {
 
+    private final String API_TASK_PATH = "/api/v1/tasks";
+
     @ExceptionHandler(UserNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ResponseEntity<Map<String, String>> handleUserNotFound(UserNotFoundException ex) {
@@ -43,7 +45,7 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.NOT_FOUND.value())
                 .error("Task Not Found")
                 .message(ex.getMessage())
-                .path("/api/v1/tasks")
+                .path(API_TASK_PATH)
                 .build();
                 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
@@ -58,7 +60,7 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.FORBIDDEN.value())
                 .error("Access Denied")
                 .message(ex.getMessage())
-                .path("/api/v1/tasks")
+                .path(API_TASK_PATH)
                 .build();
                 
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
@@ -74,7 +76,7 @@ public class GlobalExceptionHandler {
                 .error("Validation Failed")
                 .message(ex.getMessage())
                 .validationErrors(ex.getValidationErrors())
-                .path("/api/v1/tasks")
+                .path(API_TASK_PATH)
                 .build();
                 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
@@ -98,7 +100,7 @@ public class GlobalExceptionHandler {
                 .error("Validation Failed")
                 .message("Request validation failed")
                 .validationErrors(validationErrors)
-                .path("/api/v1/tasks")
+                .path(API_TASK_PATH)
                 .build();
                 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
@@ -113,7 +115,7 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.BAD_REQUEST.value())
                 .error("Business Logic Error")
                 .message(ex.getMessage())
-                .path("/api/v1/tasks")
+                .path(API_TASK_PATH)
                 .build();
                 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
@@ -128,7 +130,7 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
                 .error("Internal Server Error")
                 .message("An unexpected error occurred")
-                .path("/api/v1/tasks")
+                .path(API_TASK_PATH)
                 .build();
                 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
