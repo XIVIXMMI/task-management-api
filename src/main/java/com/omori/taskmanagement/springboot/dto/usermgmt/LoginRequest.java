@@ -20,7 +20,7 @@ public class LoginRequest {
 
 	@NotEmpty(message = "{login_password_not_empty}")
 	@Schema(description = "Password of the user", 
-				example = "Password123!",
+				example = "Abc@1234",
 				required = true)
 	private String password;
 
