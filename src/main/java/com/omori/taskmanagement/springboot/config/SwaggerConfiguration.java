@@ -1,4 +1,4 @@
-package com.omori.taskmanagement.springboot.configuration;
+package com.omori.taskmanagement.springboot.config;
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
