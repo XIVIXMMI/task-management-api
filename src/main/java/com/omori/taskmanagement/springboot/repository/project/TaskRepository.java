@@ -44,4 +44,12 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
             "LOWER(t.description) LIKE LOWER(CONCAT('%', :keyword, '%'))) AND " +
             "t.deletedAt IS NULL")
     Page<Task> searchTasksByKeyword(@Param("userId") Long userId, @Param("keyword") String keyword, Pageable pageable);
+
+    @Query("SELECT t FROM Task t " +
+            "LEFT JOIN FETCH t.category " +
+            "LEFT JOIN FETCH t.assignedTo " +
+            "LEFT JOIN FETCH t.workspace " +
+            "LEFT JOIN FETCH t.user " +
+            "WHERE t.id = :taskId")
+    Optional<Task> findByIdWithRelations(@Param("taskId") Long taskId);
 }

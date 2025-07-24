@@ -118,11 +118,12 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     @Transactional(readOnly = true)
-    @Cacheable(value = "taskDetails", key = "#taskId + '_' + #userId") 
+    @Cacheable(value = "taskDetails", key = "'task:' + #taskId")
+    //NOTE: could separate for user's owner or user assigned
     public GetTaskResponse getTaskById(Long taskId, Long userId) {
         log.info("Getting task with id: {} for user {}", taskId, userId);
 
-        Task task = taskRepository.findById(taskId)
+        Task task = taskRepository.findByIdWithRelations(taskId)
                 .orElseThrow(() -> new TaskNotFoundException("Task not found with id: " + taskId));
 
         validateTaskAccess(task, userId);
@@ -171,7 +172,7 @@ public class TaskServiceImpl implements TaskService {
     public GetTaskResponse updateTask(Long taskId, Long userId, UpdateTaskRequest request) {
         log.info("Updating task with id: {} for user {}", taskId, userId);
 
-        Task task = taskRepository.findById(taskId)
+        Task task = taskRepository.findByIdWithRelations(taskId)
                 .orElseThrow(() -> new TaskNotFoundException("Task not found with id: " + taskId));
         validateTaskAccess(task, userId);
 
@@ -234,7 +235,7 @@ public class TaskServiceImpl implements TaskService {
         log.info("Updating task status: {} to {} for user: {}", taskId, status, userId);
 
         try {
-            Task task = taskRepository.findById(taskId)
+            Task task = taskRepository.findByIdWithRelations(taskId)
                     .orElseThrow(() -> new TaskNotFoundException("Task not found with id: " + taskId));
 
             validateTaskAccess(task, userId);
@@ -274,7 +275,7 @@ public class TaskServiceImpl implements TaskService {
     public GetTaskResponse updateTaskProgress(Long taskId, Long userId, Integer progress) {
         log.info("Updating task progress: {} to {}% for user: {}", taskId, progress, userId);
 
-        Task task = taskRepository.findById(taskId)
+        Task task = taskRepository.findByIdWithRelations(taskId)
                 .orElseThrow(() -> new TaskNotFoundException("Task not found with id: " + taskId));
 
         validateTaskAccess(task, userId);
@@ -303,7 +304,7 @@ public class TaskServiceImpl implements TaskService {
     public void deleteTask(Long taskId, Long userId) {
         log.info("Permanently deleting task: {} for user: {}", taskId, userId);
 
-        Task task = taskRepository.findById(taskId)
+        Task task = taskRepository.findByIdWithRelations(taskId)
                 .orElseThrow(() -> new TaskNotFoundException("Task not found with id: " + taskId));
 
         validateTaskAccess(task, userId);
@@ -318,7 +319,7 @@ public class TaskServiceImpl implements TaskService {
     public void softDeleteTask(Long taskId, Long userId) {
         log.info("Soft deleting task: {} for user: {}", taskId, userId);
 
-        Task task = taskRepository.findById(taskId)
+        Task task = taskRepository.findByIdWithRelations(taskId)
                 .orElseThrow(() -> new TaskNotFoundException("Task not found with id: " + taskId));
 
         validateTaskAccess(task, userId);
@@ -400,6 +401,11 @@ public class TaskServiceImpl implements TaskService {
                 filter.getSortBy());
 
         return PageRequest.of(filter.getPage(), filter.getSize(), sort);
+    }
+
+    private boolean isUserAllowToAccessTask(Task task, Long userId){
+        return task.getUser().getId().equals(userId) ||
+                (task.getAssignedTo() !=null && task.getAssignedTo().getId().equals(userId));
     }
 
 }

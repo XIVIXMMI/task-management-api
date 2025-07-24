@@ -35,10 +35,9 @@ spring:
           time_zone: UTC
   jta:
     enabled: false
-  
   redis:
-    host: 100.75.227.17  
-    port: 6379          
+    host: ${REDIS_HOST}
+    port: ${REDIS_PORT}
     timeout: 5000
     ssl: false
   cache:
@@ -80,8 +79,8 @@ logging:
 
 jwt:
   secretKey: ${JWT_SECRET_KEY}
-  #issuer: www.farukgenc.com
-  expirationMinute: 10
+  issuer: ${JWT_ISSUER}
+  expirationMinute: ${JWT_EXPIRATION_MINUTE}
 
 swagger:
   contact-name: Omori

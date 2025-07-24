@@ -1,5 +1,6 @@
 package com.omori.taskmanagement.springboot.config;
 
+import io.swagger.v3.core.util.Json;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
@@ -80,21 +81,27 @@ public class RedisConfig {
     @Bean
     public CacheManager cacheManager(RedisConnectionFactory redisConnectionFactory) {
         Map<String, RedisCacheConfiguration> cacheConfigurations = new HashMap<>();
+
+        // create a custom ObjectMapper for Redis serializations
+        ObjectMapper redisObjectMapper = JsonMapper.builder()
+                .addModule(new JavaTimeModule())
+                .build();
+        GenericJackson2JsonRedisSerializer serializer = new GenericJackson2JsonRedisSerializer(redisObjectMapper);
         
         // Configuration for tasks cache
         cacheConfigurations.put("tasks", RedisCacheConfiguration.defaultCacheConfig()
                 .entryTtl(Duration.ofMinutes(30))
                 .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
                 .serializeValuesWith(RedisSerializationContext.SerializationPair
-                        .fromSerializer(new GenericJackson2JsonRedisSerializer())));
+                        .fromSerializer(serializer)));
         
         // Configuration for taskDetails cache
         cacheConfigurations.put("taskDetails", RedisCacheConfiguration.defaultCacheConfig()
                 .entryTtl(Duration.ofHours(1))
                 .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
                 .serializeValuesWith(RedisSerializationContext.SerializationPair
-                        .fromSerializer(new GenericJackson2JsonRedisSerializer())));
-        
+                        .fromSerializer(serializer)));
+
         return RedisCacheManager.builder(redisConnectionFactory)
                 .cacheDefaults(cacheConfiguration())
                 .withInitialCacheConfigurations(cacheConfigurations)

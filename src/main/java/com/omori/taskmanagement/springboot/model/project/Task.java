@@ -60,20 +60,20 @@ public class Task {
     @Column(nullable = false, name = "progress")
     private Integer progress;
 
-    @ManyToOne
-    @JoinColumn(name = "category_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id", nullable = true)
     private Category category;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @ManyToOne
-    @JoinColumn(name = "assigned_to")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "assigned_to", nullable = true)
     private User assignedTo;
 
-    @ManyToOne
-    @JoinColumn(name = "workspace_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "workspace_id", nullable = true)
     private Workspace workspace;
 
     @ManyToOne
