@@ -35,9 +35,22 @@ spring:
           time_zone: UTC
   jta:
     enabled: false
+  redis:
+    host: ${REDIS_HOST}
+    port: ${REDIS_PORT}
+    timeout: 5000
+    ssl: false
+  cache:
+    type: redis
+    redis:
+      time-to-live: 3600000 
+      cache-null-values: false
+      key-prefix: task_management_
+      use-key-prefix: true
 
 springdoc:
   show-actuator: true
+
 
 management:
   endpoint:
@@ -53,19 +66,21 @@ management:
 logging:
   level:
     root: INFO
-    org.springframework.web: DEBUG
+    org.springframework.web: INFO
+    com.omori: DEBUG
+    org.springframework.data.redis: DEBUG
+    org.springframework.cache: TRACE
+    io.lettuce.core: DEBUG
     org.springframework.http.converter: DEBUG
     org.springframework.web.servlet: DEBUG
     org.hibernate.SQL: OFF
     com.omori.taskmanagement: INFO
     com.fasterxml.jackson.databind: DEBUG
 
-## FIXME : Customize JWT token and Swagger information for your application
-
 jwt:
   secretKey: ${JWT_SECRET_KEY}
-  #issuer: www.farukgenc.com
-  expirationMinute: 10
+  issuer: ${JWT_ISSUER}
+  expirationMinute: ${JWT_EXPIRATION_MINUTE}
 
 swagger:
   contact-name: Omori

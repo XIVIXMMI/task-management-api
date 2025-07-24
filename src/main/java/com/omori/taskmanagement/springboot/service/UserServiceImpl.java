@@ -14,7 +14,7 @@ import com.omori.taskmanagement.springboot.model.usermgmt.Session;
 import com.omori.taskmanagement.springboot.repository.usermgmt.RoleRepository;
 import com.omori.taskmanagement.springboot.repository.usermgmt.UserRepository;
 import com.omori.taskmanagement.springboot.repository.usermgmt.ProfileRepository;
-import com.omori.taskmanagement.springboot.repository.usermgmt.SessionRepository;
+import com.omori.taskmanagement.springboot.repository.usermgmt.UserSessionRepository;
 import org.springframework.transaction.annotation.Transactional;
 import com.omori.taskmanagement.springboot.security.dto.AuthenticatedUserDto;
 import com.omori.taskmanagement.springboot.dto.usermgmt.RegistrationRequest;
@@ -34,7 +34,7 @@ public class UserServiceImpl implements UserService {
 	private final RoleRepository roleRepository;
 	private final UserMapper mapper;
 	private final ProfileRepository profileRepository;
-	private final SessionRepository sessionRepository;
+	private final UserSessionRepository sessionRepository;
 
 	@Override
 	public User findByUsername(String username) {

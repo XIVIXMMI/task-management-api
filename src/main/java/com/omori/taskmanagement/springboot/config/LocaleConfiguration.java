@@ -1,4 +1,4 @@
-package com.omori.taskmanagement.springboot.configuration;
+package com.omori.taskmanagement.springboot.config;
 
 import java.util.Locale;
 

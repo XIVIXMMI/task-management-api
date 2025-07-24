@@ -1,4 +1,4 @@
-package com.omori.taskmanagement.springboot.configuration;
+package com.omori.taskmanagement.springboot.config;
 
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;

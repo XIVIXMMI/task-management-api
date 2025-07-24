@@ -25,6 +25,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
@@ -46,6 +49,7 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     @Transactional
+    @CacheEvict(value = {"tasks", "taskDetails"}, allEntries = true)
     public Task createTask(Long id, CreateTaskRequest request) {
         log.info("Creating task for user with id: {}", id);
 
@@ -114,10 +118,12 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     @Transactional(readOnly = true)
+    @Cacheable(value = "taskDetails", key = "'task:' + #taskId")
+    //NOTE: could separate for user's owner or user assigned
     public GetTaskResponse getTaskById(Long taskId, Long userId) {
         log.info("Getting task with id: {} for user {}", taskId, userId);
 
-        Task task = taskRepository.findById(taskId)
+        Task task = taskRepository.findByIdWithRelations(taskId)
                 .orElseThrow(() -> new TaskNotFoundException("Task not found with id: " + taskId));
 
         validateTaskAccess(task, userId);
@@ -125,8 +131,10 @@ public class TaskServiceImpl implements TaskService {
         return GetTaskResponse.from(task);
     }
 
+    // NOTE: Why we need to pass the userId to get uuid ??
     @Override
     @Transactional(readOnly = true)
+    @Cacheable(value = "taskDetails", key = "#uuid.toString() + '_' + #userId")
     public GetTaskResponse getTaskByUuid(UUID uuid, Long userId) {
         log.info("Getting task with uuid: {} for user {}", uuid, userId);
 
@@ -136,8 +144,9 @@ public class TaskServiceImpl implements TaskService {
         return GetTaskResponse.from(task);
     }
 
-    @Override
+    @Override   
     @Transactional(readOnly = true)
+    @Cacheable(value = "tasks", key = "#userId + '_' + T(java.util.Objects).hash(#filter)")
     public Page<GetTaskResponse> getTasksByUser(Long userId, TaskFilterRequest filter) {
         log.info("Getting tasks for user with id: {}", userId);
         Pageable pageable = createPageable(filter);
@@ -157,10 +166,13 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
+    @Transactional
+    @CacheEvict(value = {"tasks", "taskDetails"}, key = "#taskId + '_' + #userId")
+    @CachePut(value = "taskDetails", key = "#taskId + '_' + #userId")
     public GetTaskResponse updateTask(Long taskId, Long userId, UpdateTaskRequest request) {
         log.info("Updating task with id: {} for user {}", taskId, userId);
 
-        Task task = taskRepository.findById(taskId)
+        Task task = taskRepository.findByIdWithRelations(taskId)
                 .orElseThrow(() -> new TaskNotFoundException("Task not found with id: " + taskId));
         validateTaskAccess(task, userId);
 
@@ -216,11 +228,14 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
+    @Transactional
+    @CacheEvict(value = {"tasks", "taskDetails"}, key = "#taskId + '_' + #userId")
+    @CachePut(value = "taskDetails", key = "#taskId + '_' + #userId")
     public GetTaskResponse updateTaskStatus(Long taskId, Long userId, Task.TaskStatus status) {
         log.info("Updating task status: {} to {} for user: {}", taskId, status, userId);
 
         try {
-            Task task = taskRepository.findById(taskId)
+            Task task = taskRepository.findByIdWithRelations(taskId)
                     .orElseThrow(() -> new TaskNotFoundException("Task not found with id: " + taskId));
 
             validateTaskAccess(task, userId);
@@ -254,10 +269,13 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
+    @Transactional
+    @CacheEvict(value = {"tasks", "taskDetails"}, key = "#taskId + '_' + #userId")
+    @CachePut(value = "taskDetails", key = "#taskId + '_' + #userId")
     public GetTaskResponse updateTaskProgress(Long taskId, Long userId, Integer progress) {
         log.info("Updating task progress: {} to {}% for user: {}", taskId, progress, userId);
 
-        Task task = taskRepository.findById(taskId)
+        Task task = taskRepository.findByIdWithRelations(taskId)
                 .orElseThrow(() -> new TaskNotFoundException("Task not found with id: " + taskId));
 
         validateTaskAccess(task, userId);
@@ -281,10 +299,12 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
+    @Transactional
+    @CacheEvict(value = {"tasks", "taskDetails"}, key = "#taskId + '_' + #userId")
     public void deleteTask(Long taskId, Long userId) {
         log.info("Permanently deleting task: {} for user: {}", taskId, userId);
 
-        Task task = taskRepository.findById(taskId)
+        Task task = taskRepository.findByIdWithRelations(taskId)
                 .orElseThrow(() -> new TaskNotFoundException("Task not found with id: " + taskId));
 
         validateTaskAccess(task, userId);
@@ -294,10 +314,12 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
+    @Transactional
+    @CacheEvict(value = {"tasks", "taskDetails"}, key = "#taskId + '_' + #userId")
     public void softDeleteTask(Long taskId, Long userId) {
         log.info("Soft deleting task: {} for user: {}", taskId, userId);
 
-        Task task = taskRepository.findById(taskId)
+        Task task = taskRepository.findByIdWithRelations(taskId)
                 .orElseThrow(() -> new TaskNotFoundException("Task not found with id: " + taskId));
 
         validateTaskAccess(task, userId);
@@ -308,6 +330,8 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
+    @Transactional
+    @CacheEvict(value = {"tasks", "taskDetails"}, allEntries = true)
     public List<GetTaskResponse> updateMultipleTasksStatus(List<Long> taskIds, Long userId, Task.TaskStatus status) {
         log.info("Updating multiple tasks status: {} to {} for user: {}", taskIds, status, userId);
 
@@ -338,6 +362,8 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
+    @Transactional
+    @CacheEvict(value = {"tasks", "taskDetails"}, allEntries = true)
     public void deleteMultipleTasks(List<Long> taskIds, Long userId) {
         log.info("Deleting multiple tasks: {} for user: {}", taskIds, userId);
 
@@ -375,6 +401,11 @@ public class TaskServiceImpl implements TaskService {
                 filter.getSortBy());
 
         return PageRequest.of(filter.getPage(), filter.getSize(), sort);
+    }
+
+    private boolean isUserAllowToAccessTask(Task task, Long userId){
+        return task.getUser().getId().equals(userId) ||
+                (task.getAssignedTo() !=null && task.getAssignedTo().getId().equals(userId));
     }
 
 }
