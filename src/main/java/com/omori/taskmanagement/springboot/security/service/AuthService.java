@@ -4,6 +4,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import com.omori.taskmanagement.springboot.model.usermgmt.User;
+
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -36,5 +38,17 @@ public class AuthService {
         }
         
         return hasPermission;
+    }
+
+    /**
+     * Get the currently authenticated user
+     * @return The current User object, or null if no user is authenticated
+     */
+    public User getCurrentUser() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.getPrincipal() instanceof User) {
+            return (User) auth.getPrincipal();
+        }
+        return null;
     }
 }
