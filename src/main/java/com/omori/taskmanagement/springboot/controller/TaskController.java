@@ -1,8 +1,9 @@
 package com.omori.taskmanagement.springboot.controller;
 
+import com.omori.taskmanagement.springboot.annotations.LogActivity;
 import com.omori.taskmanagement.springboot.dto.project.*;
+import com.omori.taskmanagement.springboot.model.audit.ActionType;
 import com.omori.taskmanagement.springboot.model.project.Task;
-import com.omori.taskmanagement.springboot.repository.usermgmt.UserRepository;
 import com.omori.taskmanagement.springboot.security.service.CustomUserDetails;
 import com.omori.taskmanagement.springboot.service.TaskService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -27,10 +28,10 @@ import java.util.UUID;
 public class TaskController {
 
     private final TaskService taskService;
-    private final UserRepository userRepository;
 
+    @LogActivity(ActionType.CREATE)
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")      
     @PostMapping("/create")
-    @PreAuthorize("@authService.hasPermisson(#username")
     @Operation(summary = "Create task", description = "Create new task for user")
     public ResponseEntity<CreateTaskResponse> createTask(
             @Valid @RequestBody CreateTaskRequest request,
@@ -41,6 +42,8 @@ public class TaskController {
         return ResponseEntity.ok(response);
     }
 
+    @LogActivity(ActionType.VIEW)
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")      
     @GetMapping("/{taskId}")
     @Operation(summary = "Get task by id", description = "Get detail task by id")
     public ResponseEntity<GetTaskResponse> getTaskById(
@@ -52,6 +55,8 @@ public class TaskController {
         return ResponseEntity.ok(response);
     }
 
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")      
+    @LogActivity(ActionType.VIEW)
     @GetMapping("/uuid/{uuid}")
     @Operation(summary = "Get task by uuid", description = "Get detail task by uuid")
     public ResponseEntity<GetTaskResponse> getTaskByUuid(
@@ -64,8 +69,10 @@ public class TaskController {
     }
 
     // READ - Get list with filter
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")      
+    @LogActivity(ActionType.VIEW)
     @GetMapping
-    @Operation(summary = "Get task", description = "Get user's task with filters and pagination")
+    @Operation(summary = "Get task with filter", description = "Get user's task with filters and pagination")
     public ResponseEntity<Iterable<GetTaskResponse>> getTasksByFilter(
             @ModelAttribute TaskFilterRequest filter,
             @AuthenticationPrincipal CustomUserDetails userDetails
@@ -75,6 +82,8 @@ public class TaskController {
         return ResponseEntity.ok(response);
     }
 
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")      
+    @LogActivity(ActionType.VIEW)
     @GetMapping("/overdue")
     @Operation( summary = "Get overdue tasks", description = "Get user's overdue tasks")
     public ResponseEntity<List<GetTaskResponse>> getOverdueTasks(
@@ -85,6 +94,8 @@ public class TaskController {
         return ResponseEntity.ok(response);
     }
 
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")      
+    @LogActivity(ActionType.VIEW)
     @GetMapping("/search")
     @Operation( summary = "Search Tasks", description = "Search tasks by keyword ")
     public ResponseEntity<Page<GetTaskResponse>> searchTasks(
@@ -97,6 +108,8 @@ public class TaskController {
         return ResponseEntity.ok(response);
     }
 
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")      
+    @LogActivity(ActionType.UPDATE)
     @PutMapping("/{taskId}")
     @Operation( summary = "Update task", description = "Update user's task detail")
     public ResponseEntity<GetTaskResponse> updateTask(
@@ -109,7 +122,9 @@ public class TaskController {
         return ResponseEntity.ok(response);
     }
 
-    @PutMapping("/{taskId}/status")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")      
+    @LogActivity(ActionType.UPDATE)
+    @PatchMapping("/{taskId}/status")
     @Operation( summary = "Update task status", description = "Update user's task status")
     public ResponseEntity<GetTaskResponse> updateTaskStatus(
             @PathVariable Long taskId,
@@ -121,8 +136,10 @@ public class TaskController {
         return ResponseEntity.ok(response);
     }
 
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")      
+    @LogActivity(ActionType.UPDATE)
     @PatchMapping("/batch/status")
-    @Operation( summary = "Update multiple tasks status", description = "Update status for")
+    @Operation( summary = "Update multiple tasks status", description = "Update status for multiple tasks")
     public ResponseEntity<List<GetTaskResponse>> updateMultipleTasksStatus(
             @RequestBody List<Long> taskId,
             @RequestParam Task.TaskStatus status,
@@ -133,7 +150,9 @@ public class TaskController {
         return ResponseEntity.ok(response);
     }
 
-    @PutMapping("/{taskId}/progress")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")      
+    @LogActivity(ActionType.UPDATE)
+    @PatchMapping("/{taskId}/progress")
     @Operation( summary = "Update task progress", description = "Update user's task progress")
     public ResponseEntity<GetTaskResponse> updateTaskProgress(
             @PathVariable Long taskId,
@@ -145,6 +164,8 @@ public class TaskController {
         return ResponseEntity.ok(response);
     }
 
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")      
+    @LogActivity(ActionType.DELETE)
     @DeleteMapping("/{taskId}")
     @Operation( summary = "Delete task", description = "Delete user's task")
     public ResponseEntity<Void> deleteTask(
@@ -156,6 +177,8 @@ public class TaskController {
         return ResponseEntity.noContent().build();
     }
 
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")      
+    @LogActivity(ActionType.DELETE)
     @DeleteMapping("/{taskId}/soft")
     @Operation( summary = "Soft delete task", description = "Soft delete user's task")
     public ResponseEntity<Void> softDeleteTask(
@@ -167,6 +190,8 @@ public class TaskController {
         return ResponseEntity.noContent().build();
     }
 
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")      
+    @LogActivity(ActionType.DELETE)
     @DeleteMapping("/batch")
     @Operation( summary = "Delete multiple tasks", description = "Delete multiple tasks by list of ids")
     public ResponseEntity<Void> deleteMultipleTasks(
@@ -177,6 +202,5 @@ public class TaskController {
         taskService.deleteMultipleTasks(taskIds, userId);
         return ResponseEntity.noContent().build();
     }
-
 
 }

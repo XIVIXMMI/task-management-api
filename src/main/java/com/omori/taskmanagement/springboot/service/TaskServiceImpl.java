@@ -81,9 +81,9 @@ public class TaskServiceImpl implements TaskService {
 
             // Set relate with validation
             setTaskRelations(task,
-                    request.getCategory() != null ? request.getCategory().getId() : null,
-                    request.getAssignedTo() != null ? request.getAssignedTo().getId() : null,
-                    request.getWorkspace() != null ? request.getWorkspace().getId() : null);
+                    request.getCategoryId(),
+                    request.getAssignedToId(),
+                    request.getWorkspaceId());
 
             Task savedTask = taskRepository.save(task);
             log.info("Task created successfully with id: {}", savedTask.getId());
@@ -240,6 +240,11 @@ public class TaskServiceImpl implements TaskService {
 
             validateTaskAccess(task, userId);
 
+            // Ensure progress is not null (defensive programming for existing data)
+            if (task.getProgress() == null) {
+                task.setProgress(0);
+            }
+
             // Validate status transition
             taskValidationService.validateTaskStatusUpdate(task.getStatus(), status);
 
@@ -249,7 +254,7 @@ public class TaskServiceImpl implements TaskService {
             if (status == Task.TaskStatus.completed) {
                 task.setCompletedAt(LocalDateTime.now());
                 task.setProgress(100);
-            } else if (status == Task.TaskStatus.in_progress && task.getProgress() == 0) {
+            } else if (status == Task.TaskStatus.in_progress && (task.getProgress() == null || task.getProgress() == 0)) {
                 task.setProgress(10);
             } else if (status != Task.TaskStatus.completed) {
                 task.setCompletedAt(null);
@@ -346,7 +351,7 @@ public class TaskServiceImpl implements TaskService {
             if (status == Task.TaskStatus.completed) {
                 task.setCompletedAt(LocalDateTime.now());
                 task.setProgress(100);
-            } else if (status == Task.TaskStatus.in_progress && task.getProgress() == 0) {
+            } else if (status == Task.TaskStatus.in_progress && (task.getProgress() == null || task.getProgress() == 0)) {
                 task.setProgress(10);
             } else if (status != Task.TaskStatus.completed) {
                 task.setCompletedAt(null);

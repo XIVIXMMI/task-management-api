@@ -4,13 +4,14 @@ import com.omori.taskmanagement.springboot.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
+
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import com.omori.taskmanagement.springboot.model.usermgmt.Role;
+import com.omori.taskmanagement.springboot.model.usermgmt.User;
 
 import java.util.Collections;
 import java.util.Objects;
@@ -27,7 +28,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 	@Override
 	public UserDetails loadUserByUsername(String username) {
 
-		final com.omori.taskmanagement.springboot.model.usermgmt.User user = userService.findByUsername(username);
+		final User user = userService.findByUsername(username);
 
 		if (Objects.isNull(user)) {
 			throw new UsernameNotFoundException(USERNAME_OR_PASSWORD_INVALID);
@@ -51,5 +52,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 				true  // isCredentialsNonExpired
 		);
 	}
+	
 
 }

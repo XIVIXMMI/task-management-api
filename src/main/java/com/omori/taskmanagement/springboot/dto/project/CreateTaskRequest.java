@@ -46,13 +46,13 @@ public class CreateTaskRequest {
     private Double estimatedHours;
 
     @Schema(description = "Category of task", example = "projects, team")
-    private Category category;
+    private Long categoryId;
 
     @Schema(description = "ID of user assigned the task", example = "10")
-    private User assignedTo;
+    private Long assignedToId;
 
     @Schema(description = "ID of workspace", example = "1")
-    private Workspace workspace;
+    private Long workspaceId;
 
     private Integer progress;
 

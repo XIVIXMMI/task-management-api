@@ -1,5 +1,8 @@
 package com.omori.taskmanagement.springboot.model.audit;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public enum ActionType {
     CREATE,
     UPDATE,
@@ -17,6 +20,7 @@ public enum ActionType {
     SHARE,
     UNSHARE,
     LOGIN,
+    REGISTER,
     LOGOUT,
     FAILED_LOGIN;
 
@@ -54,12 +58,15 @@ public enum ActionType {
                 return UNSHARE;
             case "login":
                 return LOGIN;
+            case "register":
+                return REGISTER;
             case "logout":
                 return LOGOUT;
             case "failedlogin":
                 return FAILED_LOGIN;
             default:
-                throw new IllegalArgumentException("Unknown action type: " + method);
+                log.warn("Unknown action type: " + method);
+                return null;
         }
     }
 }

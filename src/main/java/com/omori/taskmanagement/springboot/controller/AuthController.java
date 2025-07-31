@@ -2,16 +2,23 @@ package com.omori.taskmanagement.springboot.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.omori.taskmanagement.springboot.annotations.LogActivity;
 import com.omori.taskmanagement.springboot.dto.usermgmt.LoginRequest;
 import com.omori.taskmanagement.springboot.dto.usermgmt.LoginResponse;
 import com.omori.taskmanagement.springboot.dto.usermgmt.RegistrationRequest;
 import com.omori.taskmanagement.springboot.dto.usermgmt.RegistrationResponse;
+import com.omori.taskmanagement.springboot.model.audit.ActionType;
 import com.omori.taskmanagement.springboot.security.jwt.JwtTokenService;
+import com.omori.taskmanagement.springboot.security.service.UserDetailsServiceImpl;
 import com.omori.taskmanagement.springboot.service.UserService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -29,18 +36,32 @@ public class AuthController {
 
     private final JwtTokenService jwtTokenService;
     private final UserService userService;
+    private final UserDetailsServiceImpl userDetailsService;
 
+    @LogActivity(ActionType.LOGIN)
 	@PostMapping("/login")
     @Operation(summary = "Login", description = "Login to the system")
 	public ResponseEntity<LoginResponse> loginRequest(
         @Valid 
         @RequestBody LoginRequest loginRequest) {
+    
+        UserDetails userDetails = userDetailsService.loadUserByUsername(loginRequest.getUsername());
+        
+        UsernamePasswordAuthenticationToken authentication = 
+            new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+        
+        SecurityContext context = SecurityContextHolder.createEmptyContext();
+        context.setAuthentication(authentication);
+        SecurityContextHolder.setContext(context);
+        
+        log.debug("Security context set for user: {}", userDetails.getUsername());
+        
 
 		final LoginResponse loginResponse = jwtTokenService.getLoginResponse(loginRequest);
-
 		return ResponseEntity.ok(loginResponse);
 	}
 
+    @LogActivity(ActionType.REGISTER)
     @PostMapping("/register")
     @Operation(summary = "Register", description = "Register a new user")
     public ResponseEntity<RegistrationResponse> registerRequest(

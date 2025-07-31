@@ -76,6 +76,7 @@ logging:
     org.hibernate.SQL: OFF
     com.omori.taskmanagement: INFO
     com.fasterxml.jackson.databind: DEBUG
+    com.omori.taskmanagement.springboot.aspect: DEBUG
 
 jwt:
   secretKey: ${JWT_SECRET_KEY}
