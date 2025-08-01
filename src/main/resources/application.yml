@@ -3,14 +3,14 @@ server:
     enabled: true
 
 spring:
-  devtools:
-    add-properties: false
-    restart:
-      enabled: true
-      exclude: static/**,public/**,templates/**
-    livereload:
-      enabled: true
-      port: 35729
+  # devtools:
+  #   add-properties: false
+  #   restart:
+  #     enabled: false
+  #     exclude: static/**,public/**,templates/**
+  #   livereload:
+  #     enabled: true
+  #     port: 35729
   datasource:
     url: ${DB_URL}
     username: ${DB_USERNAME}
