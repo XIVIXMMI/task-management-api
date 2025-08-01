@@ -7,6 +7,8 @@ import lombok.experimental.SuperBuilder;
 import com.omori.taskmanagement.springboot.model.project.Task;
 import com.omori.taskmanagement.springboot.model.project.Workspace;
 import com.omori.taskmanagement.springboot.model.usermgmt.User;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import java.time.LocalDateTime;
 import java.util.Map;
 
@@ -43,12 +45,12 @@ public class ActivityLog {
     @Column(name = "entity_id")
     private Long entityId;
 
-    @Column(columnDefinition = "JSONB")
-    @Convert(converter = JsonbConverter.class)
+    @Column(name = "old_values")
+    @JdbcTypeCode(SqlTypes.JSON)
     private Map<String, Object> oldValues;
 
-    @Column(columnDefinition = "JSONB")
-    @Convert(converter = JsonbConverter.class)
+    @Column(name = "new_values")
+    @JdbcTypeCode(SqlTypes.JSON)
     private Map<String, Object> newValues;
 
     @Column(name = "ip_address")

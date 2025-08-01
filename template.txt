@@ -1,6 +1,0 @@
-2025-07-24T23:25:06.772+07:00 ERROR 23423 --- [nio-8080-exec-5] c.o.t.s.e.GlobalExceptionHandler         : Unexpected error occurred: Could not write JSON: Java 8 date/time type `java.time.LocalDateTime` not supported by default: add Module "com.fasterxml.jackson.datatype:jackson-datatype-jsr310" to enable handling (or disable `MapperFeature.REQUIRE_HANDLERS_FOR_JAVA8_TIMES`) (through reference chain: com.omori.taskmanagement.springboot.dto.project.GetTaskResponse["dueDate"])
-
-curl -X 'GET' \
-  'http://localhost:8080/api/v1/task/6' \
-  -H 'accept: */*' \
-  -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJqb2huLmRvZSIsImlzcyI6bnVsbCwicm9sZSI6IlJPTEVfVVNFUiIsImlhdCI6MTc1MzM3NDI3NywiZXhwIjoxNzUzMzc0ODc3fQ.2we-0Etaq3vsUHHUVdcx5r5rHDaeYQo7mBZEbZLj77g'

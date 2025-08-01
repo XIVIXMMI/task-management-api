@@ -19,7 +19,6 @@ public class RequestMetadataInterceptor implements HandlerInterceptor{
      * @param handler The handler for the request
      * @return true to continue processing, false to stop
      */
-    
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         // Extract metadata from the request

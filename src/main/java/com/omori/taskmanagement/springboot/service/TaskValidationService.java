@@ -46,18 +46,18 @@ public class TaskValidationService {
         validateStatusProgressConsistency(request.getStatus(), request.getProgress(), errors);
 
         // Validate category
-        if( request.getCategory() != null && request.getCategory().getId() != null && !categoryRepository.existsById(request.getCategory().getId()) ) {
-            errors.put("categoryId", "Category not found");
+        if( request.getCategoryId() != null && !categoryRepository.existsById(request.getCategoryId()) ) {
+            errors.put("categoryId", "Category not found with id: " + request.getCategoryId());
         }
 
         // Validate assigned user
-        if(request.getAssignedTo() != null && request.getAssignedTo().getId() != null && !userRepository.existsById(request.getAssignedTo().getId()) ) {
-            errors.put("assignedToId", "Assigned user not found");
+        if(request.getAssignedToId() != null && !userRepository.existsById(request.getAssignedToId()) ) {
+            errors.put("assignedToId", "User not found with id: " + request.getAssignedToId());
         }
 
         // Validate workspace
-        if(request.getWorkspace() != null && request.getWorkspace().getId() != null && !workspaceRepository.existsById(request.getWorkspace().getId()) ) {
-            errors.put("workspaceId", "Workspace not found");
+        if(request.getWorkspaceId() != null && !workspaceRepository.existsById(request.getWorkspaceId()) ) {
+            errors.put("workspaceId", "Workspace not found with id: " + request.getWorkspaceId());
         }
 
         // Validate progress
