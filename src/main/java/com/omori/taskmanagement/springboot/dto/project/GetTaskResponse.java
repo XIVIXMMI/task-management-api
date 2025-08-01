@@ -1,16 +1,30 @@
 package com.omori.taskmanagement.springboot.dto.project;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.omori.taskmanagement.springboot.model.project.Task;
-import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
-@Data
+@JsonIgnoreProperties(ignoreUnknown = true) // ignore unknown properties during deserialization
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
 @Builder
-public class GetTaskResponse {
+public class GetTaskResponse implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private Long id;
     private UUID uuid;
     private String title;
@@ -32,7 +46,7 @@ public class GetTaskResponse {
     private Map<String, Object> metadata;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    
+
     public static GetTaskResponse from(Task task) {
         return GetTaskResponse.builder()
                 .id(task.getId())
@@ -57,5 +71,31 @@ public class GetTaskResponse {
                 .createdAt(task.getCreatedAt())
                 .updatedAt(task.getUpdatedAt())
                 .build();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        GetTaskResponse that = (GetTaskResponse) o;
+        return Objects.equals(id, that.id) && Objects.equals(uuid, that.uuid);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, uuid);
+    }
+
+    @Override
+    public String toString() {
+        return "GetTaskResponse{" +
+                "id=" + id +
+                ", uuid=" + uuid +
+                ", title='" + title + '\'' +
+                ", status=" + status +
+                ", priority=" + priority +
+                '}';
     }
 }

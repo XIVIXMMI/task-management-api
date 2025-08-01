@@ -4,6 +4,9 @@ import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class ObjectDiffUtils {
 
     public static Map<String, Object> getObjectAsMap(Object obj) {
@@ -24,7 +27,7 @@ public class ObjectDiffUtils {
                 }
             }
         } catch(IllegalAccessException e) {
-            e.printStackTrace();
+            log.error("Error while getting object as map", e);
         }
         return map;
     }

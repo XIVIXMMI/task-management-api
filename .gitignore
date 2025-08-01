@@ -36,7 +36,5 @@ application-prod.yml
 .env
 .DS_Store
 getTaskwFilter.json
-CLAUDE.md
 .gitignore
-.github/
 zeon/
