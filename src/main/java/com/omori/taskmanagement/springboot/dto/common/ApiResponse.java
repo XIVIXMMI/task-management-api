@@ -3,8 +3,9 @@ package com.omori.taskmanagement.springboot.dto.common;
 
 import java.time.LocalDateTime;
 
-import org.slf4j.MDC;
+import com.omori.taskmanagement.springboot.utils.RequestMetadataHolder;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,6 +15,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Schema(description = "Generic API response wrapper")
 public class ApiResponse<T> {
     private boolean success;
     private String message;
@@ -22,12 +24,13 @@ public class ApiResponse<T> {
     private String traceId;
 
     public static <T> ApiResponse<T> success(T data, String message) {
+        RequestMetadata metadata = RequestMetadataHolder.getMetadata();
         return ApiResponse.<T>builder()
             .success(true)
             .message(message)
             .data(data)
             .timestamp(LocalDateTime.now())
-            .traceId(MDC.get("traceId"))
+            .traceId(metadata != null ? metadata.getTraceId() : null)
             .build();
     }
 
@@ -45,12 +48,13 @@ public class ApiResponse<T> {
     }
 
     public static <T> ApiResponse<T> error (String message, String traceId) {
+        RequestMetadata metadata = RequestMetadataHolder.getMetadata();
         return ApiResponse.<T>builder()
             .success(false)
             .message(message)
             .data(null)
             .timestamp(LocalDateTime.now())
-            .traceId(MDC.get("traceId"))
+            .traceId(metadata != null ? metadata.getTraceId() : null)
             .build();
     }
 }

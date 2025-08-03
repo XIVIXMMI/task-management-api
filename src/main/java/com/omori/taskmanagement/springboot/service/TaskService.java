@@ -32,4 +32,6 @@ public interface TaskService {
     
     // Search
     Page<GetTaskResponse> searchTasks(Long userId, String keyword, TaskFilterRequest filter);
+
+    // TODO: Add method get tasks with status, get tasks with an specific progress
 }

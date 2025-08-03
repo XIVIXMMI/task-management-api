@@ -1,9 +1,6 @@
 package com.omori.taskmanagement.springboot.dto.project;
 
-import com.omori.taskmanagement.springboot.model.project.Category;
 import com.omori.taskmanagement.springboot.model.project.Task;
-import com.omori.taskmanagement.springboot.model.project.Workspace;
-import com.omori.taskmanagement.springboot.model.usermgmt.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -54,14 +51,19 @@ public class CreateTaskRequest {
     @Schema(description = "ID of workspace", example = "1")
     private Long workspaceId;
 
+    @Schema(description = "the number of progress of task", example = "10")
     private Integer progress;
 
+    @Schema(description = "Sort order of task in the list", example = "1")
     private Integer sortOrder;
 
+    @Schema(description = "Recurring task flag", example = "false")
     private Boolean isRecurring;
 
+    @Schema(description = "Recurring pattern of task, e.g., daily, weekly, monthly")
     private Map<String, Object> recurrencePattern;
 
+    @Schema(description = "Metadata for task, can be used for additional information", example = "{\"key\":\"value\"}")
     private Map<String, Object> metadata;
 
 }
