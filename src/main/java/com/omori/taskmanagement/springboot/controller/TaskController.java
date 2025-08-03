@@ -28,7 +28,6 @@ import java.util.UUID;
 @Tag(name = "Task", description = "Task management API")
 public class TaskController {
 
-    // TODO: Customize the response for each endpoint (time running, status response, etc.)
     private final TaskService taskService;
 
     @LogActivity(ActionType.CREATE)
@@ -194,7 +193,7 @@ public class TaskController {
     ) {
         Long userId = userDetails.getId();
         taskService.softDeleteTask(taskId, userId);
-        return ResponseEntity.ok(ApiResponse.success(null));
+        return ResponseEntity.noContent().build();
     }
 
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")      

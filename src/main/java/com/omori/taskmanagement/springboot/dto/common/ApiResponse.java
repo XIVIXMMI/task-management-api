@@ -48,13 +48,12 @@ public class ApiResponse<T> {
     }
 
     public static <T> ApiResponse<T> error (String message, String traceId) {
-        RequestMetadata metadata = RequestMetadataHolder.getMetadata();
         return ApiResponse.<T>builder()
             .success(false)
             .message(message)
             .data(null)
             .timestamp(LocalDateTime.now())
-            .traceId(metadata != null ? metadata.getTraceId() : null)
+            .traceId(traceId)
             .build();
     }
 }

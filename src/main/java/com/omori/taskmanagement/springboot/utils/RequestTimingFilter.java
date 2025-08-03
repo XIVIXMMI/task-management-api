@@ -2,12 +2,10 @@ package com.omori.taskmanagement.springboot.utils;
 
 import java.io.IOException;
 
-import org.jboss.logging.MDC;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.omori.taskmanagement.springboot.dto.common.RequestMetadata;
-
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -36,11 +34,10 @@ public class RequestTimingFilter extends OncePerRequestFilter {
 
             RequestMetadata metadata = RequestMetadataHolder.getMetadata();
             if (metadata != null) {
-                metadata.setStartTimeMillis(startTime);
                 metadata.setDurationMillis(duration);
             }
 
-            log.info("Request processed in {} ms", duration);
+            log.info("Request processed in {}ms", duration);
         }
     }
 }

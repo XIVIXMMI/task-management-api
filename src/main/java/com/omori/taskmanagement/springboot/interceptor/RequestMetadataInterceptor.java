@@ -2,7 +2,7 @@ package com.omori.taskmanagement.springboot.interceptor;
 
 import java.util.UUID;
 
-import org.jboss.logging.MDC;
+import org.slf4j.MDC;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
@@ -55,6 +55,6 @@ public class RequestMetadataInterceptor implements HandlerInterceptor {
         // Clear the metadata after the request is completed avoid memory leaks
         RequestMetadataHolder.clear();
 
-        MDC.clear(); // Clear the MDC to avoid memory leaks
+    MDC.remove("traceId"); // Clear the MDC to avoid memory leaks
     }
 }
