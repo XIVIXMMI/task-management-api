@@ -1,6 +1,6 @@
 package com.omori.taskmanagement.springboot.service;
 
-import com.omori.taskmanagement.springboot.dto.project.CreateTaskRequest;
+import com.omori.taskmanagement.springboot.dto.project.TaskCreateRequest;
 import com.omori.taskmanagement.springboot.exceptions.TaskValidationException;
 import com.omori.taskmanagement.springboot.model.project.Task;
 import com.omori.taskmanagement.springboot.repository.project.CategoryRepository;
@@ -25,7 +25,7 @@ public class TaskValidationService {
     private final CategoryRepository categoryRepository;
     private final WorkspaceRepository workspaceRepository;
 
-    public void validateCreateTaskRequest(CreateTaskRequest request, Long userId) {
+    public void validateCreateTaskRequest(TaskCreateRequest request, Long userId) {
         log.debug("Validating create task request for user {}", userId);
 
         if( request == null ){

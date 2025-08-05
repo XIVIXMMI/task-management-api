@@ -4,7 +4,7 @@ import com.omori.taskmanagement.springboot.model.project.Task;
 
 import java.time.LocalDateTime;
 
-public record CreateTaskResponse(
+public record TaskCreateResponse(
         Long id,
         String title,
         String description,
@@ -12,8 +12,8 @@ public record CreateTaskResponse(
         LocalDateTime dueDate,
         LocalDateTime startDate
 ) {
-    public static CreateTaskResponse from(Task task) {
-        return new CreateTaskResponse(
+    public static TaskCreateResponse from(Task task) {
+        return new TaskCreateResponse(
                 task.getId(),
                 task.getTitle(),
                 task.getDescription(),

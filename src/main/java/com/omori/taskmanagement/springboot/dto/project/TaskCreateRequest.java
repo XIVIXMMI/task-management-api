@@ -16,7 +16,7 @@ import java.util.Map;
 @Setter
 @ToString
 @NoArgsConstructor
-public class CreateTaskRequest {
+public class TaskCreateRequest {
 
     @NotBlank( message = "Title is not blank")
     @Schema(description = "Title of task", example = "self study")

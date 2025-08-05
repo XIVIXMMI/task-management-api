@@ -13,6 +13,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -25,7 +26,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @RequestMapping("api/v1/task")
 @Slf4j
-@Tag(name = "Task", description = "Task management API")
+@Tag(name = "Task", description = "Task management")
 public class TaskController {
 
     private final TaskService taskService;
@@ -34,25 +35,25 @@ public class TaskController {
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")      
     @PostMapping("/create")
     @Operation(summary = "Create task", description = "Create new task for user")
-    public ResponseEntity<ApiResponse<CreateTaskResponse>> createTask(
-            @Valid @RequestBody CreateTaskRequest request,
+    public ResponseEntity<ApiResponse<TaskCreateResponse>> createTask(
+            @Valid @RequestBody TaskCreateRequest request,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         Long userId = userDetails.getId();
         Task task = taskService.createTask(userId, request);
-        CreateTaskResponse response = CreateTaskResponse.from(task);
-        return ResponseEntity.ok(ApiResponse.success(response));
+        TaskCreateResponse response = TaskCreateResponse.from(task);
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(response));
     }
 
     @LogActivity(ActionType.VIEW)
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")      
     @GetMapping("/{taskId}")
     @Operation(summary = "Get task by id", description = "Get detail task by id")
-    public ResponseEntity<ApiResponse<GetTaskResponse>> getTaskById(
+    public ResponseEntity<ApiResponse<TaskResponse>> getTaskById(
             @PathVariable Long taskId,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         Long userId = userDetails.getId();
-        GetTaskResponse response = taskService.getTaskById(taskId, userId);
+        TaskResponse response = taskService.getTaskById(taskId, userId);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
@@ -60,12 +61,12 @@ public class TaskController {
     @LogActivity(ActionType.VIEW)
     @GetMapping("/uuid/{uuid}")
     @Operation(summary = "Get task by uuid", description = "Get detail task by uuid")
-    public ResponseEntity<ApiResponse<GetTaskResponse>> getTaskByUuid(
+    public ResponseEntity<ApiResponse<TaskResponse>> getTaskByUuid(
             @PathVariable UUID uuid,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         Long userId = userDetails.getId();
-        GetTaskResponse response = taskService.getTaskByUuid(uuid, userId);
+        TaskResponse response = taskService.getTaskByUuid(uuid, userId);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
@@ -74,12 +75,12 @@ public class TaskController {
     @LogActivity(ActionType.VIEW)
     @GetMapping
     @Operation(summary = "Get task with filter", description = "Get user's task with filters and pagination")
-    public ResponseEntity<Iterable<GetTaskResponse>> getTasksByFilter(
+    public ResponseEntity<Iterable<TaskResponse>> getTasksByFilter(
             @ModelAttribute TaskFilterRequest filter,
             @AuthenticationPrincipal CustomUserDetails userDetails
             ) {
         Long userId = userDetails.getId();
-        Page<GetTaskResponse> response = taskService.getTasksByUser(userId, filter);
+        Page<TaskResponse> response = taskService.getTasksByUser(userId, filter);
         return ResponseEntity.ok(response);
     }
 
@@ -87,11 +88,11 @@ public class TaskController {
     @LogActivity(ActionType.VIEW)
     @GetMapping("/overdue")
     @Operation( summary = "Get overdue tasks", description = "Get user's overdue tasks")
-    public ResponseEntity<ApiResponse<List<GetTaskResponse>>> getOverdueTasks(
+    public ResponseEntity<ApiResponse<List<TaskResponse>>> getOverdueTasks(
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         Long userId = userDetails.getId();
-        List<GetTaskResponse> response = taskService.getOverdueTasks(userId);
+        List<TaskResponse> response = taskService.getOverdueTasks(userId);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
@@ -99,13 +100,13 @@ public class TaskController {
     @LogActivity(ActionType.VIEW)
     @GetMapping("/search")
     @Operation( summary = "Search Tasks", description = "Search tasks by keyword ")
-    public ResponseEntity<Page<GetTaskResponse>> searchTasks(
+    public ResponseEntity<Page<TaskResponse>> searchTasks(
             @RequestParam String keyword,
             @ModelAttribute TaskFilterRequest filter,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         Long userId = userDetails.getId();
-        Page<GetTaskResponse> response = taskService.searchTasks(userId, keyword, filter);
+        Page<TaskResponse> response = taskService.searchTasks(userId, keyword, filter);
         return ResponseEntity.ok(response);
     }
 
@@ -113,13 +114,13 @@ public class TaskController {
     @LogActivity(ActionType.UPDATE)
     @PutMapping("/{taskId}")
     @Operation( summary = "Update task", description = "Update user's task detail")
-    public ResponseEntity<ApiResponse<GetTaskResponse>> updateTask(
+    public ResponseEntity<ApiResponse<TaskResponse>> updateTask(
             @PathVariable Long taskId,
-            @Valid @RequestBody UpdateTaskRequest request,
+            @Valid @RequestBody TaskUpdateRequest request,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         Long userId = userDetails.getId();
-        GetTaskResponse response = taskService.updateTask(taskId, userId, request);
+        TaskResponse response = taskService.updateTask(taskId, userId, request);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
@@ -127,13 +128,13 @@ public class TaskController {
     @LogActivity(ActionType.UPDATE)
     @PatchMapping("/{taskId}/status")
     @Operation( summary = "Update task status", description = "Update user's task status")
-    public ResponseEntity<ApiResponse<GetTaskResponse>> updateTaskStatus(
+    public ResponseEntity<ApiResponse<TaskResponse>> updateTaskStatus(
             @PathVariable Long taskId,
             @RequestParam Task.TaskStatus status,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         Long userId = userDetails.getId();
-        GetTaskResponse response = taskService.updateTaskStatus(taskId, userId, status);
+        TaskResponse response = taskService.updateTaskStatus(taskId, userId, status);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
@@ -141,13 +142,13 @@ public class TaskController {
     @LogActivity(ActionType.UPDATE)
     @PatchMapping("/batch/status")
     @Operation( summary = "Update multiple tasks status", description = "Update status for multiple tasks")
-    public ResponseEntity<ApiResponse<List<GetTaskResponse>>> updateMultipleTasksStatus(
+    public ResponseEntity<ApiResponse<List<TaskResponse>>> updateMultipleTasksStatus(
             @RequestBody List<Long> taskId,
             @RequestParam Task.TaskStatus status,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         Long userId = userDetails.getId();
-        List<GetTaskResponse> response = taskService.updateMultipleTasksStatus(taskId, userId, status);
+        List<TaskResponse> response = taskService.updateMultipleTasksStatus(taskId, userId, status);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
@@ -155,13 +156,13 @@ public class TaskController {
     @LogActivity(ActionType.UPDATE)
     @PatchMapping("/{taskId}/progress")
     @Operation( summary = "Update task progress", description = "Update user's task progress")
-    public ResponseEntity<ApiResponse<GetTaskResponse>> updateTaskProgress(
+    public ResponseEntity<ApiResponse<TaskResponse>> updateTaskProgress(
             @PathVariable Long taskId,
             @RequestParam Integer progress,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         Long userId = userDetails.getId();
-        GetTaskResponse response = taskService.updateTaskProgress(taskId, userId, progress);
+        TaskResponse response = taskService.updateTaskProgress(taskId, userId, progress);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
