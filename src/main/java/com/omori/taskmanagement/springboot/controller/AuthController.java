@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.omori.taskmanagement.springboot.annotations.LogActivity;
+import com.omori.taskmanagement.springboot.dto.common.ApiResponse;
 import com.omori.taskmanagement.springboot.dto.usermgmt.LoginRequest;
 import com.omori.taskmanagement.springboot.dto.usermgmt.LoginResponse;
 import com.omori.taskmanagement.springboot.dto.usermgmt.RegistrationRequest;
@@ -41,7 +42,7 @@ public class AuthController {
     @LogActivity(ActionType.LOGIN)
 	@PostMapping("/login")
     @Operation(summary = "Login", description = "Login to the system")
-	public ResponseEntity<LoginResponse> loginRequest(
+	public ResponseEntity<ApiResponse<LoginResponse>> loginRequest(
         @Valid 
         @RequestBody LoginRequest loginRequest) {
     
@@ -58,18 +59,18 @@ public class AuthController {
         
 
 		final LoginResponse loginResponse = jwtTokenService.getLoginResponse(loginRequest);
-		return ResponseEntity.ok(loginResponse);
+		return ResponseEntity.ok(ApiResponse.success(loginResponse));
 	}
 
     @LogActivity(ActionType.REGISTER)
     @PostMapping("/register")
     @Operation(summary = "Register", description = "Register a new user")
-    public ResponseEntity<RegistrationResponse> registerRequest(
+    public ResponseEntity<ApiResponse<RegistrationResponse>> registerRequest(
         @Valid 
         @RequestBody RegistrationRequest registrationRequest) {
 
         final RegistrationResponse registrationResponse = userService.registration(registrationRequest);
-        return ResponseEntity.status(HttpStatus.CREATED).body(registrationResponse);
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(registrationResponse));
     }
     
 }

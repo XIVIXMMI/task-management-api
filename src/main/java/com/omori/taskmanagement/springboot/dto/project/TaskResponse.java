@@ -22,7 +22,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @Builder
-public class GetTaskResponse implements Serializable {
+public class TaskResponse implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private Long id;
@@ -47,8 +47,8 @@ public class GetTaskResponse implements Serializable {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    public static GetTaskResponse from(Task task) {
-        return GetTaskResponse.builder()
+    public static TaskResponse from(Task task) {
+        return TaskResponse.builder()
                 .id(task.getId())
                 .uuid(task.getUuid())
                 .title(task.getTitle())
@@ -79,7 +79,7 @@ public class GetTaskResponse implements Serializable {
             return true;
         if (o == null || getClass() != o.getClass())
             return false;
-        GetTaskResponse that = (GetTaskResponse) o;
+        TaskResponse that = (TaskResponse) o;
         return Objects.equals(id, that.id) && Objects.equals(uuid, that.uuid);
     }
 
@@ -90,7 +90,7 @@ public class GetTaskResponse implements Serializable {
 
     @Override
     public String toString() {
-        return "GetTaskResponse{" +
+        return "TaskResponse{" +
                 "id=" + id +
                 ", uuid=" + uuid +
                 ", title='" + title + '\'' +

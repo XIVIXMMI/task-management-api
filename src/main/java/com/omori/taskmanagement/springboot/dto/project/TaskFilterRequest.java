@@ -4,7 +4,6 @@ import com.omori.taskmanagement.springboot.model.project.Task;
 import lombok.Data;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 
 @Data
 public class TaskFilterRequest {

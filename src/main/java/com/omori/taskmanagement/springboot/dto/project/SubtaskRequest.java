@@ -1,0 +1,29 @@
+package com.omori.taskmanagement.springboot.dto.project;
+
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+
+@Getter
+@Setter
+@NoArgsConstructor
+public class SubtaskRequest {
+
+    //@NotNull(message = "Task id is required")
+    @Schema( description = "Parent task of subtask", example = "1")
+    private Long taskId;
+
+    @NotBlank(message = "Title is required")
+    @Schema( description = "Title of subtasks", example = "take notes")
+    private String title;
+
+    @Schema(description = "Description of the subtasks", example = "take notes on important parts")
+    private String description;
+
+    @Schema(description = "The value represents the position of the subtask in the list, used to sort the display order.", example = "1")
+    private Integer sortOrder;
+}

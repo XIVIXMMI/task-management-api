@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 import java.util.Map;
 
 @Data
-public class UpdateTaskRequest {
+public class TaskUpdateRequest {
     @NotBlank(message = "Title is required")
     @Size(max = 255, message = "Title must be less than 255 characters")
     private String title;

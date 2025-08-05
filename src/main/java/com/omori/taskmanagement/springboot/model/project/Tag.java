@@ -7,6 +7,8 @@ import lombok.experimental.SuperBuilder;
 import java.time.LocalDateTime;
 import org.hibernate.annotations.ColumnDefault;
 
+import com.omori.taskmanagement.springboot.model.usermgmt.User;
+
 @Data
 @NoArgsConstructor
 @SuperBuilder
@@ -29,7 +31,7 @@ public class Tag {
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    private com.omori.taskmanagement.springboot.model.usermgmt.User user;
+    private User user;
 
     @ManyToOne
     @JoinColumn(name = "workspace_id")

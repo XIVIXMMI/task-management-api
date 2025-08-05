@@ -1,9 +1,9 @@
 package com.omori.taskmanagement.springboot.service;
 
-import com.omori.taskmanagement.springboot.dto.project.CreateTaskRequest;
-import com.omori.taskmanagement.springboot.dto.project.GetTaskResponse;
+import com.omori.taskmanagement.springboot.dto.project.TaskCreateRequest;
+import com.omori.taskmanagement.springboot.dto.project.TaskResponse;
 import com.omori.taskmanagement.springboot.dto.project.TaskFilterRequest;
-import com.omori.taskmanagement.springboot.dto.project.UpdateTaskRequest;
+import com.omori.taskmanagement.springboot.dto.project.TaskUpdateRequest;
 import com.omori.taskmanagement.springboot.exceptions.TaskAccessDeniedException;
 import com.omori.taskmanagement.springboot.exceptions.TaskBusinessException;
 import com.omori.taskmanagement.springboot.exceptions.TaskNotFoundException;
@@ -50,7 +50,7 @@ public class TaskServiceImpl implements TaskService {
     @Override
     @Transactional
     @CacheEvict(value = {"tasks", "taskDetails"}, allEntries = true)
-    public Task createTask(Long id, CreateTaskRequest request) {
+    public Task createTask(Long id, TaskCreateRequest request) {
         log.info("Creating task for user with id: {}", id);
 
         // Validate request
@@ -120,7 +120,7 @@ public class TaskServiceImpl implements TaskService {
     @Transactional(readOnly = true)
     @Cacheable(value = "taskDetails", key = "'task:' + #taskId")
     //NOTE: could separate for user's owner or user assigned
-    public GetTaskResponse getTaskById(Long taskId, Long userId) {
+    public TaskResponse getTaskById(Long taskId, Long userId) {
         log.info("Getting task with id: {} for user {}", taskId, userId);
 
         Task task = taskRepository.findByIdWithRelations(taskId)
@@ -128,40 +128,40 @@ public class TaskServiceImpl implements TaskService {
 
         validateTaskAccess(task, userId);
 
-        return GetTaskResponse.from(task);
+        return TaskResponse.from(task);
     }
 
     // NOTE: Why we need to pass the userId to get uuid ??
     @Override
     @Transactional(readOnly = true)
     @Cacheable(value = "taskDetails", key = "#uuid.toString() + '_' + #userId")
-    public GetTaskResponse getTaskByUuid(UUID uuid, Long userId) {
+    public TaskResponse getTaskByUuid(UUID uuid, Long userId) {
         log.info("Getting task with uuid: {} for user {}", uuid, userId);
 
         Task task = taskRepository.findByUuid(uuid)
                 .orElseThrow(() -> new TaskNotFoundException("Task not found with uuid: " + uuid));
         validateTaskAccess(task, userId);
-        return GetTaskResponse.from(task);
+        return TaskResponse.from(task);
     }
 
     @Override   
     @Transactional(readOnly = true)
     @Cacheable(value = "tasks", key = "#userId + '_' + T(java.util.Objects).hash(#filter)")
-    public Page<GetTaskResponse> getTasksByUser(Long userId, TaskFilterRequest filter) {
+    public Page<TaskResponse> getTasksByUser(Long userId, TaskFilterRequest filter) {
         log.info("Getting tasks for user with id: {}", userId);
         Pageable pageable = createPageable(filter);
         Page<Task> tasks = taskRepository.findByUserIdAndNotDeleted(userId, pageable);
-        return tasks.map(GetTaskResponse::from);
+        return tasks.map(TaskResponse::from);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<GetTaskResponse> getOverdueTasks(Long userId) {
+    public List<TaskResponse> getOverdueTasks(Long userId) {
         log.info("Getting overdue tasks for user with id: {}", userId);
         List<Task> overdueTasks = taskRepository.findOverdueTasksByUserId(userId, LocalDateTime.now());
 
         return overdueTasks.stream()
-                .map(GetTaskResponse::from)
+                .map(TaskResponse::from)
                 .collect(Collectors.toList());
     }
 
@@ -169,7 +169,7 @@ public class TaskServiceImpl implements TaskService {
     @Transactional
     @CacheEvict(value = {"tasks", "taskDetails"}, key = "#taskId + '_' + #userId")
     @CachePut(value = "taskDetails", key = "#taskId + '_' + #userId")
-    public GetTaskResponse updateTask(Long taskId, Long userId, UpdateTaskRequest request) {
+    public TaskResponse updateTask(Long taskId, Long userId, TaskUpdateRequest request) {
         log.info("Updating task with id: {} for user {}", taskId, userId);
 
         Task task = taskRepository.findByIdWithRelations(taskId)
@@ -223,7 +223,7 @@ public class TaskServiceImpl implements TaskService {
         Task updatedTask = taskRepository.save(task);
         log.info("Task updated successfully: {}", taskId);
 
-        return GetTaskResponse.from(updatedTask);
+        return TaskResponse.from(updatedTask);
 
     }
 
@@ -231,7 +231,7 @@ public class TaskServiceImpl implements TaskService {
     @Transactional
     @CacheEvict(value = {"tasks", "taskDetails"}, key = "#taskId + '_' + #userId")
     @CachePut(value = "taskDetails", key = "#taskId + '_' + #userId")
-    public GetTaskResponse updateTaskStatus(Long taskId, Long userId, Task.TaskStatus status) {
+    public TaskResponse updateTaskStatus(Long taskId, Long userId, Task.TaskStatus status) {
         log.info("Updating task status: {} to {} for user: {}", taskId, status, userId);
 
         try {
@@ -263,7 +263,7 @@ public class TaskServiceImpl implements TaskService {
             Task updatedTask = taskRepository.save(task);
             log.info("Task status updated successfully: {} to {} for user: {}", taskId, status, userId);
 
-            return GetTaskResponse.from(updatedTask);
+            return TaskResponse.from(updatedTask);
 
         } catch (TaskNotFoundException | TaskAccessDeniedException | TaskValidationException e) {
             throw e;
@@ -277,7 +277,7 @@ public class TaskServiceImpl implements TaskService {
     @Transactional
     @CacheEvict(value = {"tasks", "taskDetails"}, key = "#taskId + '_' + #userId")
     @CachePut(value = "taskDetails", key = "#taskId + '_' + #userId")
-    public GetTaskResponse updateTaskProgress(Long taskId, Long userId, Integer progress) {
+    public TaskResponse updateTaskProgress(Long taskId, Long userId, Integer progress) {
         log.info("Updating task progress: {} to {}% for user: {}", taskId, progress, userId);
 
         Task task = taskRepository.findByIdWithRelations(taskId)
@@ -300,7 +300,7 @@ public class TaskServiceImpl implements TaskService {
         Task updatedTask = taskRepository.save(task);
         log.info("Task progress updated successfully: {}", taskId);
 
-        return GetTaskResponse.from(updatedTask);
+        return TaskResponse.from(updatedTask);
     }
 
     @Override
@@ -337,7 +337,7 @@ public class TaskServiceImpl implements TaskService {
     @Override
     @Transactional
     @CacheEvict(value = {"tasks", "taskDetails"}, allEntries = true)
-    public List<GetTaskResponse> updateMultipleTasksStatus(List<Long> taskIds, Long userId, Task.TaskStatus status) {
+    public List<TaskResponse> updateMultipleTasksStatus(List<Long> taskIds, Long userId, Task.TaskStatus status) {
         log.info("Updating multiple tasks status: {} to {} for user: {}", taskIds, status, userId);
 
         List<Task> tasks = taskRepository.findAllById(taskIds);
@@ -362,7 +362,7 @@ public class TaskServiceImpl implements TaskService {
         log.info("Multiple tasks status updated successfully: {}", taskIds);
 
         return updatedTasks.stream()
-                .map(GetTaskResponse::from)
+                .map(TaskResponse::from)
                 .collect(Collectors.toList());
     }
 
@@ -383,13 +383,13 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<GetTaskResponse> searchTasks(Long userId, String keyword, TaskFilterRequest filter) {
+    public Page<TaskResponse> searchTasks(Long userId, String keyword, TaskFilterRequest filter) {
         log.info("Searching tasks for user: {} with keyword: {}", userId, keyword);
 
         Pageable pageable = createPageable(filter);
         Page<Task> tasks = taskRepository.searchTasksByKeyword(userId, keyword, pageable);
 
-        return tasks.map(GetTaskResponse::from);
+        return tasks.map(TaskResponse::from);
     }
 
     // Helper methods
@@ -408,9 +408,9 @@ public class TaskServiceImpl implements TaskService {
         return PageRequest.of(filter.getPage(), filter.getSize(), sort);
     }
 
-    private boolean isUserAllowToAccessTask(Task task, Long userId){
-        return task.getUser().getId().equals(userId) ||
-                (task.getAssignedTo() !=null && task.getAssignedTo().getId().equals(userId));
-    }
+    // private boolean isUserAllowToAccessTask(Task task, Long userId){
+    //     return task.getUser().getId().equals(userId) ||
+    //             (task.getAssignedTo() !=null && task.getAssignedTo().getId().equals(userId));
+    // }
 
 }
