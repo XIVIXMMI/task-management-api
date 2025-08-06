@@ -30,6 +30,7 @@ public class SubTaskServiceImpl implements SubTaskService {
     private final SubtaskRepository subTaskRepository;
     private final TaskRepository taskRepository;
 
+    // may cobine 2 createSubtask function
     @Override
     public Subtask createSubtask(SubtaskCreateRequest subtask, Long taskId, String title) {
         log.info("Creating subtask with title: {} for task ID: {}", title, taskId);
@@ -122,7 +123,7 @@ public class SubTaskServiceImpl implements SubTaskService {
                     return new TaskNotFoundException("Task not found with id: " + taskId);
                 });
 
-        List<Subtask> subtasks = subTaskRepository.findByTaskIdAndDeletedAtIsNullOrderBySortOrder(task);
+        List<Subtask> subtasks = subTaskRepository.findByTaskIdAndDeletedAtIsNullOrderBySortOrder(task.getId());
 
         log.debug("Retrieved {} subtasks for task ID: {}", subtasks.size(), taskId);
         return subtasks;

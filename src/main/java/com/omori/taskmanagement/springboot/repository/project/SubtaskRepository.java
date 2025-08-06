@@ -10,7 +10,6 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.omori.taskmanagement.springboot.model.project.Subtask;
-import com.omori.taskmanagement.springboot.model.project.Task;
 
 @Repository
 public interface SubtaskRepository extends JpaRepository<Subtask, Long> {
@@ -22,7 +21,7 @@ public interface SubtaskRepository extends JpaRepository<Subtask, Long> {
      * @return a list of non-deleted subtasks associated with the given task ID,
      *         ordered by sort order
      */
-    List<Subtask> findByTaskIdAndDeletedAtIsNullOrderBySortOrder(Task task);
+    List<Subtask> findByTaskIdAndDeletedAtIsNullOrderBySortOrder(Long taskId);
 
     /**
      * Finds a subtask by its ID and filters out deleted subtasks.
