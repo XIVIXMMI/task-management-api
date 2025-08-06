@@ -86,7 +86,7 @@ public class SubTaskController {
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @DeleteMapping("/{subtaskId}")
     @Operation(summary = "Delete Subtask", description = "Delete subtask by id")
-    public ResponseEntity<ApiResponse<Void>> deleteSubtaskById(
+    public ResponseEntity<Void> deleteSubtaskById(
         @PathVariable @NotNull Long subtaskId
     ) {
         subTaskService.deleteSubtask(subtaskId);
@@ -97,7 +97,7 @@ public class SubTaskController {
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @DeleteMapping("/{subtaskId}/soft")
     @Operation(summary = "Soft delete Subtask", description = "Soft delete subtask by id")
-    public ResponseEntity<ApiResponse<Void>> softDeleteSubtaskById(
+    public ResponseEntity<Void> softDeleteSubtaskById(
         @PathVariable @NotNull Long subtaskId
     ) {
         subTaskService.softDeleteSubtask(subtaskId);
