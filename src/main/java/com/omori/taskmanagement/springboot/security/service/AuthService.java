@@ -6,7 +6,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.omori.taskmanagement.springboot.model.usermgmt.User;
-import com.omori.taskmanagement.springboot.security.service.CustomUserDetails;
+// import com.omori.taskmanagement.springboot.security.service.CustomUserDetails;
 
 import lombok.extern.slf4j.Slf4j;
 

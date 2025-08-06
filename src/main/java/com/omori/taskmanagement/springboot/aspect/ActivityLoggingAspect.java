@@ -5,8 +5,8 @@ import com.omori.taskmanagement.springboot.model.audit.ActivityLog;
 import com.omori.taskmanagement.springboot.model.usermgmt.User;
 import com.omori.taskmanagement.springboot.repository.audit.ActivityLogRepository;
 import com.omori.taskmanagement.springboot.security.service.AuthService;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+//import com.fasterxml.jackson.core.type.TypeReference;
+//import com.fasterxml.jackson.databind.ObjectMapper;
 import com.omori.taskmanagement.springboot.annotations.LogActivity;
 import com.omori.taskmanagement.springboot.dto.common.RequestMetadata;
 import com.omori.taskmanagement.springboot.dto.usermgmt.LoginRequest;
@@ -37,7 +37,7 @@ public class ActivityLoggingAspect {
 
     private final ActivityLogRepository logRepo;
     private final AuthService authService;
-    private final ObjectMapper objectMapper;
+    //private final ObjectMapper objectMapper;
     private final UserService userService;
 
     @Pointcut("@annotation(com.omori.taskmanagement.springboot.annotations.LogActivity)")
@@ -66,13 +66,13 @@ public class ActivityLoggingAspect {
         }
 
         // Get the original entity for update operations
-        Object originalEntity = null;
-        if (actionType == ActionType.UPDATE) {
-            Object[] args = joinPoint.getArgs();
-            if (args != null && args.length > 0) {
-                originalEntity = getOriginalEntity(args[0]); // Implement this method
-            }
-        }
+        // Object originalEntity = null;
+        // if (actionType == ActionType.UPDATE) {
+        //     Object[] args = joinPoint.getArgs();
+        //     if (args != null && args.length > 0) {
+        //         originalEntity = getOriginalEntity(args[0]); // Implement this method
+        //     }
+        // }
 
         // Proceed with the original method
         Object result = joinPoint.proceed();
@@ -163,17 +163,17 @@ public class ActivityLoggingAspect {
         return null;
     }
 
-    private Object getOriginalEntity(Object id) {
-        // Implement this method to load the original entity by ID
-        // For example:
-        // return repository.findById(id).orElse(null);
-        return null; // Replace with actual implementation
-    }
+    // private Object getOriginalEntity(Object id) {
+    //     // Implement this method to load the original entity by ID
+    //     // For example:
+    //     // return repository.findById(id).orElse(null);
+    //     return null; // Replace with actual implementation
+    // }
 
-    private Map<String, Object> convertToMap(Object obj) {
-        if (obj == null) {
-            return null;
-        }
-        return objectMapper.convertValue(obj, new TypeReference<Map<String, Object>>() {});
-    }
+    // private Map<String, Object> convertToMap(Object obj) {
+    //     if (obj == null) {
+    //         return null;
+    //     }
+    //     return objectMapper.convertValue(obj, new TypeReference<Map<String, Object>>() {});
+    // }
 }
