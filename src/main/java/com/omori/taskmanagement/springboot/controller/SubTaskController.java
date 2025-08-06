@@ -38,7 +38,7 @@ public class SubTaskController {
         @Valid @RequestBody SubtaskRequest request,
         @PathVariable Long taskId
     ) {
-
+        request.setTaskId(taskId);
         Subtask subtask = subTaskService.createSubtask(request);
         SubtaskResponse response  = SubtaskResponse.from(subtask);
 
