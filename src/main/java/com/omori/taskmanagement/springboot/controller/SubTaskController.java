@@ -40,7 +40,7 @@ public class SubTaskController {
 
     @LogActivity(ActionType.CREATE)
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
-    @PostMapping("/tasks/{task}")
+    @PostMapping("/tasks/{taskId}")
     @Operation(summary = "Create subtask", description = "Create new subtask for a specific task id")
     public ResponseEntity<ApiResponse<SubtaskResponse>> createSubtask(
         @Valid @RequestBody SubtaskRequest request,
