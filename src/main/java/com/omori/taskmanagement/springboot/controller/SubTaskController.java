@@ -11,13 +11,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import com.omori.taskmanagement.springboot.annotations.LogActivity;
 import com.omori.taskmanagement.springboot.dto.common.ApiResponse;
-import com.omori.taskmanagement.springboot.dto.project.SubtaskCreateRequest;
 import com.omori.taskmanagement.springboot.dto.project.SubtaskRequest;
 import com.omori.taskmanagement.springboot.dto.project.SubtaskResponse;
-import com.omori.taskmanagement.springboot.exceptions.TaskNotFoundException;
 import com.omori.taskmanagement.springboot.model.audit.ActionType;
 import com.omori.taskmanagement.springboot.model.project.Subtask;
-import com.omori.taskmanagement.springboot.repository.project.TaskRepository;
 import com.omori.taskmanagement.springboot.service.SubTaskService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -32,7 +29,6 @@ import lombok.RequiredArgsConstructor;
 public class SubTaskController {
     
     private final SubTaskService subTaskService;
-    private final TaskRepository taskRepository;
 
     @LogActivity(ActionType.CREATE)
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
@@ -42,10 +38,7 @@ public class SubTaskController {
         @Valid @RequestBody SubtaskRequest request,
         @PathVariable Long taskId
     ) {
-        taskRepository.findById(taskId)
-            .orElseThrow(() -> new TaskNotFoundException("Task not found with id: " + taskId));
         request.setTaskId(taskId);
-
         Subtask subtask = subTaskService.createSubtask(request);
         SubtaskResponse response  = SubtaskResponse.from(subtask);
 

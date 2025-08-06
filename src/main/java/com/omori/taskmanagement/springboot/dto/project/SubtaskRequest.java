@@ -2,7 +2,6 @@ package com.omori.taskmanagement.springboot.dto.project;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -13,7 +12,9 @@ import lombok.Setter;
 @NoArgsConstructor
 public class SubtaskRequest {
 
-    //@NotNull(message = "Task id is required")
+    /**
+     *  Set by the controller from the path variable; not supplied in the request body.
+     */
     @Schema( description = "Parent task of subtask", example = "1")
     private Long taskId;
 

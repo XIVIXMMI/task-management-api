@@ -98,7 +98,7 @@ public class SubTaskServiceImpl implements SubTaskService {
 
     @Override
     public Subtask toggleSubtaskCompletion(Long subtaskId) {
-        Subtask subtask = subTaskRepository.findById(subtaskId)
+        Subtask subtask = subTaskRepository.findByIdAndDeletedAtIsNull(subtaskId)
                 .orElseThrow(() -> new SubtaskNotFoundException("Subtask not found with id: " + subtaskId));
 
         subtask.setIsCompleted(!subtask.getIsCompleted());
@@ -124,11 +124,6 @@ public class SubTaskServiceImpl implements SubTaskService {
 
         List<Subtask> subtasks = subTaskRepository.findByTaskIdAndDeletedAtIsNullOrderBySortOrder(task);
 
-        if (subtasks.isEmpty()) {
-            log.warn("No subtasks found for task ID: {}", taskId);
-            throw new SubtaskNotFoundException("No subtasks found for task with id: " + taskId);
-        }
-
         log.debug("Retrieved {} subtasks for task ID: {}", subtasks.size(), taskId);
         return subtasks;
     }
@@ -138,7 +133,7 @@ public class SubTaskServiceImpl implements SubTaskService {
         log.info("Reordering {} subtasks for task ID {}", subtaskIds.size(), taskId);
         List<Subtask> subtasks = new ArrayList<>();
 
-        if (subtasks.isEmpty()) {
+        if (subtaskIds.isEmpty()) {
             log.warn("Attempted to reorder subtasks with empty subtask ID list for task {}", taskId);
             return Collections.emptyList();
         }
@@ -162,6 +157,10 @@ public class SubTaskServiceImpl implements SubTaskService {
     @Override
     public Integer getNextSortOrder(Long taskId) {
         Long maxSortOrder = subTaskRepository.findMaxSortOrderByTaskId(taskId);
+        /**
+         * Casting from Long to int could cause overflow if maxSortOrder exceeds Integer.MAX_VALUE. 
+         * Consider using Integer throughout or adding overflow protection.
+         */
         Integer nextSortOrder = (maxSortOrder != null) ? (int) (maxSortOrder + 1) : 0;
         log.debug("Next sort order for task ID {} is {}", taskId, nextSortOrder);
         return nextSortOrder;
@@ -179,7 +178,7 @@ public class SubTaskServiceImpl implements SubTaskService {
     @Override
     public void softDeleteSubtask(Long subtaskId) {
         Subtask subtask = subTaskRepository.findByIdAndDeletedAtIsNull(subtaskId)
-                .orElseThrow(() -> new TaskNotFoundException("Subtask not found with id: " + subtaskId));
+                .orElseThrow(() -> new SubtaskNotFoundException("Subtask not found with id: " + subtaskId));
 
         subtask.setDeletedAt(LocalDateTime.now());
         subTaskRepository.save(subtask);
