@@ -27,6 +27,7 @@ import com.omori.taskmanagement.springboot.service.SubTaskService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -43,7 +44,7 @@ public class SubTaskController {
     @Operation(summary = "Create subtask", description = "Create new subtask for a specific task id")
     public ResponseEntity<ApiResponse<SubtaskResponse>> createSubtask(
         @Valid @RequestBody SubtaskRequest request,
-        @PathVariable Long taskId
+        @PathVariable @NotNull Long taskId
     ) {
         request.setTaskId(taskId);
         Subtask subtask = subTaskService.createSubtask(request);
@@ -57,7 +58,7 @@ public class SubTaskController {
     @GetMapping("/task/{taskId}")
     @Operation(summary = "List subtask", description = "Get all subtasks of task by task id")
     public ResponseEntity<ApiResponse<List<SubtaskResponse>>> getAllSubtaskByTaskId(
-        @PathVariable Long taskId
+        @PathVariable @NotNull Long taskId
     ) {
 
         List<Subtask> subtask = subTaskService.getSubtasksByTaskId(taskId);
@@ -73,7 +74,7 @@ public class SubTaskController {
     @PutMapping("/{subtaskId}")
     @Operation(summary = "Update Subtask", description = "Update subtask by specific taskId")
     public ResponseEntity<ApiResponse<SubtaskResponse>> updateSubtaskById(
-        @PathVariable Long subtaskId,
+        @PathVariable @NotNull Long subtaskId,
         @Valid @RequestBody SubtaskUpdateRequest request
     ) {
         Subtask subtask = subTaskService.updateSubtask(subtaskId, request);
@@ -86,7 +87,7 @@ public class SubTaskController {
     @DeleteMapping("/{subtaskId}")
     @Operation(summary = "Delete Subtask", description = "Delete subtask by id")
     public ResponseEntity<ApiResponse<Void>> deleteSubtaskById(
-        @PathVariable Long subtaskId
+        @PathVariable @NotNull Long subtaskId
     ) {
         subTaskService.deleteSubtask(subtaskId);
         return ResponseEntity.noContent().build();
@@ -97,7 +98,7 @@ public class SubTaskController {
     @DeleteMapping("/{subtaskId}/soft")
     @Operation(summary = "Soft delete Subtask", description = "Soft delete subtask by id")
     public ResponseEntity<ApiResponse<Void>> softDeleteSubtaskById(
-        @PathVariable Long subtaskId
+        @PathVariable @NotNull Long subtaskId
     ) {
         subTaskService.softDeleteSubtask(subtaskId);
         return ResponseEntity.noContent().build();
