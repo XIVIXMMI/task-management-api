@@ -1,34 +1,89 @@
 # Task Management API
 
-A comprehensive, enterprise-grade RESTful API for task and project management with advanced features including user collaboration, real-time notifications, and robust security. Built with modern Spring Boot architecture and optimized for scalability and performance.
+A comprehensive, enterprise-grade task management platform built with Spring Boot. This full-featured application supports individual productivity, team collaboration, project management, and organizational workflow optimization with advanced analytics and audit capabilities.
 
 ## 🚀 Features
 
-### Core Functionality
-- **Task Management**: Create, update, delete, and organize tasks with priorities, due dates, and progress tracking
-- **User Management**: Complete user authentication, authorization, and profile management
-- **Workspace Collaboration**: Multi-user workspaces with role-based access control
-- **Category & Tagging**: Organize tasks with custom categories and tags
-- **Advanced Search**: Full-text search across tasks with filtering and pagination
-- **Subtasks**: Break down complex tasks into manageable subtasks
-- **Recurring Tasks**: Automated task creation with flexible recurrence patterns
+- **Framework**: Spring Boot (v3.5.0) with Spring Security, Spring Data JPA, Spring Validation
+- **Database**: PostgreSQL with JSONB support and advanced schema design
+- **Security**: JWT token-based authentication with role-based access control
+- **Documentation**: Swagger/OpenAPI 3.0 with interactive testing
+- **Mapping**: MapStruct for DTO transformations
+- **Utilities**: Lombok for clean code, Spring Boot Actuator for monitoring
+- **Containerization**: Docker & Docker Compose support
 
-### Advanced Features
-- **Redis Caching**: High-performance caching for improved response times
-- **Soft Delete**: Recoverable task deletion with audit trails
-- **JSONB Support**: Store flexible metadata and recurrence patterns
-- **Batch Operations**: Efficiently update multiple tasks simultaneously
-- **Activity Logging**: Complete audit trail of all system activities
-- **Real-time Notifications**: Email, push, and SMS notifications
-- **File Attachments**: Support for task-related file uploads
+## Features Overview
 
-### Security & Performance
-- **JWT Authentication**: Secure token-based authentication
-- **Role-based Authorization**: Granular permission management
-- **Data Validation**: Comprehensive input validation with custom messages
-- **Transaction Management**: ACID compliance for data integrity
-- **Lazy Loading Optimization**: Efficient database queries to prevent N+1 problems
-- **API Documentation**: Complete Swagger/OpenAPI documentation
+This task management system provides a complete solution for personal and team productivity with the following major feature categories:
+
+### 🔐 Authentication & Security
+- **User Registration & Login** with comprehensive profile management
+- **JWT Token Authentication** with 10-minute expiration and refresh capability
+- **Role-Based Access Control** (USER, ADMIN, MANAGER roles)
+- **Account Security** with lockout protection and session management
+- **Multi-Provider Authentication** support (ready for external providers)
+
+### 👥 User Management
+- **Complete User Profiles** with avatars, timezones, and personal preferences
+- **Account Status Management** with activation, verification, and soft delete
+- **User Activity Tracking** with online status, last login, and session management
+- **Profile Updates** with validation and self-service capabilities
+- **Multi-Language Support** with timezone-aware operations
+
+### ✅ Task Management
+- **Comprehensive Task Operations** with full CRUD functionality
+- **Task Hierarchy** with parent-child relationships and subtask support
+- **Priority Management** (LOW, MEDIUM, HIGH, URGENT) with visual indicators
+- **Status Tracking** (PENDING, IN_PROGRESS, COMPLETED, CANCELLED, ON_HOLD)
+- **Due Date Management** with start dates and completion tracking
+- **Progress Monitoring** with percentage completion and time tracking
+- **Recurring Tasks** with flexible recurrence patterns
+- **Task Categories** with color coding and icon support
+- **Tagging System** with color-coded tags and usage analytics
+- **Custom Metadata** support for extensible task properties
+
+### 🏢 Workspace & Project Management
+- **Workspace Creation** with team and personal workspace support
+- **Multi-User Collaboration** with granular role permissions
+- **Team Invitations** with email-based invitation system
+- **Project Organization** with workspace-specific settings
+- **Member Management** with role-based access (owner, admin, member, viewer)
+
+### 💬 Communication & Collaboration
+- **Threaded Comments** with user mentions and rich content support
+- **File Attachments** with support for multiple file types and size tracking
+- **Real-time Collaboration** with task sharing and collaborative editing
+- **User Mentions** with notification integration
+- **Activity Streams** for team awareness and project updates
+
+### 🔔 Notifications & Reminders
+- **Intelligent Notification System** with multiple delivery types
+- **Custom Notification Templates** for consistent messaging
+- **Smart Reminders** with flexible repeat intervals (daily, weekly, monthly, yearly)
+- **Multi-Channel Delivery** (email, push, SMS support)
+- **Notification History** with read/unread status tracking
+
+### 📊 Analytics & Reporting
+- **User Productivity Analytics** with daily metrics and productivity scoring
+- **Workspace Statistics** with team performance insights
+- **Task Completion Analytics** with time tracking and efficiency metrics
+- **Activity Reports** with detailed user and project analytics
+- **Custom Dashboards** with configurable metrics and visualizations
+
+### 🔍 Audit & Compliance
+- **Comprehensive Audit Trail** with before/after value tracking
+- **Activity Logging** for all user actions and system events
+- **Error Tracking** with stack traces and contextual information
+- **Data Integrity** monitoring with validation and consistency checks
+- **Compliance Reporting** with exportable audit logs
+
+### 🛠️ Advanced Features
+- **Soft Delete** across all entities with data recovery capabilities
+- **Flexible JSON Storage** for custom fields and extensible data models
+- **Advanced Search** capabilities across tasks, projects, and users
+- **Bulk Operations** for efficient data management
+- **Data Export/Import** functionality for backup and migration
+- **Custom Validation Rules** with internationalized error messages
 
 ## 🛠 Technology Stack
 
@@ -143,13 +198,26 @@ open http://localhost:8080/swagger-ui.html
 - **Swagger UI**: http://localhost:8080/swagger-ui.html
 - **OpenAPI Spec**: http://localhost:8080/v3/api-docs
 
-### Key Endpoints
+### API Endpoints
 
-#### Authentication
-```http
-POST /api/v1/auth/register    # User registration
-POST /api/v1/auth/login       # User login (returns JWT)
-```
+#### Currently Implemented
+| Endpoint | Method | Description | Authentication |
+|----------|--------|-------------|----------------|
+| `/api/v1/auth/register` | POST | User registration with full profile | None |
+| `/api/v1/auth/login` | POST | User authentication (JWT issued) | None |
+| `/api/v1/user/update-profile/{username}` | PATCH | Update user profile | JWT Required |
+| `/hello` | GET | Health check endpoint | None |
+
+#### Full API Reference
+- **Authentication API**: Complete user authentication and registration
+- **User Management API**: Profile management, account settings, status tracking
+- **Task Management API**: Full CRUD operations for tasks, categories, tags
+- **Workspace API**: Team collaboration, project management, member invitations
+- **Notification API**: Notification management, templates, delivery tracking
+- **Analytics API**: Productivity metrics, reporting, dashboard data
+- **Audit API**: Activity logs, error tracking, compliance reports
+
+*See Swagger UI for complete API documentation with interactive testing*
 
 #### Task Management
 ```http
@@ -159,58 +227,6 @@ GET    /api/v1/task/{id}      # Get task by ID
 PUT    /api/v1/task/{id}      # Update task
 DELETE /api/v1/task/{id}      # Delete task (hard delete)
 DELETE /api/v1/task/{id}/soft # Soft delete task
-
-# Advanced Operations
-PUT    /api/v1/task/{id}/status   # Update task status
-PUT    /api/v1/task/{id}/progress # Update task progress
-PATCH  /api/v1/task/batch/status  # Bulk status update
-GET    /api/v1/task/overdue       # Get overdue tasks
-GET    /api/v1/task/search        # Search tasks by keyword
-```
-
-#### User Management
-```http
-GET    /api/v1/user/profile       # Get user profile
-PUT    /api/v1/user/profile       # Update profile
-PUT    /api/v1/user/password      # Change password
-PUT    /api/v1/user/email         # Update email
-PUT    /api/v1/user/avatar        # Update avatar
-```
-
-### Sample Request/Response
-
-#### Create Task
-```json
-POST /api/v1/task/create
-{
-  "title": "Complete project documentation",
-  "description": "Write comprehensive API documentation",
-  "priority": "high",
-  "dueDate": "2024-01-15T17:00:00",
-  "estimatedHours": 8.0,
-  "category": {"id": 1},
-  "workspace": {"id": 1},
-  "metadata": {
-    "complexity": "medium",
-    "reviewRequired": true
-  }
-}
-```
-
-#### Response
-```json
-{
-  "id": 123,
-  "uuid": "550e8400-e29b-41d4-a716-446655440000",
-  "title": "Complete project documentation",
-  "status": "pending",
-  "priority": "high",
-  "progress": 0,
-  "categoryName": "Development",
-  "workspaceName": "Main Project",
-  "createdAt": "2024-01-10T10:30:00",
-  "updatedAt": "2024-01-10T10:30:00"
-}
 ```
 
 ## 🏗 Project Architecture
@@ -218,49 +234,62 @@ POST /api/v1/task/create
 ### Package Structure
 ```
 src/main/java/com/omori/taskmanagement/springboot/
-├── config/              # Configuration classes
-├── controller/          # REST controllers
-├── dto/                 # Data Transfer Objects
-│   ├── project/         # Task-related DTOs
-│   └── usermgmt/        # User-related DTOs
-├── exceptions/          # Custom exceptions and handlers
-├── model/               # JPA entities
-│   ├── audit/           # Audit and logging entities
-│   ├── collaboration/   # Collaboration entities
-│   ├── notification/    # Notification entities
-│   ├── project/         # Task and project entities
-│   └── usermgmt/        # User management entities
-├── repository/          # Data access layer
-├── security/            # Security configuration and services
-├── service/             # Business logic layer
-├── utils/               # Utility classes
-└── validation/          # Custom validators
+├── controller/          # REST API controllers
+│   ├── AuthController   # Authentication endpoints
+│   └── UserController   # User management endpoints
+├── model/              # JPA entities and domain models
+│   ├── User, Role, Task # Core business entities
+│   └── Workspace, ...   # Collaboration entities
+├── security/           # Security configuration
+│   ├── JwtService      # JWT token management
+│   ├── SecurityConfig  # Spring Security setup
+│   └── dto/            # Data transfer objects
+├── service/            # Business logic layer
+├── repository/         # Data access layer
+└── mapper/             # MapStruct mappers
+
+src/main/resources/
+├── application.yml     # Application configuration
+├── messages/           # Internationalization
+│   └── validation/     # Custom validation messages
+└── static/             # Static resources
+
+Database:
+├── init-db.sql         # Complete database schema
+└── docker-compose.yml  # PostgreSQL container setup
 ```
 
-### Key Design Patterns
-- **Repository Pattern**: Clean separation of data access logic
-- **Service Layer Pattern**: Business logic encapsulation
-- **DTO Pattern**: Data transfer and validation
-- **Builder Pattern**: Complex object construction
-- **Factory Pattern**: Object creation abstraction
+### Database Schema
 
-## 🔧 Configuration
+The application uses a comprehensive PostgreSQL schema with 6 main categories:
 
-### Application Profiles
-- `dev` - Development with debug logging
-- `prod` - Production optimizations
-- `test` - Testing configuration
+- **user_mgmt**: User accounts, roles, sessions, authentication
+- **project**: Tasks, workspaces, categories, tags, collaboration
+- **notification**: Notifications, reminders, templates
+- **collaboration**: Comments, attachments, invitations
+- **audit**: Activity logs, error tracking
+- **analytics**: User and workspace statistics
 
-### Caching Strategy
-- **Task Details**: 1-hour TTL for frequently accessed tasks
-- **User Sessions**: Redis-based session management
-- **Search Results**: 30-minute cache for search queries
+## Implementation Status
 
-### Security Configuration
-- **JWT Expiration**: 24 hours (configurable)
-- **Password Encryption**: BCrypt with strength 12
-- **CORS**: Configurable origins and methods
-- **Rate Limiting**: Redis-based request throttling
+### ✅ Fully Implemented
+- User registration and authentication with JWT
+- Comprehensive user profile management
+- Complete database schema with all relationships
+- Security configuration with role-based access control
+- Swagger/OpenAPI documentation
+- Global exception handling and validation
+- Docker containerization support
+
+### 🚧 Database-Ready (Schema Complete)
+- Full task management system with categories, tags, and hierarchy
+- Workspace and team collaboration features  
+- Notification and reminder system with templates
+- File attachment and comment system
+- Comprehensive audit trail and analytics
+- Advanced search and reporting capabilities
+
+*The extensive database schema indicates this platform is designed for enterprise-level task management with full team collaboration and analytics capabilities.*
 
 ## 🧪 Testing
 
@@ -296,19 +325,6 @@ mvn jacoco:report
 - **CSRF Protection**: Token-based protection for state-changing operations
 - **Secure Headers**: Security headers configured
 - **Audit Logging**: All security events logged
-
-## 🚀 Performance Optimizations
-
-### Database Optimizations
-- **Query Optimization**: JOIN FETCH for related entities
-- **Indexing Strategy**: Optimized indexes for common queries
-- **Connection Pooling**: HikariCP for database connections
-- **Lazy Loading**: Configured to prevent N+1 query problems
-
-### Caching Strategy
-- **Redis Caching**: Frequently accessed data cached
-- **Query Result Caching**: Database query results cached
-- **Session Caching**: User sessions stored in Redis
 
 ## 🐳 Docker Deployment
 
@@ -347,65 +363,15 @@ volumes:
 
 ## 🤝 Contributing
 
-1. **Fork the repository** and create your feature branch
-   ```bash
-   git checkout -b feature/amazing-feature
-   ```
-
-2. **Follow coding standards**
-   - Java naming conventions
-   - Comprehensive JavaDoc documentation
-   - Unit tests for new features
-   - Integration tests for endpoints
-
-3. **Commit your changes**
-   ```bash
-   git commit -m 'Add amazing feature'
-   ```
-
-4. **Push to the branch**
-   ```bash
-   git push origin feature/amazing-feature
-   ```
-
-5. **Open a Pull Request** against the `dev` branch
-
-### Code Quality Guidelines
-- **Code Coverage**: Maintain >80% test coverage
-- **Documentation**: Update API documentation for changes
-- **Performance**: Consider performance impact of changes
-- **Security**: Follow security best practices
-
-## 🐛 Troubleshooting
-
-### Common Issues
-
-#### Database Connection Issues
-```bash
-# Check PostgreSQL status
-systemctl status postgresql
-
-# Test database connection
-psql -h localhost -U postgres -d task_management
-```
-
-#### Redis Connection Issues
-```bash
-# Check Redis status
-redis-cli ping
-
-# Test Redis connection
-redis-cli -h localhost -p 6379 info
-```
-
-#### JWT Token Issues
-- Verify JWT_SECRET_KEY is properly configured
-- Check token expiration settings
-- Ensure system clock synchronization
+1. Fork this repository and create your feature branch from `dev`
+2. Follow the existing code style and conventions
+3. Add appropriate tests for new functionality
+4. Ensure all tests pass and code is properly validated
+5. Submit a pull request to `dev` with a clear description
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+See [LICENSE](LICENSE) for details.
 
 ## 👤 Author
 
@@ -439,5 +405,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [ ] Memory usage optimization
 
 ---
+
+*This task management platform combines the simplicity of personal task tracking with the power of enterprise collaboration tools, providing a scalable solution for teams of any size.*
 
 For detailed API documentation, visit the Swagger UI at http://localhost:8080/swagger-ui.html after starting the application.
