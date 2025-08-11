@@ -3,8 +3,8 @@ package com.omori.taskmanagement.springboot.model.project;
 import com.omori.taskmanagement.springboot.model.audit.JsonbConverter;
 import com.omori.taskmanagement.springboot.model.usermgmt.User;
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.validation.constraints.NotNull;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
@@ -80,12 +80,16 @@ public class Task {
     @JoinColumn(name = "parent_task_id")
     private Task parentTask;
 
-    @Column(name = "task_type")
+    @Column(name = "task_type", nullable = false)
     @Enumerated(EnumType.STRING)
+    @NotNull
     private TaskType taskType; // EPIC, STORY, TASK
 
-    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL)
-    private List<Subtask> subtasks;
+    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    @Builder.Default
+    private List<Subtask> subtasks = new ArrayList<>();
 
     @Column(nullable = false, name = "sort_order")
     private Integer sortOrder;
