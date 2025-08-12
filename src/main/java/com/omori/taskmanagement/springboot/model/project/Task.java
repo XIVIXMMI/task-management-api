@@ -3,8 +3,8 @@ package com.omori.taskmanagement.springboot.model.project;
 import com.omori.taskmanagement.springboot.model.audit.JsonbConverter;
 import com.omori.taskmanagement.springboot.model.usermgmt.User;
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.validation.constraints.NotNull;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
@@ -80,6 +80,17 @@ public class Task {
     @JoinColumn(name = "parent_task_id")
     private Task parentTask;
 
+    @Column(name = "task_type", nullable = false)
+    @Enumerated(EnumType.STRING)
+    @NotNull
+    private TaskType taskType; // EPIC, STORY, TASK
+
+    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    @Builder.Default
+    private List<Subtask> subtasks = new ArrayList<>();
+
     @Column(nullable = false, name = "sort_order")
     private Integer sortOrder;
 
@@ -112,6 +123,20 @@ public class Task {
         pending, in_progress, completed, cancelled, on_hold
     }
 
+    public enum TaskType {
+        EPIC(0), STORY(1), TASK(2);
+
+        private final int level;
+
+        TaskType(int level) {
+            this.level = level;
+        }
+
+        public int getLevel() {
+            return level;
+        }
+    }
+
     @PrePersist
     protected void onCreate() {
         if (uuid == null) {
@@ -138,8 +163,11 @@ public class Task {
         if (isRecurring == null) {
             isRecurring = false;
         }
-    }
 
+        if (taskType == null) {
+            taskType = TaskType.TASK; // Default is TASK
+        }
+    }
 
     @PreUpdate
     protected void onUpdate() {
