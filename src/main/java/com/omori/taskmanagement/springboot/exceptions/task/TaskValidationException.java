@@ -1,4 +1,4 @@
-package com.omori.taskmanagement.springboot.exceptions;
+package com.omori.taskmanagement.springboot.exceptions.task;
 
 import java.util.Map;
 

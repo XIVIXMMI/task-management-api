@@ -1,4 +1,4 @@
-package com.omori.taskmanagement.springboot.exceptions;
+package com.omori.taskmanagement.springboot.exceptions.task;
 
 public class TaskBusinessException extends RuntimeException {
     public TaskBusinessException(String message) {

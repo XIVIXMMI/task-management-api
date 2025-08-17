@@ -1,4 +1,4 @@
-package com.omori.taskmanagement.springboot.exceptions;
+package com.omori.taskmanagement.springboot.exceptions.task;
 
 public class TaskNotFoundException extends RuntimeException{
     public TaskNotFoundException(String message){

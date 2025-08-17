@@ -10,8 +10,8 @@ import org.springframework.stereotype.Service;
 import com.omori.taskmanagement.springboot.dto.project.SubtaskCreateRequest;
 import com.omori.taskmanagement.springboot.dto.project.SubtaskRequest;
 import com.omori.taskmanagement.springboot.dto.project.SubtaskUpdateRequest;
-import com.omori.taskmanagement.springboot.exceptions.SubtaskNotFoundException;
-import com.omori.taskmanagement.springboot.exceptions.TaskNotFoundException;
+import com.omori.taskmanagement.springboot.exceptions.task.SubtaskNotFoundException;
+import com.omori.taskmanagement.springboot.exceptions.task.TaskNotFoundException;
 import com.omori.taskmanagement.springboot.model.project.Subtask;
 import com.omori.taskmanagement.springboot.model.project.Task;
 import com.omori.taskmanagement.springboot.repository.project.SubtaskRepository;
@@ -30,9 +30,9 @@ public class SubTaskServiceImpl implements SubTaskService {
     private final SubtaskRepository subTaskRepository;
     private final TaskRepository taskRepository;
 
-    // may cobine 2 createSubtask function
+    // may combine 2 createSubtask function
     @Override
-    public Subtask createSubtask(SubtaskCreateRequest subtask, Long taskId, String title) {
+    public void createSubtask(SubtaskCreateRequest subtask, Long taskId, String title) {
         log.info("Creating subtask with title: {} for task ID: {}", title, taskId);
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> {
@@ -43,7 +43,7 @@ public class SubTaskServiceImpl implements SubTaskService {
 
         Subtask newSubtask = Subtask.builder()
                 .title(title)
-                .description(subtask.getDescription())
+                .description(subtask.getDescription() != null ? subtask.getDescription() : "")
                 .sortOrder(nextSortOrder)
                 .task(task)
                 .isCompleted(false)
@@ -51,7 +51,7 @@ public class SubTaskServiceImpl implements SubTaskService {
                 .updatedAt(LocalDateTime.now())
                 .build();
 
-        return subTaskRepository.save(newSubtask);
+        subTaskRepository.save(newSubtask);
     }
 
     @Override
@@ -110,13 +110,13 @@ public class SubTaskServiceImpl implements SubTaskService {
         } else {
             subtask.setCompletedAt(null);
         }
-        log.info("Toggling completion status for subtask with ID: " + subtaskId);
+        log.info("Toggling completion status for subtask with ID: {} " , subtaskId);
         return subTaskRepository.save(subtask);
     }
 
     @Override
     public List<Subtask> getSubtasksByTaskId(Long taskId) {
-        log.info("Retrieving subtasks for task with ID: " + taskId);
+        log.info("Retrieving subtasks for task with ID: {}", taskId);
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> {
                     log.warn("Task not found with ID: {}", taskId);
@@ -158,7 +158,7 @@ public class SubTaskServiceImpl implements SubTaskService {
     @Override
     public Integer getNextSortOrder(Long taskId) {
         Long maxSortOrder = subTaskRepository.findMaxSortOrderByTaskId(taskId);
-        /**
+        /*
          * Casting from Long to int could cause overflow if maxSortOrder exceeds Integer.MAX_VALUE. 
          * Consider using Integer throughout or adding overflow protection.
          */
