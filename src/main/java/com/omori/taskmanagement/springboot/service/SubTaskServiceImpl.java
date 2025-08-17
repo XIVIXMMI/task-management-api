@@ -43,7 +43,7 @@ public class SubTaskServiceImpl implements SubTaskService {
 
         Subtask newSubtask = Subtask.builder()
                 .title(title)
-                .description(subtask.getDescription() != null ? subtask.getDescription() : "")
+                .description(subtask != null && subtask.getDescription() != null ? subtask.getDescription() : "")
                 .sortOrder(nextSortOrder)
                 .task(task)
                 .isCompleted(false)

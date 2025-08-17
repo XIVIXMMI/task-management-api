@@ -78,7 +78,7 @@ public class TaskHierarchyController {
     }
 
     @LogActivity(ActionType.CREATE)
-    @PreAuthorize("hasRole('USER' or hasRole('ADMIN')")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @PostMapping("/task/{taskId}/multiple-subtasks")
     @Operation(summary = "Create multiple subtasks", description = "Create multiple subtask by titles")
     public ResponseEntity<ApiResponse<TaskResponse>> addMultipleSubtasks (
