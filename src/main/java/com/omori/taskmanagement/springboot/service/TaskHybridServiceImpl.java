@@ -1,9 +1,6 @@
 package com.omori.taskmanagement.springboot.service;
 
-import com.omori.taskmanagement.springboot.dto.project.HierarchyEpicDto;
-import com.omori.taskmanagement.springboot.dto.project.StoryWithTaskDto;
-import com.omori.taskmanagement.springboot.dto.project.TaskCreateRequest;
-import com.omori.taskmanagement.springboot.dto.project.TaskResponse;
+import com.omori.taskmanagement.springboot.dto.project.*;
 import com.omori.taskmanagement.springboot.exceptions.task.InvalidTaskTypeException;
 import com.omori.taskmanagement.springboot.exceptions.task.TaskBusinessException;
 import com.omori.taskmanagement.springboot.exceptions.UserNotFoundException;
@@ -62,9 +59,9 @@ public class TaskHybridServiceImpl implements TaskHybridService {
     public Task createStoryTask(Long userId, Task.TaskType type, TaskCreateRequest request) {
         log.debug("Creating story task for user {} ", userId);
 
-        // Validate that type is actually EPIC
+        // Validate that type is actually STORY
         if (type != Task.TaskType.STORY) {
-            throw new InvalidTaskTypeException("Expected EPIC type, but received: " + type);
+            throw new InvalidTaskTypeException("Expected STORY type, but received: " + type);
         }
 
         return createHierarchicalTask(userId, type, request);
@@ -77,8 +74,12 @@ public class TaskHybridServiceImpl implements TaskHybridService {
         Task task = taskRepository.findByIdWithRelations(taskId)
                 .orElseThrow(() -> new TaskBusinessException("Task not found with ID: " + taskId));
 
-        for( String subtaskTitle : subtasksTitles ) {
-            subTaskService.createSubtask(null, taskId, subtaskTitle);
+        for (String subtaskTitle : subtasksTitles) {
+            if (subtaskTitle == null || subtaskTitle.isBlank()) {
+                throw new TaskValidationException("All subtask titles must be non-empty",
+                        Map.of("invalidTitle", "Found null or empty title"));
+            }
+            subTaskService.createSubtask(null, taskId, subtaskTitle.trim());
         }
 
         return task;
@@ -135,15 +136,19 @@ public class TaskHybridServiceImpl implements TaskHybridService {
     @Override
     @Transactional
     public void updateEpicTaskProgress(Long epicTaskId) {
-        Task epic = taskRepository.findByIdWithRelations(epicTaskId)
-                .orElseThrow(() -> new TaskBusinessException("Task not found with ID: " + epicTaskId));
+        Task epic = taskRepository.findById(epicTaskId)
+                .orElseThrow(() -> new TaskNotFoundException("Task not found with ID: " + epicTaskId));
+        if( epic.getTaskType() != Task.TaskType.EPIC){
+            throw new TaskValidationException("Task with id + " + epicTaskId + " is not an EPIC Task",
+                    Map.of("taskType","Excepted EPIC but found " + epic.getTaskType()));
+        }
         List<Task> stories = getStoriesTaskByEpicId(epicTaskId);
         if( stories.isEmpty()) {
             log.debug("No stories found for epic task with ID {} ", epicTaskId);
             return;
         }
         double avgProgress = stories.stream()
-                .mapToInt(Task::getProgress)
+                .mapToInt(t -> Optional.ofNullable(t.getProgress()).orElse(0) )
                 .average()
                 .orElse(0.0);
         epic.setProgress((int) Math.round( avgProgress));

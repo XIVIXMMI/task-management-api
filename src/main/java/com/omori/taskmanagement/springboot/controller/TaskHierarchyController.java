@@ -69,7 +69,7 @@ public class TaskHierarchyController {
     @LogActivity(ActionType.VIEW)
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @GetMapping("/epic/{taskId}/full")
-    @Operation(summary = "View all child tasks", description = "Get all child task for a epic task")
+    @Operation(summary = "View all child tasks", description = "Get all child task for an epic task")
     public ResponseEntity<ApiResponse<HierarchyEpicDto>> getFullHierarchy(
             @PathVariable Long taskId
     ) {
@@ -80,7 +80,7 @@ public class TaskHierarchyController {
     @LogActivity(ActionType.CREATE)
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @PostMapping("/task/{taskId}/multiple-subtasks")
-    @Operation(summary = "Create multiple subtasks", description = "Create multiple subtask by titles")
+    @Operation(summary = "Create multiple subtasks", description = "Create multiple subtasks by titles")
     public ResponseEntity<ApiResponse<TaskResponse>> addMultipleSubtasks (
             @PathVariable Long taskId,
             @RequestBody List<String> sustaskTitles
