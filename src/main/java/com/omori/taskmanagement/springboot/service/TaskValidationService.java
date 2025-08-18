@@ -1,7 +1,7 @@
 package com.omori.taskmanagement.springboot.service;
 
 import com.omori.taskmanagement.springboot.dto.project.TaskCreateRequest;
-import com.omori.taskmanagement.springboot.exceptions.TaskValidationException;
+import com.omori.taskmanagement.springboot.exceptions.task.TaskValidationException;
 import com.omori.taskmanagement.springboot.model.project.Task;
 import com.omori.taskmanagement.springboot.repository.project.CategoryRepository;
 import com.omori.taskmanagement.springboot.repository.project.WorkspaceRepository;

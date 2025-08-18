@@ -15,16 +15,15 @@ public interface SubTaskService {
      * Creates a new subtask with the specified title and associates it with a task.
      *
      * @param subtask the subtask to create
-     * @param taskId the ID of the task to associate with the subtask
-     * @param title the title of the subtask
-     * @return the created subtask
+     * @param taskId  the ID of the task to associate with the subtask
+     * @param title   the title of the subtask
      */
-    Subtask createSubtask(SubtaskCreateRequest subtask, Long taskId, String title);
+    void createSubtask(SubtaskCreateRequest subtask, Long taskId, String title);
     
     /**
      * Creates a new subtask with all properties.
      *
-     * @param subtask the subtask to create
+     * @param request the subtask to create
      * @return the created subtask
      */
     Subtask createSubtask(SubtaskRequest request);
@@ -32,7 +31,7 @@ public interface SubTaskService {
     /**
      * Updates an existing subtask.
      *
-     * @param subtask the subtask to update
+     * @param subtaskId the subtask to update
      * @return the updated subtask
      */
     Subtask updateSubtask(Long subtaskId, SubtaskUpdateRequest request);
@@ -48,7 +47,7 @@ public interface SubTaskService {
     /**
      * Retrieves a subtask by its ID.
      *
-     * @param subtaskId the ID of the subtask to retrieve
+     * @param taskId the ID of the subtask to retrieve
      * @return the retrieved subtask, or null if not found
      */
     List<Subtask> getSubtasksByTaskId(Long taskId);
@@ -56,7 +55,7 @@ public interface SubTaskService {
     /**
      * Retrieves a subtask by its ID.
      *
-     * @param subtaskId the ID of the subtask to retrieve
+     * @param taskId the ID of the subtask to retrieve
      * @return the retrieved subtask, or null if not found
      */
     List<Subtask> reorderSubtasks(Long taskId, List<Long> subtaskIds);
@@ -64,7 +63,7 @@ public interface SubTaskService {
     /**
      * Retrieves a subtask by its ID.
      *
-     * @param subtaskId the ID of the subtask to retrieve
+     * @param taskId the ID of the subtask to retrieve
      * @return the retrieved subtask, or null if not found
      */
     Integer getNextSortOrder(Long taskId);

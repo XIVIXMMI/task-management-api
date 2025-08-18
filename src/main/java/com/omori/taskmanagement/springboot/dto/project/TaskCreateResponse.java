@@ -8,6 +8,7 @@ public record TaskCreateResponse(
         Long id,
         String title,
         String description,
+        Task.TaskType type,
         Task.TaskPriority priority,
         LocalDateTime dueDate,
         LocalDateTime startDate
@@ -17,6 +18,7 @@ public record TaskCreateResponse(
                 task.getId(),
                 task.getTitle(),
                 task.getDescription(),
+                task.getTaskType(),
                 task.getPriority(),
                 task.getDueDate(),
                 task.getStartDate()

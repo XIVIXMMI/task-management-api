@@ -1,15 +1,11 @@
 package com.omori.taskmanagement.springboot.service;
 
 import com.omori.taskmanagement.springboot.dto.project.TaskCreateRequest;
-import com.omori.taskmanagement.springboot.dto.project.TaskResponse;
 import com.omori.taskmanagement.springboot.dto.project.TaskFilterRequest;
+import com.omori.taskmanagement.springboot.dto.project.TaskResponse;
 import com.omori.taskmanagement.springboot.dto.project.TaskUpdateRequest;
-import com.omori.taskmanagement.springboot.exceptions.TaskAccessDeniedException;
-import com.omori.taskmanagement.springboot.exceptions.TaskBusinessException;
-import com.omori.taskmanagement.springboot.exceptions.TaskNotFoundException;
-import com.omori.taskmanagement.springboot.exceptions.TaskValidationException;
-import com.omori.taskmanagement.springboot.exceptions.UserNotFoundException;
-import com.omori.taskmanagement.springboot.exceptions.WorkspaceNotFoundException;
+import com.omori.taskmanagement.springboot.exceptions.*;
+import com.omori.taskmanagement.springboot.exceptions.task.*;
 import com.omori.taskmanagement.springboot.model.project.Category;
 import com.omori.taskmanagement.springboot.model.project.Task;
 import com.omori.taskmanagement.springboot.model.project.Workspace;
@@ -20,14 +16,14 @@ import com.omori.taskmanagement.springboot.repository.project.WorkspaceRepositor
 import com.omori.taskmanagement.springboot.repository.usermgmt.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
@@ -69,6 +65,7 @@ public class TaskServiceImpl implements TaskService {
                     .startDate(request.getStartDate())
                     .priority(request.getPriority())
                     .status(Task.TaskStatus.pending)
+                    //.taskType(Task.TaskType.TASK)
                     .estimatedHours(request.getEstimatedHours())
                     .actualHours(0.0)
                     .progress(0)
@@ -92,8 +89,9 @@ public class TaskServiceImpl implements TaskService {
             log.error("Error creating task for user id {} ", id, e);
             throw new TaskBusinessException("Failed to create task: " + e.getMessage(), e);
         }
-
     }
+
+
 
     // Helper method to set task relations
     private void setTaskRelations(Task task, Long categoryId, Long assignedToId, Long workspaceId) {
@@ -144,7 +142,7 @@ public class TaskServiceImpl implements TaskService {
         return TaskResponse.from(task);
     }
 
-    @Override   
+    @Override
     @Transactional(readOnly = true)
     @Cacheable(value = "tasks", key = "#userId + '_' + T(java.util.Objects).hash(#filter)")
     public Page<TaskResponse> getTasksByUser(Long userId, TaskFilterRequest filter) {
@@ -182,6 +180,7 @@ public class TaskServiceImpl implements TaskService {
         task.setStartDate(request.getStartDate());
         task.setPriority(request.getPriority());
         task.setStatus(request.getStatus());
+        //task.setTaskType(Task.TaskType.TASK);
         task.setEstimatedHours(request.getEstimatedHours());
         task.setActualHours(request.getActualHours());
         task.setProgress(request.getProgress());

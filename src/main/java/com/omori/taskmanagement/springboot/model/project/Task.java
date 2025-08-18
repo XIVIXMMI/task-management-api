@@ -1,5 +1,6 @@
 package com.omori.taskmanagement.springboot.model.project;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.omori.taskmanagement.springboot.model.audit.JsonbConverter;
 import com.omori.taskmanagement.springboot.model.usermgmt.User;
 import jakarta.persistence.*;
@@ -69,6 +70,7 @@ public class Task {
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnoreProperties({"hibernateLazyInitializer","handler"})
     @JoinColumn(name = "assigned_to", nullable = true)
     private User assignedTo;
 
@@ -123,6 +125,7 @@ public class Task {
         pending, in_progress, completed, cancelled, on_hold
     }
 
+    @Getter
     public enum TaskType {
         EPIC(0), STORY(1), TASK(2);
 
@@ -131,9 +134,25 @@ public class Task {
         TaskType(int level) {
             this.level = level;
         }
+        // Helper methods for level comparison
+        public boolean isHigherThan(TaskType other) {
+            return this.level < other.level; // Lower level = higher priority
+        }
 
-        public int getLevel() {
-            return level;
+        public boolean isLowerThan(TaskType other) {
+            return this.level > other.level;
+        }
+
+        public boolean canContain(TaskType childType) {
+            return this.level < childType.level;
+        }
+
+        // Convert level to TaskType
+        public static TaskType fromLevel(int level) {
+            return Arrays.stream(values())
+                    .filter(type -> type.level == level)
+                    .findFirst()
+                    .orElseThrow(() -> new IllegalArgumentException("Invalid level: " + level));
         }
     }
 
