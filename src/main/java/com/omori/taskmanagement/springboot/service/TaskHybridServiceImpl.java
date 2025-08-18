@@ -12,6 +12,7 @@ import com.omori.taskmanagement.springboot.model.project.Task;
 import com.omori.taskmanagement.springboot.model.project.Workspace;
 import com.omori.taskmanagement.springboot.model.usermgmt.User;
 import com.omori.taskmanagement.springboot.repository.project.CategoryRepository;
+import com.omori.taskmanagement.springboot.repository.project.SubtaskRepository;
 import com.omori.taskmanagement.springboot.repository.project.TaskRepository;
 import com.omori.taskmanagement.springboot.repository.project.WorkspaceRepository;
 import com.omori.taskmanagement.springboot.repository.usermgmt.UserRepository;
@@ -22,9 +23,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -36,6 +39,7 @@ public class TaskHybridServiceImpl implements TaskHybridService {
     private final CategoryRepository categoryRepository;
     private final WorkspaceRepository workspaceRepository;
     private final TaskRepository taskRepository;
+    private final SubtaskRepository subtaskRepository;
 
     private final SubTaskService subTaskService;
 
@@ -100,34 +104,45 @@ public class TaskHybridServiceImpl implements TaskHybridService {
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public HierarchyEpicDto getFullHierarchy(Long epicId){
         log.debug("Getting full hierarchy for epic task with ID {} ", epicId);
-        // Validate task existed and is EPIC task 
-        Task epic = taskRepository.findByIdWithRelations(epicId)
+
+        // Single query to get all tasks in hierarchy
+        List<Task> allTasks = taskRepository.findAllTasksUnderEpic(epicId);
+
+        Task epic = allTasks.stream()
+                .filter( t -> t.getId().equals(epicId))
+                .findFirst()
                 .orElseThrow(() -> new TaskNotFoundException("Task not found with ID: " + epicId));
 
-        if( epic.getTaskType() != Task.TaskType.EPIC){
-            throw new TaskValidationException("Task with id + " + epicId + " is not an EPIC Task",
-                Map.of("taskType","Excepted EPIC but found " + epic.getTaskType()));
-
+        if (epic.getTaskType() != Task.TaskType.EPIC) {
+            throw new TaskValidationException("Task with id " + epicId + " is not an EPIC task",
+                    Map.of("taskType", "Expected EPIC but found " + epic.getTaskType()));
         }
 
-        List<Task> stories = getStoriesTaskByEpicId(epicId);
+        // Group by parent efficiently
+        Map<Long, List<Task>> tasksByParent = allTasks.stream()
+                .filter(t -> t.getParentTask() != null)
+                .collect(Collectors.groupingBy( t -> t.getParentTask().getId()));
 
+        // Build hierarchy in one pass
         HierarchyEpicDto hierarchy = new HierarchyEpicDto();
         hierarchy.setEpic(TaskResponse.from(epic));
 
-        for( Task story : stories ) {
-            StoryWithTaskDto storyWithTaskDto = new StoryWithTaskDto();
-            storyWithTaskDto.setStory(TaskResponse.from(story));
-            storyWithTaskDto.setTasks(getTasksByStoryId(story.getId()));
+        List<Task> stories = tasksByParent.getOrDefault(epicId, Collections.emptyList());
 
-            // load subtask for each task
-            for(Task task : storyWithTaskDto.getTasks()) {
-                List<Subtask> subtasks = subTaskService.getSubtasksByTaskId(task.getId());
-                task.setSubtasks(subtasks);
-            }
+        for( Task story : stories ) {
+//            if (!hierarchy.getStories().isEmpty()) {
+//                loadSubtasksForHierarchy(hierarchy);
+//            }
+            StoryWithTaskDto storyWithTaskDto = new StoryWithTaskDto();
+            storyWithTaskDto.setStory(TaskResponse.from(story)); // Convert Task to TaskResponse
+            List<TaskResponse> taskResponses = tasksByParent.getOrDefault(story.getId(), Collections.emptyList())
+                    .stream()
+                    .map(TaskResponse::from)
+                    .toList();
+            storyWithTaskDto.setTasks(taskResponses);
             hierarchy.getStories().add(storyWithTaskDto);
         }
         return hierarchy;
@@ -216,7 +231,7 @@ public class TaskHybridServiceImpl implements TaskHybridService {
                 request.getAssignedToId(),
                 request.getWorkspaceId());
 
-        // Set parent task if creating STORY or EPIC
+        // Set a parent task if creating STORY or EPIC
         if( request.getParentId() != null){
             Task parentTask = taskRepository.findById(request.getParentId())
                     .orElseThrow(() -> new TaskNotFoundException("Parent task not found with ID: "
@@ -243,12 +258,38 @@ public class TaskHybridServiceImpl implements TaskHybridService {
             throw new TaskBusinessException("Failed to create epic task", e);
         }
     }
+//
+//    private void loadSubtasksForHierarchy(HierarchyEpicDto hierarchy) {
+//        // Collect all task IDs that need subtasks
+//        List<Long> allTaskIds = hierarchy.getStories().stream()
+//                .flatMap(story -> story.getTasks().stream())
+//                .map(TaskResponse::getId)
+//                .collect(Collectors.toList());
+//
+//        if (allTaskIds.isEmpty()) {
+//            return;
+//        }
+//
+//        // Bulk load all subtasks in one query
+//        List<Subtask> allSubtasks = subtaskRepository.findByTaskIdInAndDeletedAtIsNull(allTaskIds);
+//
+//        // Group subtasks by task ID
+//        Map<Long, List<Subtask>> subtasksByTaskId = allSubtasks.stream()
+//                .collect(Collectors.groupingBy(s -> s.getTask().getId()));
+//
+//        // Assign subtasks to tasks
+//        hierarchy.getStories().forEach(story ->
+//                story.getTasks().forEach(task ->
+//                        task.setSubtasks(subtasksByTaskId.getOrDefault(task.getId(), Collections.emptyList()))
+//                )
+//        );
+//    }
 
-    private Long getNextSortOrderForParent(Long parentTaskId) {
+    private Integer getNextSortOrderForParent(Long parentTaskId) {
         // Implementation to get next sort order
         return taskRepository.findMaxSortOrderByParentTaskId(parentTaskId)
                 .map(max -> max + 1)
-                .orElse(0L);
+                .orElse(0);
     }
 
     // Helper method to set task relations

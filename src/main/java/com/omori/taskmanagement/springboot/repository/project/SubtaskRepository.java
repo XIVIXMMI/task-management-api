@@ -109,4 +109,11 @@ public interface SubtaskRepository extends JpaRepository<Subtask, Long> {
      * @param id the ID of the task
      */
     void deleteByTaskId(Long id);
+
+    /**
+     * Bulk load subtasks for multiple tasks efficiently.
+     * Performance: Single query instead of N queries
+     */
+    @Query("SELECT s FROM Subtask s WHERE s.task.id IN :taskIds AND s.deletedAt IS NULL ORDER BY s.task.id, s.sortOrder")
+    List<Subtask> findByTaskIdInAndDeletedAtIsNull(@Param("taskIds") List<Long> taskIds);
 }
