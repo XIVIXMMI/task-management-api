@@ -219,7 +219,8 @@ public class TaskHybridServiceImpl implements TaskHybridService {
         // Set parent task if creating STORY or EPIC
         if( request.getParentId() != null){
             Task parentTask = taskRepository.findById(request.getParentId())
-                    .orElseThrow(() -> new TaskNotFoundException("Parent task not found with ID: " + request.getParentId()));
+                    .orElseThrow(() -> new TaskNotFoundException("Parent task not found with ID: "
+                            + request.getParentId()));
 
             // Validate hierarchy
             if(!parentTask.getTaskType().canContain(type)){

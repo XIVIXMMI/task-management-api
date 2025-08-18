@@ -17,7 +17,7 @@ public interface SubtaskRepository extends JpaRepository<Subtask, Long> {
     /**
      * Finds all subtasks by task ID and filters out deleted subtasks.
      *
-     * @param task the ID of the task
+     * @param  taskId the ID of the task
      * @return a list of non-deleted subtasks associated with the given task ID,
      *         ordered by sort order
      */

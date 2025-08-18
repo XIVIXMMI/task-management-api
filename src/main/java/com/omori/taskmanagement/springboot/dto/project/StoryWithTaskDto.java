@@ -11,5 +11,5 @@ import java.util.List;
 @Setter
 public class StoryWithTaskDto {
     private TaskResponse story;
-    private List<Task> tasks = new ArrayList<>();
+    private List<TaskResponse> tasks = new ArrayList<>();
 }
