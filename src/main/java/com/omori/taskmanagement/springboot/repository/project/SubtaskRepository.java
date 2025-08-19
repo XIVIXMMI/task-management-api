@@ -17,7 +17,7 @@ public interface SubtaskRepository extends JpaRepository<Subtask, Long> {
     /**
      * Finds all subtasks by task ID and filters out deleted subtasks.
      *
-     * @param task the ID of the task
+     * @param  taskId the ID of the task
      * @return a list of non-deleted subtasks associated with the given task ID,
      *         ordered by sort order
      */
@@ -109,4 +109,11 @@ public interface SubtaskRepository extends JpaRepository<Subtask, Long> {
      * @param id the ID of the task
      */
     void deleteByTaskId(Long id);
+
+    /**
+     * Bulk load subtasks for multiple tasks efficiently.
+     * Performance: Single query instead of N queries
+     */
+    @Query("SELECT s FROM Subtask s WHERE s.task.id IN :taskIds AND s.deletedAt IS NULL ORDER BY s.task.id, s.sortOrder")
+    List<Subtask> findByTaskIdInAndDeletedAtIsNull(@Param("taskIds") List<Long> taskIds);
 }

@@ -35,6 +35,8 @@ public class TaskCreateRequest {
 
     private Task.TaskStatus status;
 
+    @NotNull( message = "Type is not required")
+    @Schema(description = "Type of task (EPIC, STORY, TASK)", example = "STORY")
     private Task.TaskType type;
 
     @NotNull( message = "Priority is not required")
@@ -44,6 +46,7 @@ public class TaskCreateRequest {
     @Schema(description = "Estimated completion time", example = "3.5")
     private Double estimatedHours;
 
+    @Schema(description = "Parent Task ID", example = "12")
     private Long parentId;
 
     @Schema(description = "Category of task", example = "projects, team")
