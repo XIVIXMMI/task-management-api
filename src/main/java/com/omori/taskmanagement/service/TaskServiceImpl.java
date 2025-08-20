@@ -6,7 +6,6 @@ import com.omori.taskmanagement.dto.project.TaskResponse;
 import com.omori.taskmanagement.dto.project.TaskUpdateRequest;
 import com.omori.taskmanagement.exceptions.UserNotFoundException;
 import com.omori.taskmanagement.exceptions.task.*;
-import com.omori.taskmanagement.springboot.exceptions.task.*;
 import com.omori.taskmanagement.model.project.Category;
 import com.omori.taskmanagement.model.project.Task;
 import com.omori.taskmanagement.model.project.Workspace;

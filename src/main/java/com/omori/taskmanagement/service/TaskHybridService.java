@@ -25,4 +25,5 @@ public interface TaskHybridService {
     HierarchyEpicDto getFullHierarchy(Long epicId);
     void updateEpicTaskProgress(Long epicTaskId);
     void updateStoryTaskProgress(Long storyTaskId);
+    void updateTaskProgressFromSubtasks(Long taskId);
 }

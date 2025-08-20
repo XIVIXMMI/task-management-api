@@ -45,7 +45,12 @@ public class TaskResponse implements Serializable {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
+    @Builder.Default
     private List<SubtaskResponse> subtasks = new ArrayList<>();
+    
+    private Task.TaskType taskType;
+    private Long parentTaskId;
+    private String parentTaskTitle;
 
     public static TaskResponse from(Task task) {
         return TaskResponse.builder()
@@ -70,7 +75,9 @@ public class TaskResponse implements Serializable {
                 .metadata(task.getMetadata())
                 .createdAt(task.getCreatedAt())
                 .updatedAt(task.getUpdatedAt())
-                .subtasks(new ArrayList<>())
+                .taskType(task.getTaskType())
+                .parentTaskId(task.getParentTask() != null ? task.getParentTask().getId() : null)
+                .parentTaskTitle(task.getParentTask() != null ? task.getParentTask().getTitle() : null)
                 .build();
     }
 

@@ -18,9 +18,11 @@ import com.omori.taskmanagement.repository.project.WorkspaceRepository;
 import com.omori.taskmanagement.repository.usermgmt.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.event.EventListener;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.omori.taskmanagement.model.events.TaskProgressUpdateEvent;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -210,6 +212,71 @@ public class TaskHybridServiceImpl implements TaskHybridService {
             updateEpicTaskProgress(story.getParentTask().getId());
         }
         log.debug("Updated progress for story task with ID {} ", storyTaskId);
+    }
+
+    @Override
+    @Transactional
+    public void updateTaskProgressFromSubtasks(Long taskId) {
+        log.debug("Updating progress from subtask for task with ID {} ", taskId);
+
+        Task task = taskRepository.findByIdWithRelations(taskId)
+                .orElseThrow(() -> new TaskBusinessException("Task not found with ID: " + taskId));
+
+        List<Subtask> subtasks = subTaskService.getSubtasksByTaskId(taskId);
+        if (subtasks.isEmpty()){
+            log.debug("No subtasks found for task with ID {} ", taskId);
+            return;
+        }
+
+        // calculate progress based on subtasks completed
+        long completedCount = subtasks.stream()
+                .mapToLong(s -> Boolean.TRUE.equals(s.getIsCompleted()) ? 1 : 0)
+                .sum();
+
+        int progressPercent = (int) ((completedCount * 100) / subtasks.size());
+        log.debug("Task ID: {} has {}/{} subtasks completed, setting progress to {}%",
+                taskId, completedCount, subtasks.size(), progressPercent);
+
+        // Update task progress based on subtask completion
+        task.setProgress(progressPercent);
+        task.setUpdatedAt(LocalDateTime.now());
+
+        try {
+            taskRepository.save(task);
+            log.debug("Successfully updated progress for task with ID {} ", taskId);
+        } catch (DataAccessException e) {
+            log.error("Failed to update progress for task with ID {}: {}", taskId, e.getMessage());
+            throw new TaskBusinessException("Failed to update progress", e);
+        }
+
+
+        // Trigger cascade update to parent task
+        if (task.getParentTask() != null && task.getParentTask().getId() != null) {
+            Long parentId = task.getParentTask().getId();
+            Task.TaskType parentType = task.getParentTask().getTaskType();
+
+            log.debug("Triggering update to parent task with ID {} of type {}", taskId, parentId);
+
+            if (parentType == Task.TaskType.STORY) {
+                updateStoryTaskProgress(parentId);
+            } else if (parentType == Task.TaskType.EPIC) {
+                updateEpicTaskProgress(parentId);
+            }
+
+            log.debug("Successfully triggered update to parent task with ID {} of type {}", taskId, parentType);
+        }
+    }
+    
+    /**
+     * Event listener that handles task progress updates triggered by subtask changes.
+     * This breaks the circular dependency between SubTaskService and TaskHybridService.
+     */
+    @EventListener
+    @Transactional
+    public void handleTaskProgressUpdateEvent(TaskProgressUpdateEvent event) {
+        log.debug("Handling task progress update event for task ID: {} - Reason: {}", 
+                event.getTaskId(), event.getReason());
+        updateTaskProgressFromSubtasks(event.getTaskId());
     }
 
     /**

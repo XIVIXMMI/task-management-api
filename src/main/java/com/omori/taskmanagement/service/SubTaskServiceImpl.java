@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import com.omori.taskmanagement.dto.project.SubtaskCreateRequest;
@@ -12,6 +13,7 @@ import com.omori.taskmanagement.dto.project.SubtaskRequest;
 import com.omori.taskmanagement.dto.project.SubtaskUpdateRequest;
 import com.omori.taskmanagement.exceptions.task.SubtaskNotFoundException;
 import com.omori.taskmanagement.exceptions.task.TaskNotFoundException;
+import com.omori.taskmanagement.model.events.TaskProgressUpdateEvent;
 import com.omori.taskmanagement.model.project.Subtask;
 import com.omori.taskmanagement.model.project.Task;
 import com.omori.taskmanagement.repository.project.SubtaskRepository;
@@ -29,6 +31,7 @@ public class SubTaskServiceImpl implements SubTaskService {
 
     private final SubtaskRepository subTaskRepository;
     private final TaskRepository taskRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     // may combine 2 createSubtask function
     @Override
@@ -111,7 +114,16 @@ public class SubTaskServiceImpl implements SubTaskService {
             subtask.setCompletedAt(null);
         }
         log.info("Toggling completion status for subtask with ID: {} " , subtaskId);
-        return subTaskRepository.save(subtask);
+        Subtask saved = subTaskRepository.save(subtask);
+        
+        // Publish event to update parent task progress
+        eventPublisher.publishEvent(new TaskProgressUpdateEvent(
+            this, 
+            subtask.getTask().getId(), 
+            "Subtask completion toggled"
+        ));
+        
+        return saved;
     }
 
     @Override
@@ -171,9 +183,17 @@ public class SubTaskServiceImpl implements SubTaskService {
     public void deleteSubtask(Long subtaskId) {
         Subtask subtask = subTaskRepository.findById(subtaskId)
                 .orElseThrow(() -> new SubtaskNotFoundException("Subtask not found with id: " + subtaskId));
-
+        
+        Long taskId = subtask.getTask().getId();
         subTaskRepository.delete(subtask);
         log.info("Deleted subtask with ID: {}", subtaskId);
+        
+        // Publish event to update parent task progress after deletion
+        eventPublisher.publishEvent(new TaskProgressUpdateEvent(
+            this, 
+            taskId, 
+            "Subtask deleted"
+        ));
     }
 
     @Override
@@ -181,9 +201,17 @@ public class SubTaskServiceImpl implements SubTaskService {
         Subtask subtask = subTaskRepository.findByIdAndDeletedAtIsNull(subtaskId)
                 .orElseThrow(() -> new SubtaskNotFoundException("Subtask not found with id: " + subtaskId));
 
+        Long taskId = subtask.getTask().getId();
         subtask.setDeletedAt(LocalDateTime.now());
         subTaskRepository.save(subtask);
         log.info("Soft deleted subtask with ID: {}", subtaskId);
+        
+        // Publish event to update parent task progress after soft deletion
+        eventPublisher.publishEvent(new TaskProgressUpdateEvent(
+            this, 
+            taskId, 
+            "Subtask soft deleted"
+        ));
     }
 
 }

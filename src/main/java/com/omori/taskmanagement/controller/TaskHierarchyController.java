@@ -2,11 +2,7 @@ package com.omori.taskmanagement.controller;
 
 import com.omori.taskmanagement.annotations.LogActivity;
 import com.omori.taskmanagement.dto.common.ApiResponse;
-import com.omori.taskmanagement.dto.project.HierarchyEpicDto;
-import com.omori.taskmanagement.dto.project.SubtaskResponse;
-import com.omori.taskmanagement.dto.project.TaskCreateRequest;
-import com.omori.taskmanagement.dto.project.TaskCreateResponse;
-import com.omori.taskmanagement.springboot.dto.project.*;
+import com.omori.taskmanagement.dto.project.*;
 import com.omori.taskmanagement.model.audit.ActionType;
 import com.omori.taskmanagement.model.project.Subtask;
 import com.omori.taskmanagement.model.project.Task;
@@ -138,6 +134,14 @@ public class TaskHierarchyController {
                 .collect(Collectors.toList());
         return ResponseEntity.ok(ApiResponse.success(response));
     }
+
+//    @PatchMapping("/epic/{epicId}/epic-progress")
+//    @Operation(summary = "Update progress for epic task", description = "Update progress for epic task by task id")
+//    public ResponseEntity<ApiResponse<HierarchyEpicDto>> updateEpicProgress(
+//            @PathVariable Long epicId,
+//    ) {
+//
+//    }
 
 
 }

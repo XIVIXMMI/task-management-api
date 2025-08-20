@@ -158,7 +158,7 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
         @Query("SELECT t FROM Task t WHERE (" +
                 "t.id = :epicId OR " +
                 "t.parentTask.id = :epicId OR " +
-                "t.parentTask.id IN (SELECT s.id FROM Task s WHERE s.parentTask.id = :epicId" +
+                "t.parentTask.id IN (SELECT s.id FROM Task s WHERE s.parentTask.id = :epicId)" +
                 ") AND t.deletedAt IS NULL ORDER BY t.sortOrder")
         List<Task> findAllTasksUnderEpic(@Param("epicId") Long epicId);
 
