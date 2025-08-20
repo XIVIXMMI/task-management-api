@@ -1,0 +1,12 @@
+package com.omori.taskmanagement.exceptions.task;
+
+public class SubtaskNotFoundException extends RuntimeException {
+    public SubtaskNotFoundException(String message) {
+        super(message);
+    }
+
+    public SubtaskNotFoundException(String message, Throwable cause) {
+        super(message, cause);
+    }
+    
+}
