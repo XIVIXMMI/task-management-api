@@ -40,7 +40,7 @@ public class ActivityLoggingAspect {
     //private final ObjectMapper objectMapper;
     private final UserService userService;
 
-    @Pointcut("@annotation(annotations.com.omori.taskmanagement.LogActivity)")
+    @Pointcut("@annotation(com.omori.taskmanagement.annotations.LogActivity)")
     public void loggableMethods() {}
 
     @Around("loggableMethods()")

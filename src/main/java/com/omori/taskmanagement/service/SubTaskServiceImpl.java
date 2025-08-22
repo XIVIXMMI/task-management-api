@@ -55,6 +55,13 @@ public class SubTaskServiceImpl implements SubTaskService {
                 .build();
 
         subTaskRepository.save(newSubtask);
+        
+        // Publish event to update parent task progress
+        eventPublisher.publishEvent(new TaskProgressUpdateEvent(
+            this, 
+            taskId, 
+            "Subtask created"
+        ));
     }
 
     @Override
@@ -78,7 +85,16 @@ public class SubTaskServiceImpl implements SubTaskService {
                 .updatedAt(LocalDateTime.now())
                 .build();
 
-        return subTaskRepository.save(newSubtask);
+        Subtask saved = subTaskRepository.save(newSubtask);
+        
+        // Publish event to update parent task progress
+        eventPublisher.publishEvent(new TaskProgressUpdateEvent(
+            this, 
+            request.getTaskId(), 
+            "Subtask created"
+        ));
+        
+        return saved;
     }
 
     @Override
@@ -97,7 +113,16 @@ public class SubTaskServiceImpl implements SubTaskService {
         }
         subtask.setUpdatedAt(LocalDateTime.now());
 
-        return subTaskRepository.save(subtask);
+        Subtask saved = subTaskRepository.save(subtask);
+        
+        // Publish event to update parent task progress after update
+        eventPublisher.publishEvent(new TaskProgressUpdateEvent(
+            this, 
+            subtask.getTask().getId(), 
+            "Subtask updated"
+        ));
+        
+        return saved;
     }
 
     @Override
@@ -118,11 +143,10 @@ public class SubTaskServiceImpl implements SubTaskService {
         
         // Publish event to update parent task progress
         eventPublisher.publishEvent(new TaskProgressUpdateEvent(
-            this, 
-            subtask.getTask().getId(), 
-            "Subtask completion toggled"
-        ));
-        
+                this,
+                subtask.getTask().getId(),
+                "Subtask completion toggled"));
+
         return saved;
     }
 

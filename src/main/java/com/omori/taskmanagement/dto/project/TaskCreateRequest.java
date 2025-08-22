@@ -35,11 +35,11 @@ public class TaskCreateRequest {
 
     private Task.TaskStatus status;
 
-    @NotNull( message = "Type is not required")
+    @NotNull( message = "Type is required")
     @Schema(description = "Type of task (EPIC, STORY, TASK)", example = "STORY")
     private Task.TaskType type;
 
-    @NotNull( message = "Priority is not required")
+    @NotNull( message = "Priority is required")
     @Schema(description = "Important level of task (low,medium,high,urgent)", example = "medium")
     private Task.TaskPriority priority;
 
