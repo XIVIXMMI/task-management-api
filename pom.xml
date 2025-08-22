@@ -81,12 +81,12 @@
             <artifactId>spring-session-data-redis</artifactId>
         </dependency>
 
-        <!-- <dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-devtools</artifactId>
             <scope>runtime</scope>
             <optional>true</optional>
-        </dependency> -->
+        </dependency>
 
         <dependency>
             <groupId>com.auth0</groupId>
@@ -144,12 +144,6 @@
             <version>3.0.0</version>
         </dependency>
 
-        <!-- <dependency>
-            <groupId>com.vladmihalcea</groupId>
-            <artifactId>hibernate-types-60</artifactId>
-            <version>2.21.1</version>
-        </dependency> -->
-
         <!-- Jackson dependencies - let Spring Boot manage versions -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -172,20 +166,23 @@
             <version>6.6.0.Final</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+            <version>10.10.0</version> <!-- Latest that supports PostgreSQL 16 -->
+        </dependency>
+
     </dependencies>
 
-
     <build>
-
         <finalName>task-management</finalName>
-
         <plugins>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.11.0</version>
                 <configuration>
+
                     <annotationProcessorPaths>
                         <path>
                             <groupId>org.projectlombok</groupId>
@@ -205,6 +202,7 @@
                     </annotationProcessorPaths>
                     <compilerArgs>
                         <arg>-Amapstruct.verbose=true</arg>
+                        <arg>-implicit:class</arg>
                     </compilerArgs>
                 </configuration>
             </plugin>

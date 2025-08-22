@@ -191,9 +191,9 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
          * @return total count of non-deleted subtasks, 0 if no subtasks exist
          */
         @Query("SELECT COUNT(s) FROM Subtask s WHERE s.task.id = :taskId AND s.deletedAt IS NULL")
-        Integer countSubtasksByTaskId(@Param("taskId") Long taskId);
+        Long countSubtasksByTaskId(@Param("taskId") Long taskId);
 
         @Query("SELECT COUNT(s) FROM Subtask s WHERE s.task.id = :taskId AND s.isCompleted = true AND s.deletedAt IS NULL")
-        Integer countCompletedSubtasksByTaskId(@Param("taskId") Long taskId);
+        Long countCompletedSubtasksByTaskId(@Param("taskId") Long taskId);
 
 }

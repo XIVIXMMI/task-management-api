@@ -3,16 +3,14 @@ server:
     enabled: true
 
 spring:
-  profiles:
-    active: dev  # Default to development
-  # devtools:
-  #   add-properties: false
-  #   restart:
-  #     enabled: false
-  #     exclude: static/**,public/**,templates/**
-  #   livereload:
-  #     enabled: true
-  #     port: 35729
+  devtools:
+    add-properties: false
+    restart:
+      enabled: false
+      exclude: static/**,public/**,templates/**
+    livereload:
+      enabled: true
+      port: 35729
   datasource:
     url: ${DB_URL}
     username: ${DB_USERNAME}
@@ -30,7 +28,8 @@ spring:
     baseline-on-migrate: true
   jpa:
     hibernate:
-      ddl-auto: validate # Ensure Hibernate doesn't modify schema
+      ddl-auto: update
+    #show-sql: true
     open-in-view: false
     properties:
       hibernate:
@@ -50,14 +49,13 @@ spring:
   cache:
     type: redis
     redis:
-      time-to-live: 3600000 
+      time-to-live: 3600000
       cache-null-values: false
       key-prefix: task_management_
       use-key-prefix: true
 
 springdoc:
   show-actuator: true
-
 
 management:
   endpoint:

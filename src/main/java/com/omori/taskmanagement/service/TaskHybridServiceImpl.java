@@ -172,8 +172,17 @@ public class TaskHybridServiceImpl implements TaskHybridService {
     @Transactional(readOnly = true)
     public HierarchyEpicDto getFullHierarchyByUuid(String epicUuid){
         log.debug("Getting full hierarchy for epic task with Uuid {} ", epicUuid);
-        UUID uuid = UUID.fromString(epicUuid);
-        
+        UUID uuid;
+
+        try {
+            uuid = UUID.fromString(epicUuid);
+        } catch (IllegalArgumentException e) {
+            throw new TaskValidationException(
+                    "Invalid UUID format: " + epicUuid,
+                    Map.of("uuid", "Invalid UUID format: " + epicUuid)
+            );
+        }
+
         List<Task> allTasks = taskRepository.findAllTasksUnderEpicByUuid(uuid);
         Task epic = allTasks.stream()
                 .filter( t -> t.getUuid().equals(uuid))

@@ -1,0 +1,70 @@
+name: Deploy with Tailscale
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+    
+    - name: Build application
+      run: |
+        mvn clean package -DskipTests -Dspring.profiles.active=prod
+    
+    - name: Build Docker image
+      run: |
+        docker build -t task-management:latest .
+        docker save task-management:latest > task-management.tar
+    
+    # Connect to Tailscale network
+    - name: Connect to Tailscale
+      uses: tailscale/github-action@v2
+      with:
+        oauth-client-id: ${{ secrets.TAILSCALE_OAUTH_CLIENT_ID }}
+        oauth-secret: ${{ secrets.TAILSCALE_OAUTH_SECRET }}
+        tags: tag:ci
+    
+    # Now you can use Tailscale IP directly
+    - name: Deploy to server via Tailscale
+      uses: appleboy/scp-action@v0.1.4
+      with:
+        host: ${{ secrets.TAILSCALE_SERVER_IP }}  # Use Tailscale IP here
+        username: ${{ secrets.SERVER_USER }}
+        key: ${{ secrets.SERVER_SSH_KEY }}
+        source: "task-management.tar"
+        target: "/tmp/"
+    
+    - name: Deploy application
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.TAILSCALE_SERVER_IP }}  # Use Tailscale IP here
+        username: ${{ secrets.SERVER_USER }}
+        key: ${{ secrets.SERVER_SSH_KEY }}
+        script: |
+          cd /opt/task-management
+          
+          # Load new Docker image
+          docker load < /tmp/task-management.tar
+          
+          # Deploy with environment variables
+          export DB_PASSWORD="${{ secrets.DB_PASSWORD }}"
+          export JWT_SECRET_KEY="${{ secrets.JWT_SECRET_KEY }}"
+          
+          # Restart application
+          docker-compose -f docker-compose.prod.yml down
+          docker-compose -f docker-compose.prod.yml up -d
+          
+          # Health check using Tailscale IP
+          sleep 30
+          curl -f http://localhost:8080/actuator/health
