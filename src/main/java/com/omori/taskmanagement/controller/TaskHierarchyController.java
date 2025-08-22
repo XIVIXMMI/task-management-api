@@ -78,7 +78,7 @@ public class TaskHierarchyController {
         request.setParentId(epicId);
         request.setType(Task.TaskType.STORY);
 
-        Task task = taskHybridService.createTask(
+        Task task = taskHybridService.createStoryTask(
                 userDetails.getId(),
                 Task.TaskType.STORY,
                 request);
@@ -111,12 +111,23 @@ public class TaskHierarchyController {
 
     @LogActivity(ActionType.VIEW)
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
-    @GetMapping("/epic/{taskId}/full")
+    @GetMapping("/epic/{taskId}/hierarchy")
     @Operation(summary = "View all child tasks", description = "Get all child task for an epic task")
     public ResponseEntity<ApiResponse<HierarchyEpicDto>> getFullHierarchy(
             @PathVariable Long taskId
     ) {
         HierarchyEpicDto hierarchyEpicDto = taskHybridService.getFullHierarchy(taskId);
+        return ResponseEntity.ok(ApiResponse.success(hierarchyEpicDto));
+    }
+
+    @LogActivity(ActionType.VIEW)
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    @GetMapping("/epic/uuid/{epicUuid}/hierarchy")
+    @Operation(summary = "View all child task by Uuid", description = "Get all child task for an epic task by uuid")
+    public ResponseEntity<ApiResponse<HierarchyEpicDto>> getFullHierarchyByUuid(
+            @PathVariable String epicUuid
+    ) {
+        HierarchyEpicDto hierarchyEpicDto = taskHybridService.getFullHierarchyByUuid(epicUuid);
         return ResponseEntity.ok(ApiResponse.success(hierarchyEpicDto));
     }
 
@@ -135,13 +146,6 @@ public class TaskHierarchyController {
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
-//    @PatchMapping("/epic/{epicId}/epic-progress")
-//    @Operation(summary = "Update progress for epic task", description = "Update progress for epic task by task id")
-//    public ResponseEntity<ApiResponse<HierarchyEpicDto>> updateEpicProgress(
-//            @PathVariable Long epicId,
-//    ) {
-//
-//    }
 
 
 }

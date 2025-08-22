@@ -18,11 +18,12 @@ import com.omori.taskmanagement.repository.project.WorkspaceRepository;
 import com.omori.taskmanagement.repository.usermgmt.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.event.EventListener;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.omori.taskmanagement.model.events.TaskProgressUpdateEvent;
+import org.springframework.transaction.event.TransactionalEventListener;
+import org.springframework.transaction.event.TransactionPhase;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -168,6 +169,48 @@ public class TaskHybridServiceImpl implements TaskHybridService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public HierarchyEpicDto getFullHierarchyByUuid(String epicUuid){
+        log.debug("Getting full hierarchy for epic task with Uuid {} ", epicUuid);
+        UUID uuid = UUID.fromString(epicUuid);
+        
+        List<Task> allTasks = taskRepository.findAllTasksUnderEpicByUuid(uuid);
+        Task epic = allTasks.stream()
+                .filter( t -> t.getUuid().equals(uuid))
+                .findFirst()
+                .orElseThrow( () -> new TaskNotFoundException("Task not found with uuid: " + epicUuid) );
+
+        if(epic.getTaskType() != Task.TaskType.EPIC){
+            throw new TaskValidationException("Task with id " + epicUuid + " is not an EPIC task",
+                    Map.of("taskType","Excepted EPIC but found " + epic.getTaskType()));
+        }
+
+        Map<UUID ,List<Task>> tasksByParent = allTasks.stream()
+                .filter(t -> t.getParentTask() != null)
+                .collect(Collectors.groupingBy( t -> t.getParentTask().getUuid()));
+
+        HierarchyEpicDto hierarchy = new HierarchyEpicDto();
+        hierarchy.setEpic(TaskResponse.from(epic));
+
+        List<Task> stories = tasksByParent.getOrDefault(uuid, Collections.emptyList());
+
+        for( Task story : stories ) {
+            StoryWithTaskDto storyWithTaskDto = new StoryWithTaskDto();
+            storyWithTaskDto.setStory(TaskResponse.from(story)); // Convert Task to TaskResponse
+            List<TaskResponse> taskResponses = tasksByParent.getOrDefault(story.getUuid(), Collections.emptyList())
+                    .stream()
+                    .map(TaskResponse::from)
+                    .toList();
+            storyWithTaskDto.setTasks(taskResponses);
+            hierarchy.getStories().add(storyWithTaskDto);
+        }
+        if (!hierarchy.getStories().isEmpty()) {
+            loadSubtasksForHierarchy(hierarchy);
+        }
+        return hierarchy;
+    }
+
+    @Override
     @Transactional
     public void updateEpicTaskProgress(Long epicTaskId) {
         Task epic = taskRepository.findById(epicTaskId)
@@ -176,16 +219,19 @@ public class TaskHybridServiceImpl implements TaskHybridService {
             throw new TaskValidationException("Task with id + " + epicTaskId + " is not an EPIC Task",
                     Map.of("taskType","Excepted EPIC but found " + epic.getTaskType()));
         }
+        int ownProgress = calculateOwnSubtaskProgress(epicTaskId);
+
         List<Task> stories = getStoriesTaskByEpicId(epicTaskId);
-        if( stories.isEmpty()) {
-            log.debug("No stories found for epic task with ID {} ", epicTaskId);
-            return;
+
+        int finalProgress;
+        if(stories.isEmpty()){
+            finalProgress = ownProgress;
+        } else {
+            double childrenProgress = calculateChildrenAverageProgress(stories);
+            finalProgress = calculateWeightedProgress(ownProgress, childrenProgress);
         }
-        double avgProgress = stories.stream()
-                .mapToInt(t -> Optional.ofNullable(t.getProgress()).orElse(0) )
-                .average()
-                .orElse(0.0);
-        epic.setProgress((int) Math.round( avgProgress));
+
+        epic.setProgress(finalProgress);
         epic.setUpdatedAt(LocalDateTime.now());
         taskRepository.save(epic);
         log.debug("Updated progress for epic task with ID {} ", epicTaskId);
@@ -196,16 +242,30 @@ public class TaskHybridServiceImpl implements TaskHybridService {
     public void updateStoryTaskProgress(Long storyTaskId){
         Task story = taskRepository.findByIdWithRelations(storyTaskId)
                 .orElseThrow(() -> new TaskBusinessException("Task not found with ID: " + storyTaskId));
-        List<Task> tasks = getTasksByStoryId(storyTaskId);
-        if( tasks.isEmpty()) {
-            log.debug("No tasks found for story task with ID {} ", storyTaskId);
-            return;
+
+        if( story.getTaskType() != Task.TaskType.STORY){
+            throw new TaskValidationException("Task with id + " + storyTaskId + " is not a STORY Task",
+                    Map.of("taskType","Excepted STORY but found " + story.getTaskType()));
         }
-        double avgProgress = tasks.stream()
-                .mapToInt(Task::getProgress)
-                .average()
-                .orElse(0.0);
-        story.setProgress((int) Math.round( avgProgress));
+
+        // Get own subtasks progress: 0-100%
+        int avgSubtaskProgress = calculateOwnSubtaskProgress(storyTaskId);
+
+        // Get child tasks average progress: 0-100%
+        List<Task> tasks = getTasksByStoryId(storyTaskId);
+        log.debug("Found {} child tasks for story ID {}: {}",
+                tasks.size(), storyTaskId,
+                tasks.stream().map(Task::getId).collect(Collectors.toList()));
+
+        int finalProgress;
+        if (tasks.isEmpty()) {
+            finalProgress = avgSubtaskProgress;  // Only own progress when no children
+        } else {
+            double avgChildProgress = calculateChildrenAverageProgress(tasks);
+            finalProgress = calculateWeightedProgress(avgSubtaskProgress, avgChildProgress);
+        }
+
+        story.setProgress(finalProgress);
         story.setUpdatedAt(LocalDateTime.now());
         taskRepository.save(story);
         if(story.getParentTask() != null && story.getParentTask().getId() != null ) {
@@ -225,7 +285,7 @@ public class TaskHybridServiceImpl implements TaskHybridService {
         List<Subtask> subtasks = subTaskService.getSubtasksByTaskId(taskId);
         if (subtasks.isEmpty()){
             log.debug("No subtasks found for task with ID {} ", taskId);
-            return;
+            return ;
         }
 
         // calculate progress based on subtasks completed
@@ -249,7 +309,6 @@ public class TaskHybridServiceImpl implements TaskHybridService {
             throw new TaskBusinessException("Failed to update progress", e);
         }
 
-
         // Trigger cascade update to parent task
         if (task.getParentTask() != null && task.getParentTask().getId() != null) {
             Long parentId = task.getParentTask().getId();
@@ -271,8 +330,7 @@ public class TaskHybridServiceImpl implements TaskHybridService {
      * Event listener that handles task progress updates triggered by subtask changes.
      * This breaks the circular dependency between SubTaskService and TaskHybridService.
      */
-    @EventListener
-    @Transactional
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleTaskProgressUpdateEvent(TaskProgressUpdateEvent event) {
         log.debug("Handling task progress update event for task ID: {} - Reason: {}", 
                 event.getTaskId(), event.getReason());
@@ -389,6 +447,37 @@ public class TaskHybridServiceImpl implements TaskHybridService {
             });
         });
         log.debug("Loading subtasks for {} tasks: {}", allTaskIds.size(), allTaskIds);
+    }
+
+    private int calculateOwnSubtaskProgress(Long taskId) {
+        // Calculate the percentage of completed subtasks for this task
+        List<Subtask> subtasks = subTaskService.getSubtasksByTaskId(taskId);
+        if(subtasks.isEmpty()){
+            return 0;
+        }
+
+        long completed = subtasks.stream()
+                .mapToLong( s -> Boolean.TRUE.equals(s.getIsCompleted()) ? 1 : 0)
+                .sum();
+        return (int) ((completed * 100) / subtasks.size());
+    }
+
+    private double calculateChildrenAverageProgress(List<Task> children) {
+        // Calculate the average progress of child tasks
+        if (children.isEmpty()) {
+            log.debug("No children found for parent task ");
+            return 0.0;
+        }
+
+        return children.stream()
+                .mapToInt( t -> Optional.ofNullable(t.getProgress()).orElse(0) )
+                .average()
+                .orElse(0.0);
+    }
+
+    private int calculateWeightedProgress(int ownProgress, double childrenProgress) {
+        // Apply 50/50 weighted formula
+        return (int) ((ownProgress * 0.5) + (childrenProgress * 0.5));
     }
 
     private Integer getNextSortOrderForParent(Long parentTaskId) {

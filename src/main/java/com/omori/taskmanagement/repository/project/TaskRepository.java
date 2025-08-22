@@ -147,6 +147,15 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
         List<Task> findByParentTaskIdAndTaskTypeAndDeletedAtIsNull(@Param("parentTaskId") Long parentTaskId,
                                                                    @Param("taskType") Task.TaskType taskType);
 
+        @Query("SELECT t FROM Task t " +
+                "LEFT JOIN FETCH t.parentTask " +
+                "WHERE (" +
+                "t.uuid = :epicUuid OR " +
+                "t.parentTask.uuid = :epicUuid OR " +
+                "t.parentTask.uuid IN (SELECT s.uuid FROM Task s WHERE s.parentTask.uuid = :epicUuid AND s.deletedAt IS NULL) " +
+                ") AND t.deletedAt IS NULL ORDER BY t.sortOrder")
+        List<Task> findAllTasksUnderEpicByUuid(@Param("epicUuid") UUID epicUuid);
+
         /**
          * Finds all tasks in epic hierarchy (flattened view).
          * Performance: Subquery with IN clause, may be expensive for deep hierarchies
@@ -172,5 +181,19 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
          */
         @Query("SELECT MAX(t.sortOrder) FROM Task t WHERE t.parentTask.id = :parentTaskId AND t.deletedAt IS NULL")
         Optional<Integer> findMaxSortOrderByParentTaskId(@Param("parentTaskId") Long parentTaskId);
+
+        /**
+         * Counts the total number of active subtasks for a given task.
+         * Performance: COUNT() aggregate with proper indexing is very fast
+         * Use case: Determining subtask count for progress calculations and UI display
+         *
+         * @param taskId the parent task identifier
+         * @return total count of non-deleted subtasks, 0 if no subtasks exist
+         */
+        @Query("SELECT COUNT(s) FROM Subtask s WHERE s.task.id = :taskId AND s.deletedAt IS NULL")
+        Integer countSubtasksByTaskId(@Param("taskId") Long taskId);
+
+        @Query("SELECT COUNT(s) FROM Subtask s WHERE s.task.id = :taskId AND s.isCompleted = true AND s.deletedAt IS NULL")
+        Integer countCompletedSubtasksByTaskId(@Param("taskId") Long taskId);
 
 }

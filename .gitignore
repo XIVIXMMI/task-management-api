@@ -37,4 +37,4 @@ application-prod.yml
 .DS_Store
 getTaskwFilter.json
 .gitignore
-zeon/
+docs/
