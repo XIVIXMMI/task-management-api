@@ -32,9 +32,48 @@ build/
 ### VS Code ###
 .vscode/
 
-application-prod.yml
+# Security - Environment files
 .env
+.env.local
+.env.*.local
+application-prod.yml
+application-local.yml
+
+# Sensitive configuration files
+config/secrets.yml
+secrets.properties
+
+# SSH keys and certificates
+*.pem
+*.key
+*.crt
+id_rsa*
+known_hosts
+
+# Database dumps
+*.sql.gz
+*.dump
+database_backup*
+
+# Docker secrets
+docker-compose.override.yml
+docker-compose.local.yml
+
+# Logs with sensitive info
+logs/
+*.log
+
+# OS specific
 .DS_Store
+Thumbs.db
+
+# Temporary files
 getTaskwFilter.json
-.gitignore
+*.tmp
+*.temp
+
+# IDE specific sensitive files
+.vscode/settings.json
+
+# unuse file
 docs/
