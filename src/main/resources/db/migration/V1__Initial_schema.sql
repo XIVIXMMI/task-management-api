@@ -488,7 +488,7 @@ INSERT INTO notification.templates (name, type, subject_template, body_template,
 ('task_assigned', 'push', 'New Task Assigned', 'You have been assigned a new task: {{task_title}}', '["task_title"]'),
 ('workspace_invitation', 'email', 'Invitation to join {{workspace_name}}', 'Hi,\n\nYou have been invited to join the workspace "{{workspace_name}}" by {{inviter_name}}.\n\nClick here to accept: {{invitation_link}}', '["workspace_name", "inviter_name", "invitation_link"]');
 
-====================================================================================================================================================================================================================================================================
+-- ====================================================================================================================================================================================================================================================================
 
 -- =============================================
 -- INDEXES FOR PERFORMANCE
