@@ -25,7 +25,7 @@ spring:
       max-lifetime: 1800000
       connection-timeout: 30000
   flyway:
-    enabled: false
+    enabled: ${FLYWAY_ENABLED:false}
     locations: classpath:db/migration
     baseline-on-migrate: true
   jpa:
