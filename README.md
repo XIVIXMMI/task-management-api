@@ -175,7 +175,7 @@ open http://localhost:8080/swagger-ui.html
 ```bash
 # 1. Setup PostgreSQL database
 createdb task_management
-psql -d task_management -f src/main/resources/db/migration/V1_Initial_schema.sql
+psql -d task_management -f src/main/resources/db/migration/V1__Initial_schema.sql
 
 # 2. Start Redis server
 redis-server
