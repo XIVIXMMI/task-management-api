@@ -17,8 +17,12 @@ public class TakManagementApplication {
 	public static void main(String[] args) {
 		Locale.setDefault(Locale.ENGLISH);
 
-		Dotenv dotenv = Dotenv.load();
-        dotenv.entries().forEach(e -> System.setProperty(e.getKey(), e.getValue()));
+		try {
+			Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();
+			dotenv.entries().forEach(e -> System.setProperty(e.getKey(), e.getValue()));
+		} catch (Exception e) {
+			System.out.println("No .env file found, using system environment variables");
+		}
 		SpringApplication.run(TakManagementApplication.class, args);
 	}
 
