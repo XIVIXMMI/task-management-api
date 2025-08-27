@@ -71,9 +71,29 @@ jobs:
           # Clean up secrets file
           rm -f .env.secrets
           
-          # Health check
-          sleep 30
-          curl -f http://localhost:8080/actuator/health
+          # Health check with retries
+          echo "Waiting for application to start..."
+          sleep 60
+          
+          # Check if containers are running
+          docker-compose -f docker-compose.prod.yml ps
+          
+          # Check application logs
+          echo "Application logs:"
+          docker logs task-management-app --tail 50
+          
+          # Try health check with retries
+          for i in {1..5}; do
+            echo "Health check attempt $i/5..."
+            if curl -f http://localhost:8080/actuator/health; then
+              echo "Health check successful!"
+              exit 0
+            fi
+            sleep 10
+          done
+          
+          echo "Health check failed after 5 attempts"
+          exit 1
       env:
         POSTGRESQL_PASSWORD: ${{ secrets.POSTGRESQL_PASSWORD }}
         JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
