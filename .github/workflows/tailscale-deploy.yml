@@ -40,7 +40,7 @@ jobs:
         host: ${{ secrets.TAILSCALE_SERVER_IP }}
         username: ${{ secrets.SERVER_USER }}
         key: ${{ secrets.SERVER_SSH_KEY }}
-        source: "task-management.tar"
+        source: "task-management.tar,docker-compose.prod.yml"
         target: "/tmp/"
         debug: true
     
@@ -56,6 +56,9 @@ jobs:
           
           # Load new Docker image
           docker load < /tmp/task-management.tar
+          
+          # Update docker-compose file
+          cp /tmp/docker-compose.prod.yml ./docker-compose.prod.yml
           
           # Update .env file with secrets from GitHub
           echo "POSTGRESQL_PASSWORD=$POSTGRESQL_PASSWORD" > .env.secrets
