@@ -34,14 +34,15 @@ jobs:
         authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
     
     # Now you can use Tailscale IP directly
-    - name: Deploy to server via Tailscale
-      uses: appleboy/scp-action@v0.1.4
+    - name: Deploy to server via Tailscale  
+      uses: appleboy/scp-action@v0.1.7
       with:
-        host: ${{ secrets.TAILSCALE_SERVER_IP }}  # Use Tailscale IP here
+        host: ${{ secrets.TAILSCALE_SERVER_IP }}
         username: ${{ secrets.SERVER_USER }}
         key: ${{ secrets.SERVER_SSH_KEY }}
         source: "task-management.tar"
         target: "/tmp/"
+        debug: true
     
     - name: Deploy application
       uses: appleboy/ssh-action@v1.0.0
