@@ -29,7 +29,7 @@ jobs:
     
     # Connect to Tailscale network
     - name: Connect to Tailscale
-      uses: tailscale/github-action@v2
+      uses: tailscale/github-action@v3
       with:
         oauth-client-id: ${{ secrets.TAILSCALE_OAUTH_CLIENT_ID }}
         oauth-secret: ${{ secrets.TAILSCALE_OAUTH_SECRET }}
@@ -51,20 +51,27 @@ jobs:
         host: ${{ secrets.TAILSCALE_SERVER_IP }}  # Use Tailscale IP here
         username: ${{ secrets.SERVER_USER }}
         key: ${{ secrets.SERVER_SSH_KEY }}
+        envs: POSTGRESQL_PASSWORD,JWT_SECRET_KEY
         script: |
           cd /opt/task-management
           
           # Load new Docker image
           docker load < /tmp/task-management.tar
           
-          # Deploy with environment variables
-          export DB_PASSWORD="${{ secrets.DB_PASSWORD }}"
-          export JWT_SECRET_KEY="${{ secrets.JWT_SECRET_KEY }}"
+          # Update .env file with secrets from GitHub
+          echo "POSTGRESQL_PASSWORD=$POSTGRESQL_PASSWORD" > .env.secrets
+          echo "JWT_SECRET_KEY=$JWT_SECRET_KEY" >> .env.secrets
           
           # Restart application
-          docker-compose -f docker-compose.prod.yml down
-          docker-compose -f docker-compose.prod.yml up -d
+          docker-compose -f docker-compose.prod.yml --env-file .env --env-file .env.secrets down
+          docker-compose -f docker-compose.prod.yml --env-file .env --env-file .env.secrets up -d
           
-          # Health check using Tailscale IP
+          # Clean up secrets file
+          rm -f .env.secrets
+          
+          # Health check
           sleep 30
           curl -f http://localhost:8080/actuator/health
+      env:
+        POSTGRESQL_PASSWORD: ${{ secrets.POSTGRESQL_PASSWORD }}
+        JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
