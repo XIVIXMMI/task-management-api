@@ -43,7 +43,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRESQL_PASSWORD}
     ports:
       # Only bind to localhost for security
-      - "127.0.0.1:5432:5432"
+      - "127.0.0.1:5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
@@ -60,7 +60,7 @@ services:
     restart: unless-stopped
     ports:
       # Only bind to localhost for security
-      - "127.0.0.1:6379:6379"
+      - "127.0.0.1:6380:6379"
     volumes:
       - redis_data:/data
     networks:
