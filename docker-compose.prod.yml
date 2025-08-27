@@ -41,9 +41,9 @@ services:
       POSTGRES_DB: task_management
       POSTGRES_USER: ${POSTGRESQL_USERNAME:-postgres}
       POSTGRES_PASSWORD: ${POSTGRESQL_PASSWORD}
-    ports:
-      # Only bind to localhost for security
-      - "127.0.0.1:5433:5432"
+    # ports:
+      # Only bind to localhost for security  
+      # - "127.0.0.1:15432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
@@ -58,9 +58,9 @@ services:
     image: redis:7-alpine
     container_name: task-management-redis
     restart: unless-stopped
-    ports:
+    # ports:
       # Only bind to localhost for security
-      - "127.0.0.1:6380:6379"
+      # - "127.0.0.1:16379:6379"
     volumes:
       - redis_data:/data
     networks:
