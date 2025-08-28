@@ -27,14 +27,12 @@ jobs:
         docker build -t task-management:latest .
         docker save task-management:latest > task-management.tar
     
-    # Connect to Tailscale network
     - name: Connect to Tailscale
       uses: tailscale/github-action@v2
       with:
         authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
     
-    # Now you can use Tailscale IP directly
-    - name: Deploy to server via Tailscale  
+    - name: Deploy to server via Tailscale
       uses: appleboy/scp-action@v0.1.7
       with:
         host: ${{ secrets.TAILSCALE_SERVER_IP }}
@@ -47,7 +45,7 @@ jobs:
     - name: Deploy application
       uses: appleboy/ssh-action@v1.0.0
       with:
-        host: ${{ secrets.TAILSCALE_SERVER_IP }}  # Use Tailscale IP here
+        host: ${{ secrets.TAILSCALE_SERVER_IP }}  
         username: ${{ secrets.SERVER_USER }}
         key: ${{ secrets.SERVER_SSH_KEY }}
         envs: POSTGRESQL_PASSWORD,JWT_SECRET_KEY
@@ -67,6 +65,11 @@ jobs:
           # Restart application
           docker-compose -f docker-compose.prod.yml --env-file .env --env-file .env.secrets down
           docker-compose -f docker-compose.prod.yml --env-file .env --env-file .env.secrets up -d
+          
+          # Force run migrations if needed
+          echo "Checking if migration completed..."
+          sleep 10
+          docker exec task-management-app java -jar task-management.jar --spring.flyway.migrate=true --spring.profiles.active=prod || echo "Migration command failed, but continuing..."
           
           # Clean up secrets file
           rm -f .env.secrets
