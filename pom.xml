@@ -170,9 +170,8 @@
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-core</artifactId>
-            <version>10.10.0</version> <!-- Latest that supports PostgreSQL 16 -->
+            <version>11.7.2</version>
         </dependency>
-
     </dependencies>
 
     <build>
