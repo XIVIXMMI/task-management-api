@@ -1,0 +1,101 @@
+server:
+  http2:
+    enabled: true
+
+spring:
+#  profiles:
+#    active: dev
+  # devtools:
+  #   add-properties: false
+  #   restart:
+  #     enabled: false
+  #     exclude: static/**,public/**,templates/**
+  #   livereload:
+  #     enabled: true
+  #     port: 35729
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    hikari:
+      pool-name: TaskManagementHikariPool
+      maximum-pool-size: 10
+      minimum-idle: 2
+      idle-timeout: 30000
+      max-lifetime: 1800000
+      connection-timeout: 30000
+  flyway:
+    enabled: false
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+  jpa:
+    hibernate:
+      ddl-auto: create # Let Hibernate create schema since Flyway is disabled
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+        jdbc:
+          time_zone: UTC
+          batch_size: 50
+        order_inserts: true
+        order_updates: true
+  jta:
+    enabled: false
+  redis:
+    host: ${REDIS_HOST}
+    port: ${REDIS_PORT}
+    timeout: 5000
+    ssl: false
+  cache:
+    type: redis
+    redis:
+      time-to-live: 3600000
+      cache-null-values: false
+      key-prefix: task_management_
+      use-key-prefix: true
+
+springdoc:
+  show-actuator: true
+
+
+management:
+  endpoint:
+    health:
+      show-details: ALWAYS
+      probes:
+        enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+logging:
+  level:
+    root: INFO
+    org.springframework.web: INFO
+    com.omori: DEBUG
+    org.springframework.data.redis: DEBUG
+    org.springframework.cache: TRACE
+    io.lettuce.core: DEBUG
+    org.springframework.http.converter: DEBUG
+    org.springframework.web.servlet: DEBUG
+    org.hibernate.SQL: OFF
+    com.omori.taskmanagement: INFO
+    com.fasterxml.jackson.databind: DEBUG
+    com.omori.taskmanagement.springboot.aspect: DEBUG
+
+jwt:
+  secretKey: ${JWT_SECRET_KEY}
+  issuer: ${JWT_ISSUER}
+  expirationMinute: ${JWT_EXPIRATION_MINUTE}
+
+swagger:
+  contact-name: Omori
+  contact-mail: nguyen.le.programmer@gmail.com
+  contact-url: https://github.com/XIVIXMMI
+  app-name: Task Management Project
+  app-description: "This project includes : Spring Boot(3.5.0), Spring Data JPA, Spring Validation, Spring Security + JWT Token, PostgreSQL, Mapstruct, Lombok, Swagger (Open API)"
+  app-version: 1.0.0
+  app-license-url: https://www.apache.org/licenses/LICENSE-2.0.html
+  app-license: Apache 2.0

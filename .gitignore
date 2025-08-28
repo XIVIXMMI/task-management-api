@@ -36,7 +36,6 @@ build/
 .env
 .env.local
 .env.*.local
-application-prod.yml
 application-local.yml
 
 # Sensitive configuration files
