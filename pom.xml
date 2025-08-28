@@ -98,7 +98,7 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>42.7.7</version>
+            <version>42.7.2</version>
             <scope>compile</scope>
         </dependency>
 
@@ -170,9 +170,12 @@
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-core</artifactId>
-            <version>11.7.2</version>
         </dependency>
-    </dependencies>
+
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-database-postgresql</artifactId>
+        </dependency>    </dependencies>
 
     <build>
         <finalName>task-management</finalName>
