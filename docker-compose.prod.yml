@@ -19,6 +19,7 @@ services:
       - JWT_SECRET_KEY=${JWT_SECRET_KEY}
       - JWT_ISSUER=${JWT_ISSUER:-task-management-prod}
       - JWT_EXPIRATION_MINUTE=${JWT_EXPIRATION_MINUTE:-1440}
+      - FLYWAY_DATABASE_TYPE=postgresql
     depends_on:
       - db
       - redis
