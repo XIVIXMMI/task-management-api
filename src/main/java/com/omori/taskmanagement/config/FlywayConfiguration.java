@@ -22,11 +22,11 @@ public class FlywayConfiguration {
         Flyway flyway = Flyway.configure()
                 .dataSource(dataSource)
                 .locations("classpath:db/migration")
-                .baselineOnMigrate(true)
-                .baselineVersion("1")
+                .baselineOnMigrate(false) // Disable baseline to force migrations
                 .schemas("public", "user_mgmt", "project", "notification", "collaboration", "audit", "analytics")
                 .validateOnMigrate(false)
                 .outOfOrder(true)
+                .cleanDisabled(false) // Allow clean for troubleshooting
                 .load();
         
         // Check migration info first
@@ -36,20 +36,32 @@ public class FlywayConfiguration {
             System.out.println("Migration: " + migration.getVersion() + " - " + migration.getDescription() + " - " + migration.getState());
         }
         
-        // Check if V1 was baseline ignored and force repair + migrate
-        boolean v1Ignored = false;
+        // Check if we need to clean and recreate (for baseline ignored scenarios)
+        boolean hasBaselineIgnored = false;
+        boolean hasEmptySchemas = false;
+        
         for (var migration : info.all()) {
-            if ("1".equals(migration.getVersion() != null ? migration.getVersion().getVersion() : "") 
-                && migration.getState().toString().contains("BASELINE_IGNORED")) {
-                v1Ignored = true;
-                break;
+            if (migration.getState().toString().contains("BASELINE_IGNORED")) {
+                hasBaselineIgnored = true;
+                System.out.println("Found BASELINE_IGNORED migration: " + migration.getVersion());
             }
         }
         
-        if (v1Ignored) {
-            System.out.println("V1 migration was baseline ignored. Repairing and migrating...");
-            flyway.repair();
-            flyway.migrate();
+        // Force clean and migrate if baseline was ignored
+        if (hasBaselineIgnored) {
+            System.out.println("Baseline ignored detected. Cleaning database and running fresh migration...");
+            try {
+                flyway.clean(); // This will drop all objects in the configured schemas
+                System.out.println("Database cleaned successfully");
+                flyway.migrate();
+                System.out.println("Fresh migration completed successfully");
+            } catch (Exception e) {
+                System.err.println("Error during clean and migrate: " + e.getMessage());
+                // Fallback to repair and migrate
+                System.out.println("Attempting repair and migrate as fallback...");
+                flyway.repair();
+                flyway.migrate();
+            }
         } else if (info.pending().length > 0) {
             System.out.println("Running pending migrations...");
             flyway.migrate();
