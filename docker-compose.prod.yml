@@ -44,7 +44,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRESQL_PASSWORD}
     ports:
       # Expose PostgreSQL on port 5433 to avoid conflicts with other PostgreSQL instances
-      - "5433:5432"
+      - "15432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
@@ -61,7 +61,7 @@ services:
     restart: unless-stopped
     ports:
       # Expose Redis on port 6380 to avoid conflicts with other Redis instances
-      - "6380:6379"
+      - "16379:6379"
     volumes:
       - redis_data:/data
     networks:
