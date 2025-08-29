@@ -2,7 +2,6 @@ package com.omori.taskmanagement.config;
 
 import org.flywaydb.core.Flyway;
 import org.springframework.boot.autoconfigure.flyway.FlywayMigrationInitializer;
-import org.springframework.boot.autoconfigure.flyway.FlywayProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
@@ -19,7 +18,7 @@ public class FlywayConfiguration {
     }
 
     @Bean
-    public Flyway flyway(DataSource dataSource, FlywayProperties flywayProperties) {
+    public Flyway flyway(DataSource dataSource) {
         Flyway flyway = Flyway.configure()
                 .dataSource(dataSource)
                 .locations("classpath:db/migration")
