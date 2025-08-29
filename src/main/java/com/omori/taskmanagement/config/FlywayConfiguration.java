@@ -36,8 +36,21 @@ public class FlywayConfiguration {
             System.out.println("Migration: " + migration.getVersion() + " - " + migration.getDescription() + " - " + migration.getState());
         }
         
-        // Only migrate if needed
-        if (info.pending().length > 0) {
+        // Check if V1 was baseline ignored and force repair + migrate
+        boolean v1Ignored = false;
+        for (var migration : info.all()) {
+            if ("1".equals(migration.getVersion() != null ? migration.getVersion().getVersion() : "") 
+                && migration.getState().toString().contains("BASELINE_IGNORED")) {
+                v1Ignored = true;
+                break;
+            }
+        }
+        
+        if (v1Ignored) {
+            System.out.println("V1 migration was baseline ignored. Repairing and migrating...");
+            flyway.repair();
+            flyway.migrate();
+        } else if (info.pending().length > 0) {
             System.out.println("Running pending migrations...");
             flyway.migrate();
         } else {
