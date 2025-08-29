@@ -20,7 +20,7 @@ SET row_security = off;
 -- Name: analytics; Type: SCHEMA; Schema: -; Owner: admin
 --
 
-CREATE SCHEMA analytics;
+CREATE SCHEMA IF NOT EXISTS analytics;
 
 
 ALTER SCHEMA analytics OWNER TO admin;
@@ -29,7 +29,7 @@ ALTER SCHEMA analytics OWNER TO admin;
 -- Name: audit; Type: SCHEMA; Schema: -; Owner: admin
 --
 
-CREATE SCHEMA audit;
+CREATE SCHEMA IF NOT EXISTS audit;
 
 
 ALTER SCHEMA audit OWNER TO admin;
@@ -38,7 +38,7 @@ ALTER SCHEMA audit OWNER TO admin;
 -- Name: collaboration; Type: SCHEMA; Schema: -; Owner: admin
 --
 
-CREATE SCHEMA collaboration;
+CREATE SCHEMA IF NOT EXISTS collaboration;
 
 
 ALTER SCHEMA collaboration OWNER TO admin;
@@ -47,7 +47,7 @@ ALTER SCHEMA collaboration OWNER TO admin;
 -- Name: notification; Type: SCHEMA; Schema: -; Owner: admin
 --
 
-CREATE SCHEMA notification;
+CREATE SCHEMA IF NOT EXISTS notification;
 
 
 ALTER SCHEMA notification OWNER TO admin;
@@ -56,7 +56,7 @@ ALTER SCHEMA notification OWNER TO admin;
 -- Name: project; Type: SCHEMA; Schema: -; Owner: admin
 --
 
-CREATE SCHEMA project;
+CREATE SCHEMA IF NOT EXISTS project;
 
 
 ALTER SCHEMA project OWNER TO admin;
@@ -65,7 +65,7 @@ ALTER SCHEMA project OWNER TO admin;
 -- Name: user_mgmt; Type: SCHEMA; Schema: -; Owner: admin
 --
 
-CREATE SCHEMA user_mgmt;
+CREATE SCHEMA IF NOT EXISTS user_mgmt;
 
 
 ALTER SCHEMA user_mgmt OWNER TO admin;
