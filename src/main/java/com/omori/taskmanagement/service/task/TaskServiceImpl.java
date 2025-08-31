@@ -1,4 +1,4 @@
-package com.omori.taskmanagement.service;
+package com.omori.taskmanagement.service.task;
 
 import com.omori.taskmanagement.dto.project.TaskCreateRequest;
 import com.omori.taskmanagement.dto.project.TaskFilterRequest;
@@ -41,7 +41,7 @@ public class TaskServiceImpl implements TaskService {
     private final CategoryRepository categoryRepository;
     private final WorkspaceRepository workspaceRepository;
     // inject validate service
-    private final TaskValidationService taskValidationService;
+    private final TaskValidationServiceImpl taskValidationServiceImpl;
 
     @Override
     @Transactional
@@ -50,7 +50,7 @@ public class TaskServiceImpl implements TaskService {
         log.info("Creating task for user with id: {}", id);
 
         // Validate request
-        taskValidationService.validateCreateTaskRequest(request, id);
+        taskValidationServiceImpl.validateCreateTaskRequest(request, id);
 
         try {
 
@@ -245,7 +245,7 @@ public class TaskServiceImpl implements TaskService {
             }
 
             // Validate status transition
-            taskValidationService.validateTaskStatusUpdate(task.getStatus(), status);
+            taskValidationServiceImpl.validateTaskStatusUpdate(task.getStatus(), status);
 
             task.setStatus(status);
 

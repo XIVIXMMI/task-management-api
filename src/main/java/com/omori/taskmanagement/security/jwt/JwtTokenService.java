@@ -12,7 +12,7 @@ import com.omori.taskmanagement.security.dto.AuthenticatedUserDto;
 import com.omori.taskmanagement.dto.usermgmt.LoginRequest;
 import com.omori.taskmanagement.dto.usermgmt.LoginResponse;
 import com.omori.taskmanagement.security.mapper.UserMapper;
-import com.omori.taskmanagement.service.UserService;
+import com.omori.taskmanagement.service.user.UserService;
 
 @Slf4j
 @Service

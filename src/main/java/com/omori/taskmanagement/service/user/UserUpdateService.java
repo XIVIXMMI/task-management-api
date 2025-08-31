@@ -1,4 +1,4 @@
-package com.omori.taskmanagement.service;
+package com.omori.taskmanagement.service.user;
 
 import com.omori.taskmanagement.dto.usermgmt.UpdateUserAvatarRequest;
 import com.omori.taskmanagement.dto.usermgmt.UpdateUserProfileRequest;

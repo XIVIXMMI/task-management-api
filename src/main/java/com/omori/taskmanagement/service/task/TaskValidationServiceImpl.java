@@ -1,4 +1,4 @@
-package com.omori.taskmanagement.service;
+package com.omori.taskmanagement.service.task;
 
 import com.omori.taskmanagement.dto.project.TaskCreateRequest;
 import com.omori.taskmanagement.exceptions.task.TaskValidationException;
@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class TaskValidationService {
+public class TaskValidationServiceImpl {
     
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;

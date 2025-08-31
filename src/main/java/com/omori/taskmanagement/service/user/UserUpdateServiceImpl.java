@@ -1,4 +1,4 @@
-package com.omori.taskmanagement.service;
+package com.omori.taskmanagement.service.user;
 
 
 import org.springframework.stereotype.Service;
