@@ -20,7 +20,7 @@ import com.omori.taskmanagement.dto.usermgmt.RegistrationResponse;
 import com.omori.taskmanagement.model.audit.ActionType;
 import com.omori.taskmanagement.security.jwt.JwtTokenService;
 import com.omori.taskmanagement.security.service.UserDetailsServiceImpl;
-import com.omori.taskmanagement.service.UserService;
+import com.omori.taskmanagement.service.user.UserService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

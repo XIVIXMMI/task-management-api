@@ -1,4 +1,4 @@
-package com.omori.taskmanagement.service;
+package com.omori.taskmanagement.service.subtask;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;

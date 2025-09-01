@@ -7,7 +7,7 @@ import com.omori.taskmanagement.model.audit.ActionType;
 import com.omori.taskmanagement.model.project.Subtask;
 import com.omori.taskmanagement.model.project.Task;
 import com.omori.taskmanagement.security.service.CustomUserDetails;
-import com.omori.taskmanagement.service.TaskHybridService;
+import com.omori.taskmanagement.service.task.TaskHybridService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;

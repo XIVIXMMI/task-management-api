@@ -1,4 +1,4 @@
-package com.omori.taskmanagement.service;
+package com.omori.taskmanagement.service.task;
 
 import com.omori.taskmanagement.dto.project.*;
 import com.omori.taskmanagement.exceptions.task.InvalidTaskTypeException;
@@ -16,6 +16,7 @@ import com.omori.taskmanagement.repository.project.SubtaskRepository;
 import com.omori.taskmanagement.repository.project.TaskRepository;
 import com.omori.taskmanagement.repository.project.WorkspaceRepository;
 import com.omori.taskmanagement.repository.usermgmt.UserRepository;
+import com.omori.taskmanagement.service.subtask.SubTaskService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
@@ -35,7 +36,7 @@ import java.util.stream.Collectors;
 public class TaskHybridServiceImpl implements TaskHybridService {
 
     private final UserRepository userRepository;
-    private final TaskValidationService taskValidationService;
+    private final TaskValidationServiceImpl taskValidationServiceImpl;
     private final CategoryRepository categoryRepository;
     private final WorkspaceRepository workspaceRepository;
     private final TaskRepository taskRepository;
@@ -354,7 +355,7 @@ public class TaskHybridServiceImpl implements TaskHybridService {
     private Task createHierarchicalTask(Long userId, Task.TaskType type, TaskCreateRequest request) {
         log.debug("Creating hierarchical task for user {} ", userId);
 
-        taskValidationService.validateCreateTaskRequest(request, userId);
+        taskValidationServiceImpl.validateCreateTaskRequest(request, userId);
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User " + userId + " not found"));

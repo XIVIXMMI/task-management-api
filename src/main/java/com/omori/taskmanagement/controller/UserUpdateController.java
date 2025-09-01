@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.omori.taskmanagement.dto.usermgmt.UpdateUserProfileRequest;
 import com.omori.taskmanagement.exceptions.UserNotFoundException;
 import com.omori.taskmanagement.dto.usermgmt.UpdateUserProfileResponse;
-import com.omori.taskmanagement.service.UserUpdateService;
+import com.omori.taskmanagement.service.user.UserUpdateService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

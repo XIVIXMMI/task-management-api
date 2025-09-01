@@ -1,6 +1,6 @@
 package com.omori.taskmanagement.security.service;
 
-import com.omori.taskmanagement.service.UserService;
+import com.omori.taskmanagement.service.user.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

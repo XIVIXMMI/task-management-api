@@ -11,7 +11,7 @@ import com.omori.taskmanagement.annotations.LogActivity;
 import com.omori.taskmanagement.dto.common.RequestMetadata;
 import com.omori.taskmanagement.dto.usermgmt.LoginRequest;
 import com.omori.taskmanagement.dto.usermgmt.RegistrationRequest;
-import com.omori.taskmanagement.service.UserService;
+import com.omori.taskmanagement.service.user.UserService;
 
 import com.omori.taskmanagement.utils.RequestMetadataHolder;
 

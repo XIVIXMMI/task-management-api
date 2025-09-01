@@ -1,4 +1,4 @@
-package com.omori.taskmanagement.service;
+package com.omori.taskmanagement.service.user;
 
 import com.omori.taskmanagement.model.usermgmt.User;
 import com.omori.taskmanagement.security.dto.AuthenticatedUserDto;

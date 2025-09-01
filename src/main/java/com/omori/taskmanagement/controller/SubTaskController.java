@@ -24,7 +24,7 @@ import com.omori.taskmanagement.dto.project.SubtaskResponse;
 import com.omori.taskmanagement.dto.project.SubtaskUpdateRequest;
 import com.omori.taskmanagement.model.audit.ActionType;
 import com.omori.taskmanagement.model.project.Subtask;
-import com.omori.taskmanagement.service.SubTaskService;
+import com.omori.taskmanagement.service.subtask.SubTaskService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
