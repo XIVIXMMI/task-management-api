@@ -10,6 +10,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 
 @Getter
@@ -38,6 +39,9 @@ public class TaskCreateRequest {
     @NotNull( message = "Type is required")
     @Schema(description = "Type of task (EPIC, STORY, TASK)", example = "STORY")
     private Task.TaskType type;
+
+    @Schema(description = "Initial stories of task", example = "[{\"title\":\"story 1\"},{\"title\":\"story 2\"}]")
+    private List<TaskCreateRequest> initialStories; // for createEpicWithInitialStories
 
     @NotNull( message = "Priority is required")
     @Schema(description = "Important level of task (low,medium,high,urgent)", example = "medium")
