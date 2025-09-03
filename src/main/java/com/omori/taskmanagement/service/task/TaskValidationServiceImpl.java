@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class TaskValidationServiceImpl {
+public class TaskValidationServiceImpl implements TaskValidationService{
     
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
@@ -125,6 +125,31 @@ public class TaskValidationServiceImpl {
         }
         
         log.debug("Progress update validation passed");
+    }
+
+    @Override
+    public void validateHierarchyRules(Long epicId, Long storyId) {
+
+    }
+
+    @Override
+    public void validateTypeConversion(Task.TaskType currentType, Task.TaskType newType) {
+
+    }
+
+    @Override
+    public void validateUserCanAccessTask(Long taskId, Long userId) {
+
+    }
+
+    @Override
+    public void validateUserCanDeleteTask(Long taskId, Long userId) {
+
+    }
+
+    @Override
+    public void validateUserCanEditTask(Long taskId, Long userId) {
+
     }
 
     private void validateDates(LocalDateTime startDate, LocalDateTime dueDate, Map<String, String> errors) {

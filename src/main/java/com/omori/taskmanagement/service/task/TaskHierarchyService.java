@@ -16,5 +16,6 @@ public interface TaskHierarchyService {
     List<Task> getAllDescendants(Long parentTaskId);
     Task getParentTask(Long taskId);
     int getHierarchyDepth(Long taskId);
+    Integer getNextSortOrderForParent(Long parentTaskId);
 
 }
