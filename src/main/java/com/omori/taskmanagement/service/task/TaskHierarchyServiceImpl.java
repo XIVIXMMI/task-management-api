@@ -125,18 +125,17 @@ public class TaskHierarchyServiceImpl implements TaskHierarchyService{
     }
 
     @Override
-    public List<Task> getEpicChildren(Long parentId) {
-        return List.of();
-    }
+    public TaskResponse getParentTask(Long taskId) {
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new TaskNotFoundException("Task not found with ID: " + taskId));
+        Long parentId = taskRepository.findParentTaskIdByTaskId(taskId);
+        if( parentId == null ) {
+            log.debug("Task {} has no parent", taskId);
+            return null;
+        }
+        Task parentTask = taskRepository.findById(parentId).orElse(null);
 
-    @Override
-    public void moveTaskToParent(Long taskId, Long parentId) {
-
-    }
-
-    @Override
-    public void validateHierarchy(Long epicId) {
-
+        return parentTask !=null ? TaskResponse.from(parentTask) : null ;
     }
 
     @Override
@@ -165,8 +164,13 @@ public class TaskHierarchyServiceImpl implements TaskHierarchyService{
     }
 
     @Override
-    public Task getParentTask(Long taskId) {
-        return null;
+    public void moveTaskToParent(Long taskId, Long parentId) {
+
+    }
+
+    @Override
+    public void validateHierarchy(Long epicId) {
+
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.omori.taskmanagement.service.task;
 
 import com.omori.taskmanagement.dto.project.task.HierarchyEpicDto;
+import com.omori.taskmanagement.dto.project.task.TaskResponse;
 import com.omori.taskmanagement.exceptions.task.InvalidTaskTypeException;
 import com.omori.taskmanagement.exceptions.task.TaskNotFoundException;
 import com.omori.taskmanagement.exceptions.task.TaskValidationException;
@@ -65,21 +66,6 @@ public interface TaskHierarchyService {
     HierarchyEpicDto getFullHierarchyByUuid(String uuid);
 
     /**
-     * Retrieves only the immediate children of an Epic (Stories level only).
-     *
-     * <p>Returns a simplified hierarchy view containing the Epic and its direct
-     * Story children, but excludes Tasks under those Stories. Useful for displaying
-     * Epic overview without the full depth of the hierarchy.</p>
-     *
-     * @param epicId the ID of the Epic task to retrieve children for
-     * @return hierarchy structure with Epic and its direct Story children only
-     * @throws TaskNotFoundException if no Epic task exists with the given ID
-     * @throws TaskValidationException if the task with given ID is not an EPIC type
-     * @since 1.0.0
-     */
-    List<Task> getEpicChildren(Long epicId);
-
-    /**
      * Retrieves the direct child tasks of a parent task.
      *
      * <p>Returns only immediate children (one level down) of the specified parent.
@@ -130,7 +116,7 @@ public interface TaskHierarchyService {
      * @throws TaskNotFoundException if no task exists with the given ID
      * @since 1.0.0
      */
-    Task getParentTask(Long taskId);
+    TaskResponse getParentTask(Long taskId);
 
     /**
      * Moves a task to a new parent, maintaining hierarchy rules.

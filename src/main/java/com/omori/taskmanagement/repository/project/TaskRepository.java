@@ -1,5 +1,6 @@
 package com.omori.taskmanagement.repository.project;
 
+import com.omori.taskmanagement.dto.project.task.TaskResponse;
 import com.omori.taskmanagement.model.project.Task;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -195,5 +196,8 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
 
         @Query("SELECT COUNT(s) FROM Subtask s WHERE s.task.id = :taskId AND s.isCompleted = true AND s.deletedAt IS NULL")
         Long countCompletedSubtasksByTaskId(@Param("taskId") Long taskId);
+
+        @Query("SELECT t.parentTask.id FROM Task t WHERE t.id = :taskId")
+        Long findParentTaskIdByTaskId(@Param("taskId") Long taskId);
 
 }
