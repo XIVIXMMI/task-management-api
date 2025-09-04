@@ -1,7 +1,7 @@
 package com.omori.taskmanagement.service.task;
 
-import com.omori.taskmanagement.dto.project.HierarchyEpicDto;
-import com.omori.taskmanagement.dto.project.TaskCreateRequest;
+import com.omori.taskmanagement.dto.project.task.HierarchyEpicDto;
+import com.omori.taskmanagement.dto.project.task.TaskCreateRequest;
 import com.omori.taskmanagement.model.project.Subtask;
 import com.omori.taskmanagement.model.project.Task;
 

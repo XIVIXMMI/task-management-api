@@ -1,4 +1,4 @@
-package com.omori.taskmanagement.dto.project;
+package com.omori.taskmanagement.dto.project.subtask;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 //import com.fasterxml.jackson.annotation.JsonTypeInfo;

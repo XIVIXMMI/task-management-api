@@ -1,11 +1,12 @@
 package com.omori.taskmanagement.service.task;
 
-import com.omori.taskmanagement.dto.project.TaskFilterRequest;
-import com.omori.taskmanagement.dto.project.TaskResponse;
+import com.omori.taskmanagement.dto.project.task.TaskFilterRequest;
+import com.omori.taskmanagement.dto.project.task.TaskResponse;
 import com.omori.taskmanagement.model.project.Task;
 import org.springframework.data.domain.Page;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public interface TaskQueryService {
 

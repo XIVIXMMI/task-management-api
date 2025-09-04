@@ -1,9 +1,11 @@
-package com.omori.taskmanagement.dto.project;
+package com.omori.taskmanagement.dto.project.task;
 
 import com.omori.taskmanagement.model.project.Task;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -27,11 +29,13 @@ public class TaskCreateRequest {
     private String description;
 
     @NotNull(message = "Due date is not null")
-    @Schema(description = "Date of task should be completed, format should be YYYY-MM-DD HH:MM:SS (ISO-8601)", example = "2025-08-05T23:59:00")
+    @Schema(description = "Date of task should be completed, format should be YYYY-MM-DD HH:MM:SS (ISO-8601)",
+            example = "2025-08-05T23:59:00")
     private LocalDateTime dueDate;
 
     @NotNull( message = "Start date is not null")
-    @Schema(description = "Date start of task, format should be YYYY-MM-DD HH:MM:SS (ISO-8601)", example = "2025-07-05T23:59:00")
+    @Schema(description = "Date start of task, format should be YYYY-MM-DD HH:MM:SS (ISO-8601)",
+            example = "2025-07-05T23:59:00")
     private LocalDateTime startDate;
 
     private Task.TaskStatus status;
@@ -40,8 +44,12 @@ public class TaskCreateRequest {
     @Schema(description = "Type of task (EPIC, STORY, TASK)", example = "STORY")
     private Task.TaskType type;
 
-    @Schema(description = "Initial stories of task", example = "[{\"title\":\"story 1\"},{\"title\":\"story 2\"}]")
-    private List<TaskCreateRequest> initialStories; // for createEpicWithInitialStories
+    @Valid
+    @ToString.Exclude
+    @Size(max = 10, message = "Cannot create more than 10 initial stories")
+    @Schema(description = "Initial stories under this epic task (simplified format)",
+            example = "[{\"title\":\"story 1\"},{\"title\":\"story 2\"}]")
+    private List<InitialStoryRequest> initialStories; // for createEpicWithInitialStories
 
     @NotNull( message = "Priority is required")
     @Schema(description = "Important level of task (low,medium,high,urgent)", example = "medium")
@@ -74,7 +82,8 @@ public class TaskCreateRequest {
     @Schema(description = "Recurring pattern of task, e.g., daily, weekly, monthly")
     private Map<String, Object> recurrencePattern;
 
-    @Schema(description = "Metadata for task, can be used for additional information", example = "{\"key\":\"value\"}")
+    @Schema(description = "Metadata for task, can be used for additional information",
+            example = "{\"key\":\"value\"}")
     private Map<String, Object> metadata;
 
 }

@@ -1,7 +1,7 @@
 package com.omori.taskmanagement.service.task;
 
-import com.omori.taskmanagement.dto.project.TaskResponse;
-import com.omori.taskmanagement.dto.project.TaskUpdateRequest;
+import com.omori.taskmanagement.dto.project.task.TaskResponse;
+import com.omori.taskmanagement.dto.project.task.TaskUpdateRequest;
 
 public interface TaskUpdateService {
 

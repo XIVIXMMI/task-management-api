@@ -1,4 +1,4 @@
-package com.omori.taskmanagement.dto.project;
+package com.omori.taskmanagement.dto.project.task;
 
 import lombok.Getter;
 import lombok.Setter;

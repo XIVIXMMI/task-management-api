@@ -1,6 +1,6 @@
 package com.omori.taskmanagement.service.task.creation;
 
-import com.omori.taskmanagement.dto.project.TaskCreateRequest;
+import com.omori.taskmanagement.dto.project.task.TaskCreateRequest;
 import com.omori.taskmanagement.model.project.Task;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

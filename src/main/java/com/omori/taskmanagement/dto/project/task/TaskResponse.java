@@ -1,7 +1,8 @@
-package com.omori.taskmanagement.dto.project;
+package com.omori.taskmanagement.dto.project.task;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.omori.taskmanagement.dto.project.subtask.SubtaskResponse;
 import com.omori.taskmanagement.model.project.Task;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

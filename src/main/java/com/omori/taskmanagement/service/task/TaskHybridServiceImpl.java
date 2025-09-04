@@ -1,6 +1,11 @@
 package com.omori.taskmanagement.service.task;
 
-import com.omori.taskmanagement.dto.project.*;
+import com.omori.taskmanagement.dto.project.subtask.SubtaskRequest;
+import com.omori.taskmanagement.dto.project.subtask.SubtaskResponse;
+import com.omori.taskmanagement.dto.project.task.HierarchyEpicDto;
+import com.omori.taskmanagement.dto.project.task.StoryWithTaskDto;
+import com.omori.taskmanagement.dto.project.task.TaskCreateRequest;
+import com.omori.taskmanagement.dto.project.task.TaskResponse;
 import com.omori.taskmanagement.exceptions.task.InvalidTaskTypeException;
 import com.omori.taskmanagement.exceptions.task.TaskBusinessException;
 import com.omori.taskmanagement.exceptions.UserNotFoundException;
@@ -286,6 +291,7 @@ public class TaskHybridServiceImpl implements TaskHybridService {
 
     @Override
     @Transactional
+    // DONE
     public void updateTaskProgressFromSubtasks(Long taskId) {
         log.debug("Updating progress from subtask for task with ID {} ", taskId);
 
@@ -497,7 +503,7 @@ public class TaskHybridServiceImpl implements TaskHybridService {
                 .orElse(0);
     }
 
-    // Helper method to set task relations
+    // DONE
     private void setTaskRelations(Task task, Long categoryId, Long assignedToId, Long workspaceId) {
         if (categoryId != null) {
             Category category = categoryRepository.findById(categoryId)
