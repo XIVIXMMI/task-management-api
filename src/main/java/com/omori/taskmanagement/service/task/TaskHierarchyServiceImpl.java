@@ -126,22 +126,7 @@ public class TaskHierarchyServiceImpl implements TaskHierarchyService{
 
     @Override
     public List<Task> getEpicChildren(Long parentId) {
-        log.debug("Getting children for epic task with ID {} ", parentId);
-        Task parentTask = taskRepository.findById(parentId)
-                .orElseThrow(() -> new TaskNotFoundException("Task not found with ID: " + parentId));
-
-        return switch (parentTask.getTaskType()) {
-            case EPIC -> taskRepository.findByParentTaskIdAndTaskTypeAndDeletedAtIsNull(parentId, STORY);
-            case STORY -> taskRepository.findByParentTaskIdAndTaskTypeAndDeletedAtIsNull(parentId, TASK);
-            case TASK -> {
-                log.debug("Task {} is the TASK level, no children found (only subtask)", parentId);
-                yield Collections.emptyList();
-            }
-            default -> {
-                log.warn("Unexpected task type: {}", parentTask.getTaskType());
-                yield Collections.emptyList();
-            }
-        };
+        return List.of();
     }
 
     @Override
@@ -156,7 +141,22 @@ public class TaskHierarchyServiceImpl implements TaskHierarchyService{
 
     @Override
     public List<Task> getChildTasks(Long parentTaskId) {
-        return List.of();
+        log.debug("Getting children for epic task with ID {} ", parentTaskId);
+        Task parentTask = taskRepository.findById(parentTaskId)
+                .orElseThrow(() -> new TaskNotFoundException("Task not found with ID: " + parentTaskId));
+
+        return switch (parentTask.getTaskType()) {
+            case EPIC -> taskRepository.findByParentTaskIdAndTaskTypeAndDeletedAtIsNull(parentTaskId, STORY);
+            case STORY -> taskRepository.findByParentTaskIdAndTaskTypeAndDeletedAtIsNull(parentTaskId, TASK);
+            case TASK -> {
+                log.debug("Task {} is the TASK level, no children found (only subtask)", parentTaskId);
+                yield Collections.emptyList();
+            }
+            default -> {
+                log.warn("Unexpected task type: {}", parentTask.getTaskType());
+                yield Collections.emptyList();
+            }
+        };
     }
 
     @Override
