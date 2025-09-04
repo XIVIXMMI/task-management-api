@@ -1,6 +1,6 @@
 package com.omori.taskmanagement.service.task;
 
-import com.omori.taskmanagement.dto.project.TaskCreateRequest;
+import com.omori.taskmanagement.dto.project.task.TaskCreateRequest;
 import com.omori.taskmanagement.exceptions.task.TaskValidationException;
 import com.omori.taskmanagement.model.project.Task;
 import com.omori.taskmanagement.repository.project.CategoryRepository;
@@ -129,27 +129,61 @@ public class TaskValidationServiceImpl implements TaskValidationService{
 
     @Override
     public void validateHierarchyRules(Long epicId, Long storyId) {
-
+        Map<String, String> errors = new HashMap<>();
+        if (epicId != null && storyId != null) {
+            errors.put("parent", "Specify only one parent: epicId or storyId.");
+            }
+        if (!errors.isEmpty()) {
+            throw new TaskValidationException("Hierarchy rules validation failed", errors);
+        }
     }
 
     @Override
     public void validateTypeConversion(Task.TaskType currentType, Task.TaskType newType) {
-
+        Map<String, String> errors = new HashMap<>();
+        if (currentType == null || newType == null) {
+            errors.put("type", "Both currentType and newType are required");
+        } else if (currentType == newType) {
+            return;
+        } else if (currentType == Task.TaskType.EPIC || newType == Task.TaskType.EPIC) {
+            errors.put("type", "Converting to/from epic is not supported here");
+        }
+        if (!errors.isEmpty()) {
+            throw new TaskValidationException("Type conversion validation failed", errors);
+        }
     }
 
     @Override
     public void validateUserCanAccessTask(Long taskId, Long userId) {
-
+        Map<String, String> errors = new HashMap<>();
+        if (taskId == null) errors.put("taskId", "Task id is required");
+        if (userId == null) errors.put("userId", "User id is required");
+        if (!errors.isEmpty()) {
+            throw new TaskValidationException("Access validation failed", errors);
+        }
+        // TODO: enforce access via workspace/assignment/visibility rules.
     }
 
     @Override
     public void validateUserCanDeleteTask(Long taskId, Long userId) {
-
+        Map<String, String> errors = new HashMap<>();
+        if (taskId == null) errors.put("taskId", "Task id is required");
+        if (userId == null) errors.put("userId", "User id is required");
+        if (!errors.isEmpty()) {
+            throw new TaskValidationException("Delete permission validation failed", errors);
+        }
+        // TODO: enforce delete permissions (owner/admin, workspace role).
     }
 
     @Override
     public void validateUserCanEditTask(Long taskId, Long userId) {
-
+        Map<String, String> errors = new HashMap<>();
+        if (taskId == null) errors.put("taskId", "Task id is required");
+        if (userId == null) errors.put("userId", "User id is required");
+        if (!errors.isEmpty()) {
+            throw new TaskValidationException("Edit permission validation failed", errors);
+        }
+        // TODO: enforce edit permissions (assignee/creator/workspace role).
     }
 
     private void validateDates(LocalDateTime startDate, LocalDateTime dueDate, Map<String, String> errors) {

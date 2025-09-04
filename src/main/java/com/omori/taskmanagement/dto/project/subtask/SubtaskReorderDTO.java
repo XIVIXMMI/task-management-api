@@ -1,4 +1,4 @@
-package com.omori.taskmanagement.dto.project;
+package com.omori.taskmanagement.dto.project.subtask;
 
 import java.util.List;
 

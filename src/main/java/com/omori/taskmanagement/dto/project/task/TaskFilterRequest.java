@@ -1,4 +1,4 @@
-package com.omori.taskmanagement.dto.project;
+package com.omori.taskmanagement.dto.project.task;
 
 import com.omori.taskmanagement.model.project.Task;
 import lombok.Data;

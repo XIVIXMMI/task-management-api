@@ -2,9 +2,11 @@ package com.omori.taskmanagement.service.subtask;
 
 import java.util.List;
 
-import com.omori.taskmanagement.dto.project.SubtaskCreateRequest;
-import com.omori.taskmanagement.dto.project.SubtaskRequest;
-import com.omori.taskmanagement.dto.project.SubtaskUpdateRequest;
+import com.omori.taskmanagement.dto.project.subtask.SubtaskCreateRequest;
+import com.omori.taskmanagement.dto.project.subtask.SubtaskRequest;
+import com.omori.taskmanagement.dto.project.subtask.SubtaskUpdateRequest;
+import com.omori.taskmanagement.exceptions.task.TaskNotFoundException;
+import com.omori.taskmanagement.exceptions.task.TaskValidationException;
 import com.omori.taskmanagement.model.project.Subtask;
 
 
@@ -27,6 +29,17 @@ public interface SubTaskService {
      * @return the created subtask
      */
     Subtask createSubtask(SubtaskRequest request);
+
+    /**
+     * Creates multiple subtasks for a task in a single operation.
+     *
+     * @param taskId the ID of the task to add subtasks to
+     * @param subtaskTitles the list of subtask titles to create
+     * @return the list of created subtasks
+     * @throws TaskNotFoundException if no task exists with the given ID
+     * @throws TaskValidationException if any subtask title is null or empty
+     */
+    List<Subtask> addSubtasksToTask(Long taskId, List<String> subtaskTitles);
 
     /**
      * Updates an existing subtask.

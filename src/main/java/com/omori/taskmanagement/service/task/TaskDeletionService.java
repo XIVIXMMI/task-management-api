@@ -8,6 +8,7 @@ public interface TaskDeletionService {
     void softDeleteMultipleTasksWithChildren(List<Long> taskIds, Long userId);
 
     // Archive with cascading
+    // Need to define new field in model like: isArchive
     void archiveTaskWithChildren(Long taskId, Long userId);
     void archiveMultipleTasksWithChildren(List<Long> taskIds, Long userId);
 

@@ -4,15 +4,17 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
-import com.omori.taskmanagement.dto.project.SubtaskCreateRequest;
-import com.omori.taskmanagement.dto.project.SubtaskRequest;
-import com.omori.taskmanagement.dto.project.SubtaskUpdateRequest;
+import com.omori.taskmanagement.dto.project.subtask.SubtaskCreateRequest;
+import com.omori.taskmanagement.dto.project.subtask.SubtaskRequest;
+import com.omori.taskmanagement.dto.project.subtask.SubtaskUpdateRequest;
 import com.omori.taskmanagement.exceptions.task.SubtaskNotFoundException;
 import com.omori.taskmanagement.exceptions.task.TaskNotFoundException;
+import com.omori.taskmanagement.exceptions.task.TaskValidationException;
 import com.omori.taskmanagement.model.events.TaskProgressUpdateEvent;
 import com.omori.taskmanagement.model.project.Subtask;
 import com.omori.taskmanagement.model.project.Task;
@@ -95,6 +97,33 @@ public class SubTaskServiceImpl implements SubTaskService {
         ));
         
         return saved;
+    }
+
+    @Override
+    public List<Subtask> addSubtasksToTask(Long taskId, List<String> subtaskTitles) {
+        log.debug("Adding {} subtasks to task with ID {}", subtaskTitles.size(), taskId);
+        
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new TaskNotFoundException("Task not found with ID: " + taskId));
+        
+        List<Subtask> subtasks = new ArrayList<>();
+        
+        for (String subtaskTitle : subtaskTitles) {
+            if (subtaskTitle == null || subtaskTitle.isBlank()) {
+                throw new TaskValidationException("All subtask titles must be non-empty",
+                        Map.of("invalidTitle", "Found null or empty title"));
+            }
+            Subtask subtask = createSubtask(
+                    SubtaskRequest.builder()
+                            .taskId(taskId)
+                            .title(subtaskTitle)
+                            .build()
+            );
+            subtasks.add(subtask);
+        }
+        
+        log.debug("Successfully added {} subtasks to task with ID {}", subtasks.size(), taskId);
+        return subtasks;
     }
 
     @Override

@@ -1,6 +1,6 @@
 package com.omori.taskmanagement.service.task;
 
-import com.omori.taskmanagement.dto.project.TaskCreateRequest;
+import com.omori.taskmanagement.dto.project.task.TaskCreateRequest;
 import com.omori.taskmanagement.model.project.Task;
 
 public interface TaskValidationService {

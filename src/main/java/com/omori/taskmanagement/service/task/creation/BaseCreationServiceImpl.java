@@ -1,6 +1,6 @@
 package com.omori.taskmanagement.service.task.creation;
 
-import com.omori.taskmanagement.dto.project.TaskCreateRequest;
+import com.omori.taskmanagement.dto.project.task.TaskCreateRequest;
 import com.omori.taskmanagement.exceptions.UserNotFoundException;
 import com.omori.taskmanagement.exceptions.task.InvalidTaskTypeException;
 import com.omori.taskmanagement.exceptions.task.TaskBusinessException;
@@ -40,6 +40,9 @@ public class BaseCreationServiceImpl implements BaseCreationService{
     @Override
     @Transactional
     public Task createTask(Long userId, Task.TaskType type, TaskCreateRequest request) {
+        if (type == null ) {
+            throw new InvalidTaskTypeException("Task type must be provided in request body");
+        }
         log.debug("Creating hierarchical task for user {} ", userId);
 
         taskValidationService.validateCreateTaskRequest(request, userId);
@@ -88,12 +91,12 @@ public class BaseCreationServiceImpl implements BaseCreationService{
 
         try {
             Task savedTask = taskRepository.save(task);
-            log.debug("Epic task created successfully with ID {} for user {}",
+            log.debug("Task created successfully with ID {} for user {}",
                     savedTask.getId(), userId);
             return savedTask;
         } catch (DataAccessException e) {
-            log.error("Failed to save epic task for user {}: {}", userId, e.getMessage());
-            throw new TaskBusinessException("Failed to create epic task", e);
+            log.error("Failed to save task for user {}: {}", userId, e.getMessage());
+            throw new TaskBusinessException("Failed to create task", e);
         }
     }
 }

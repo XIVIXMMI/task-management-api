@@ -18,10 +18,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import com.omori.taskmanagement.annotations.LogActivity;
 import com.omori.taskmanagement.dto.common.ApiResponse;
-import com.omori.taskmanagement.dto.project.SubtaskReorderDTO;
-import com.omori.taskmanagement.dto.project.SubtaskRequest;
-import com.omori.taskmanagement.dto.project.SubtaskResponse;
-import com.omori.taskmanagement.dto.project.SubtaskUpdateRequest;
+import com.omori.taskmanagement.dto.project.subtask.SubtaskReorderDTO;
+import com.omori.taskmanagement.dto.project.subtask.SubtaskRequest;
+import com.omori.taskmanagement.dto.project.subtask.SubtaskResponse;
+import com.omori.taskmanagement.dto.project.subtask.SubtaskUpdateRequest;
 import com.omori.taskmanagement.model.audit.ActionType;
 import com.omori.taskmanagement.model.project.Subtask;
 import com.omori.taskmanagement.service.subtask.SubTaskService;

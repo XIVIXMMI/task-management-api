@@ -1,9 +1,9 @@
 package com.omori.taskmanagement.service.task;
 
-import com.omori.taskmanagement.dto.project.TaskCreateRequest;
-import com.omori.taskmanagement.dto.project.TaskFilterRequest;
-import com.omori.taskmanagement.dto.project.TaskResponse;
-import com.omori.taskmanagement.dto.project.TaskUpdateRequest;
+import com.omori.taskmanagement.dto.project.task.TaskCreateRequest;
+import com.omori.taskmanagement.dto.project.task.TaskFilterRequest;
+import com.omori.taskmanagement.dto.project.task.TaskResponse;
+import com.omori.taskmanagement.dto.project.task.TaskUpdateRequest;
 import com.omori.taskmanagement.exceptions.UserNotFoundException;
 import com.omori.taskmanagement.exceptions.task.*;
 import com.omori.taskmanagement.model.project.Category;
