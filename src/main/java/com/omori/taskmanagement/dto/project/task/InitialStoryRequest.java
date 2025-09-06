@@ -3,6 +3,7 @@ package com.omori.taskmanagement.dto.project.task;
 import com.omori.taskmanagement.model.project.Task;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
@@ -15,7 +16,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class InitialStoryRequest {
 
-    @NotNull(message = "Story Title is required")
+    @NotBlank(message = "Story Title is required")
     @Schema(description = "Title of the story (task level 1)", example = "Task 1.1")
     private String title;
 
@@ -31,7 +32,7 @@ public class InitialStoryRequest {
 
     @NotNull(message = "Due date is required for initial stories")
     @Future(message = "Due date must be in the future")
-    @Schema(description = "Story due date", example = "2024-12-31T23:59:59")
+    @Schema(description = "Story due date", example = "2025-12-31T23:59:59")
     private LocalDateTime dueDate;
 
     @Builder.Default
@@ -44,6 +45,7 @@ public class InitialStoryRequest {
         taskCreateRequest.setStartDate(startDate == null ? LocalDateTime.now() : startDate);
         taskCreateRequest.setDueDate(dueDate);
         taskCreateRequest.setPriority(priority == null ? Task.TaskPriority.medium : priority);
+        taskCreateRequest.setType(Task.TaskType.STORY);
         return taskCreateRequest;
     }
 }

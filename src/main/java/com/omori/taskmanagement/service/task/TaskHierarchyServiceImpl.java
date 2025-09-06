@@ -68,9 +68,8 @@ public class TaskHierarchyServiceImpl implements TaskHierarchyService{
             storyWithTaskDto.setTasks(taskResponses);
             hierarchy.getStories().add(storyWithTaskDto);
         }
-        if (!hierarchy.getStories().isEmpty()) {
-            loadSubtasksForHierarchy(hierarchy);
-        }
+
+        loadSubtasksForHierarchy(hierarchy);
         return hierarchy;
     }
 
@@ -87,7 +86,6 @@ public class TaskHierarchyServiceImpl implements TaskHierarchyService{
                     Map.of("uuid", "Invalid UUID format: " + epicUuid)
             );
         }
-
         List<Task> allTasks = taskRepository.findAllTasksUnderEpicByUuid(uuid);
         Task epic = allTasks.stream()
                 .filter( t -> t.getUuid().equals(uuid))
@@ -118,9 +116,7 @@ public class TaskHierarchyServiceImpl implements TaskHierarchyService{
             storyWithTaskDto.setTasks(taskResponses);
             hierarchy.getStories().add(storyWithTaskDto);
         }
-        if (!hierarchy.getStories().isEmpty()) {
-            loadSubtasksForHierarchy(hierarchy);
-        }
+        loadSubtasksForHierarchy(hierarchy);
         return hierarchy;
     }
 
@@ -135,12 +131,12 @@ public class TaskHierarchyServiceImpl implements TaskHierarchyService{
         }
         Task parentTask = taskRepository.findById(parentId).orElse(null);
 
-        return parentTask !=null ? TaskResponse.from(parentTask) : null ;
+        return parentTask !=null ? TaskResponse.from(parentTask) : null;
     }
 
     @Override
     public List<Task> getChildTasks(Long parentTaskId) {
-        log.debug("Getting children for epic task with ID {} ", parentTaskId);
+        log.debug("Getting children for task with ID {} ", parentTaskId);
         Task parentTask = taskRepository.findById(parentTaskId)
                 .orElseThrow(() -> new TaskNotFoundException("Task not found with ID: " + parentTaskId));
 
@@ -160,7 +156,29 @@ public class TaskHierarchyServiceImpl implements TaskHierarchyService{
 
     @Override
     public List<Task> getAllChildTasks(Long parentTaskId) {
-        return List.of();
+        log.debug("Getting all children tasks for epic task with ID {} ", parentTaskId);
+        Task parentTask = taskRepository.findById(parentTaskId)
+                .orElseThrow(() -> new TaskNotFoundException("Task not found with ID: " + parentTaskId));
+
+        return switch (parentTask.getTaskType()) {
+            case EPIC -> {
+                List<Task> allTasks = taskRepository.findAllTasksUnderEpic(parentTaskId);
+                yield allTasks.stream()
+                        .filter(t -> t.getId().equals(parentTaskId))
+                        .collect(Collectors.toList());
+            }
+            case STORY -> {
+                yield taskRepository.findByParentTaskIdAndTaskTypeAndDeletedAtIsNull(parentTaskId, TASK);
+            }
+            case TASK -> {
+                log.debug("Id {} is the TASK level, no children found (only subtask)", parentTaskId);
+                yield Collections.emptyList();
+            }
+            default -> {
+                log.warn("Unexpected Task type: {}", parentTask.getTaskType());
+                yield Collections.emptyList();
+            }
+        };
     }
 
     @Override
@@ -169,13 +187,16 @@ public class TaskHierarchyServiceImpl implements TaskHierarchyService{
     }
 
     @Override
-    public void validateHierarchy(Long epicId) {
-
-    }
-
-    @Override
     public int getHierarchyDepth(Long taskId) {
-        return 0;
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new TaskNotFoundException("Task not found with ID: " + taskId));
+        int depth = 0;
+        final int MAX_DEPTH = 10;
+        while(task.getParentTask() != null && depth < MAX_DEPTH) {
+            depth++;
+            task = task.getParentTask();
+        }
+        return depth;
     }
 
     @Override

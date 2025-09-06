@@ -147,29 +147,6 @@ public interface TaskHierarchyService {
     void moveTaskToParent(Long taskId, Long newParentId);
 
     /**
-     * Validates the integrity of an Epic's complete hierarchy structure.
-     *
-     * <p>Performs comprehensive validation checks on the Epic and all its descendants:
-     * <ul>
-     *   <li>Hierarchy depth doesn't exceed maximum levels (Epic→Story→Task)</li>
-     *   <li>No circular references exist in parent-child relationships</li>
-     *   <li>All parent-child type combinations are valid</li>
-     *   <li>Sort orders are consistent and without gaps</li>
-     *   <li>No orphaned tasks exist in the hierarchy</li>
-     * </ul></p>
-     *
-     * <p>This method is useful for data integrity checks and debugging
-     * hierarchy corruption issues.</p>
-     *
-     * @param epicId the ID of the Epic task to validate hierarchy for
-     * @throws TaskNotFoundException if no Epic task exists with the given ID
-     * @throws TaskValidationException if any hierarchy validation rules are violated
-     * @throws InvalidTaskTypeException if task type relationships are invalid
-     * @since 1.0.0
-     */
-    void validateHierarchy(Long epicId);
-
-    /**
      * Calculates the depth of a task within the hierarchy structure.
      *
      * <p>Returns the hierarchical depth level:

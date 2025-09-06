@@ -101,29 +101,44 @@ public class SubTaskServiceImpl implements SubTaskService {
 
     @Override
     public List<Subtask> addSubtasksToTask(Long taskId, List<String> subtaskTitles) {
+        if(subtaskTitles == null ) {
+            throw new TaskValidationException("Subtask titles list must not be null",
+                    Map.of("subtaskTitles", "Subtask titles list must not be null"));
+        }
         log.debug("Adding {} subtasks to task with ID {}", subtaskTitles.size(), taskId);
+        if(subtaskTitles.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        // Validate all titles in one time
+        if (subtaskTitles.stream().anyMatch(title -> title == null || title.isBlank())) {
+            throw new TaskValidationException("All subtask titles must be non-empty",
+                    Map.of("invalidTitle", "Found null or empty title"));
+        }
         
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new TaskNotFoundException("Task not found with ID: " + taskId));
-        
+
+        int baseSortOrder = getNextSortOrder(taskId);
+
         List<Subtask> subtasks = new ArrayList<>();
-        
-        for (String subtaskTitle : subtaskTitles) {
-            if (subtaskTitle == null || subtaskTitle.isBlank()) {
-                throw new TaskValidationException("All subtask titles must be non-empty",
-                        Map.of("invalidTitle", "Found null or empty title"));
-            }
-            Subtask subtask = createSubtask(
-                    SubtaskRequest.builder()
-                            .taskId(taskId)
-                            .title(subtaskTitle)
-                            .build()
-            );
+
+        for (int i = 0; i < subtaskTitles.size(); i++) {
+            Subtask subtask = Subtask.builder()
+                    .task(task)
+                    .title(subtaskTitles.get(i))
+                    .sortOrder(baseSortOrder + i + 1)
+                    .isCompleted(false)
+                    .createdAt(LocalDateTime.now())
+                    .updatedAt(LocalDateTime.now())
+                    .build();
             subtasks.add(subtask);
         }
+
+        List<Subtask> savedSubtasks = subTaskRepository.saveAll(subtasks);
         
-        log.debug("Successfully added {} subtasks to task with ID {}", subtasks.size(), taskId);
-        return subtasks;
+        log.debug("Successfully added {} subtasks to task with ID {}", savedSubtasks.size(), taskId);
+        return savedSubtasks;
     }
 
     @Override

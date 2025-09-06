@@ -194,10 +194,12 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
         @Query("SELECT COUNT(s) FROM Subtask s WHERE s.task.id = :taskId AND s.deletedAt IS NULL")
         Long countSubtasksByTaskId(@Param("taskId") Long taskId);
 
-        @Query("SELECT COUNT(s) FROM Subtask s WHERE s.task.id = :taskId AND s.isCompleted = true AND s.deletedAt IS NULL")
+        @Query("SELECT COUNT(s) FROM Subtask s " +
+                "WHERE s.task.id = :taskId AND s.isCompleted = true AND s.deletedAt IS NULL")
         Long countCompletedSubtasksByTaskId(@Param("taskId") Long taskId);
 
-        @Query("SELECT t.parentTask.id FROM Task t WHERE t.id = :taskId")
+        @Query("SELECT p.id FROM Task t JOIN t.parentTask p " +
+                "WHERE t.id = :taskId AND t.deletedAt IS NULL AND p.deletedAt IS NULL")
         Long findParentTaskIdByTaskId(@Param("taskId") Long taskId);
 
 }
