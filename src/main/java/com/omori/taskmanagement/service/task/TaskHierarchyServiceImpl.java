@@ -156,15 +156,16 @@ public class TaskHierarchyServiceImpl implements TaskHierarchyService{
 
     @Override
     public List<Task> getAllChildTasks(Long parentTaskId) {
-        log.debug("Getting all children tasks for epic task with ID {} ", parentTaskId);
+        log.debug("Getting all descendant tasks for parent task with ID {}", parentTaskId);
         Task parentTask = taskRepository.findById(parentTaskId)
                 .orElseThrow(() -> new TaskNotFoundException("Task not found with ID: " + parentTaskId));
 
         return switch (parentTask.getTaskType()) {
             case EPIC -> {
                 List<Task> allTasks = taskRepository.findAllTasksUnderEpic(parentTaskId);
+                // Return all descendants, excluding the epic itself
                 yield allTasks.stream()
-                        .filter(t -> t.getId().equals(parentTaskId))
+                        .filter(t -> !Objects.equals(t.getId(), parentTaskId))
                         .collect(Collectors.toList());
             }
             case STORY -> {
@@ -183,7 +184,8 @@ public class TaskHierarchyServiceImpl implements TaskHierarchyService{
 
     @Override
     public void moveTaskToParent(Long taskId, Long parentId) {
-
+        //TODO: complete the function
+        throw new UnsupportedOperationException("moveTaskToParent not implemented yet");
     }
 
     @Override

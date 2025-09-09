@@ -31,31 +31,43 @@ public class TaskHierarchyValidationServiceImpl implements TaskHierarchyValidati
                     Map.of("taskType", "Expected EPIC but found " + epicTask.getTaskType()));
         }
         List<Task> allTasks = taskRepository.findAllTasksUnderEpic(epicId);
-
-//        Step 2: Validate Epic Task
-//         1. Find the Epic task in allTasks
-//         2. Ensure it's actually EPIC type
-//         3. Use validateTaskType(epic) to check it has no parent
-
-//        Step 3: Run All Validations
-//         1. Validate each task type: for each task -> validateTaskType(task)
-//         2. Validate sort orders: validateSortOrder(allTasks)
-//         3. Additional hierarchy checks (circular references, orphans, etc.)
-
-//        Step 4: Collect All Violations
-//        List<String> violations = new ArrayList<>();
-//        try {
-//            // Run each validation
-//        } catch (TaskValidationException e) {
-//            violations.add(e.getMessage());
-//        }
-//        // Continue with other validations...
-
-//        Step 5: Final Exception with Complete Report
-//        if (!violations.isEmpty()) {
-//            String message = "Hierarchy validation failed: " + String.join("; ", violations);
-//            throw new TaskValidationException(message, details);
-//        }
+        List<String> violations = new ArrayList<>();
+        // EpicTask-level checks -> must not have a parent-task
+        try {
+            validateTaskType(epicTask);
+        } catch (TaskValidationException t) {
+            violations.add("EPIC: " + epicId + ": "+ t.getMessage());
+        }
+        // Check single tasks
+        for(Task task : allTasks) {
+            try {
+                validateTaskType(task);
+            } catch (TaskValidationException t) {
+                violations.add(task.getId() + ": " + t.getMessage());
+            }
+        }
+        // SortOder checks
+        try{
+            // Filter out top-level task before sort validation
+            List<Task> taskWithParent = allTasks.stream()
+                    .filter(t -> t.getParentTask() != null)
+                    .toList();
+            if(taskWithParent.isEmpty()){
+                validateSortOrder(taskWithParent);
+            }
+        } catch (TaskValidationException t) {
+            violations.add("Sort order validation failed: " + t.getMessage());
+        }
+        if(!violations.isEmpty()){
+            String message = "Hierarchy validation failed: " + violations.size() + " issues found";
+            Map<String, String> details = Map.of(
+                    "epicId", epicId.toString(),
+                    "violationCount", String.valueOf(violations.size()),
+                    "violations", String.join("; ", violations)
+            );
+            throw new TaskValidationException(message, details);
+        }
+        log.debug("Validation of hierarchy for epic task with ID {} succeeded", epicId);
     }
 
     @Override
@@ -105,6 +117,9 @@ public class TaskHierarchyValidationServiceImpl implements TaskHierarchyValidati
 
     @Override
     public void validateSortOrder(List<Task> tasks) {
+        if(tasks == null || tasks.isEmpty()){
+            return;
+        }
         // Group tasks: same parent = same validation group
         Map<Long, List<Task>> taskGroups = tasks.stream()
                 .collect(Collectors.groupingBy(
@@ -113,12 +128,21 @@ public class TaskHierarchyValidationServiceImpl implements TaskHierarchyValidati
         List<String> violations = new ArrayList<>();
         // For each parent group, check:
         for(Map.Entry< Long, List<Task>> entry : taskGroups.entrySet()){
+            // Skip root-level (no parent) group; root items typically aren't ordered against each other here
+            if (entry.getKey() == -1L) {
+                continue;
+            }
             List<Task> tasksInGroup = entry.getValue();
             // - No huge gaps in sequence
             List<Integer> sortOrders = tasksInGroup.stream()
                     .map(Task::getSortOrder)
                     .sorted()
                     .toList();
+            // - No null sort orders
+            if (sortOrders.stream().anyMatch(Objects::isNull)) {
+                violations.add("Null sort order found for parent task " + entry.getKey());
+                continue; // avoid NPEs in the checks below
+            }
             // - No duplicate sort orders
             Set<Integer> orders = new HashSet<>(sortOrders);
             if( orders.size() < tasksInGroup.size() ){
@@ -137,8 +161,18 @@ public class TaskHierarchyValidationServiceImpl implements TaskHierarchyValidati
             }
         }
         if(!violations.isEmpty()){
-            String message = "Validation failed for task hierarchy: " + String.join(", ", violations);
-            throw new TaskValidationException(message);
+            List<Long> allTaskIds = tasks.stream()
+                    .map(Task::getId)
+                    .toList();
+            String message = "Sort order validation failed: " + violations.size() + " issues found";
+            Map<String, String> details = Map.of(
+                    "affectedTaskIds", allTaskIds.stream()
+                            .map(String::valueOf).
+                            collect(Collectors.joining(", ")) ,
+                    "violationCount", String.valueOf(violations.size()),
+                    "violations", String.join("; ", violations)
+            );
+            throw new TaskValidationException(message, details);
         }
     }
 

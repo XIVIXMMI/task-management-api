@@ -119,15 +119,15 @@ public class SubTaskServiceImpl implements SubTaskService {
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new TaskNotFoundException("Task not found with ID: " + taskId));
 
-        int baseSortOrder = getNextSortOrder(taskId);
+        final int startSortOrder = getNextSortOrder(taskId);
 
         List<Subtask> subtasks = new ArrayList<>();
 
-        for (int i = 0; i < subtaskTitles.size(); i++) {
+        for (String subtaskTitle : subtaskTitles) {
             Subtask subtask = Subtask.builder()
                     .task(task)
-                    .title(subtaskTitles.get(i))
-                    .sortOrder(baseSortOrder + i + 1)
+                    .title(subtaskTitle)
+                    .sortOrder(startSortOrder + 1)
                     .isCompleted(false)
                     .createdAt(LocalDateTime.now())
                     .updatedAt(LocalDateTime.now())
