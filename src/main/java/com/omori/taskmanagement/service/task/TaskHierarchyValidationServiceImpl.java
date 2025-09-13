@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class TaskHierarchyValidationServiceImpl implements TaskHierarchyValidation{
+public class TaskHierarchyValidationServiceImpl implements TaskHierarchyValidationService {
 
     private final TaskRepository taskRepository;
 
@@ -52,7 +52,7 @@ public class TaskHierarchyValidationServiceImpl implements TaskHierarchyValidati
             List<Task> taskWithParent = allTasks.stream()
                     .filter(t -> t.getParentTask() != null)
                     .toList();
-            if(taskWithParent.isEmpty()){
+            if(!taskWithParent.isEmpty()){
                 validateSortOrder(taskWithParent);
             }
         } catch (TaskValidationException t) {
@@ -78,9 +78,7 @@ public class TaskHierarchyValidationServiceImpl implements TaskHierarchyValidati
         if(task.getTaskType() == null) {
             throw new IllegalArgumentException("Task type cannot be null");
         }
-
         Task parentTask = task.getParentTask();
-
         if(parentTask == null) {
             log.debug("Task {} is standalone (no parent)", task.getId());
         }else {
@@ -88,30 +86,28 @@ public class TaskHierarchyValidationServiceImpl implements TaskHierarchyValidati
                     task.getId(), task.getTaskType(),
                     parentTask.getId(), parentTask.getTaskType());
         }
-
         switch (task.getTaskType()) {
-            case EPIC:
-                if( parentTask != null ) {
+            case EPIC -> {
+                if (parentTask != null) {
                     throw new TaskValidationException("EPIC task cannot have a parent task",
-                            createValidationDetails(task,parentTask,null));
+                            createValidationDetails(task, parentTask, null));
                 }
-                break;
-            case STORY:
-                if( parentTask != null && parentTask.getTaskType() != Task.TaskType.EPIC){
+            }
+            case STORY -> {
+                if (parentTask != null && parentTask.getTaskType() != Task.TaskType.EPIC) {
                     throw new TaskValidationException(
-                            "STORY task must have a parent task of type EPIC",
-                            createValidationDetails(task ,parentTask,"EPIC"));
+                            "Parent task is null! This STORY task must have a parent task of type EPIC",
+                            createValidationDetails(task, parentTask, "EPIC"));
                 }
-                break;
-            case TASK:
-                if( parentTask != null && parentTask.getTaskType() != Task.TaskType.STORY){
+            }
+            case TASK -> {
+                if (parentTask != null && parentTask.getTaskType() != Task.TaskType.STORY) {
                     throw new TaskValidationException(
-                            "TASK task must have a parent task of type STORY",
-                            createValidationDetails(task,parentTask,"STORY"));
+                            "Parent task is null! This TASK task must have a parent task of type STORY",
+                            createValidationDetails(task, parentTask, "STORY"));
                 }
-                break;
-                default:
-                    throw new InvalidTaskTypeException("Unknow task type: " + task.getTaskType());
+            }
+            default -> throw new InvalidTaskTypeException("Unknow task type: " + task.getTaskType());
         }
     }
 
@@ -123,7 +119,7 @@ public class TaskHierarchyValidationServiceImpl implements TaskHierarchyValidati
         // Group tasks: same parent = same validation group
         Map<Long, List<Task>> taskGroups = tasks.stream()
                 .collect(Collectors.groupingBy(
-                        task -> task.getParentTask() != null ? task.getParentTask().getId() : -1L));
+                        task -> Long.valueOf(task.getParentTask() != null ? task.getParentTask().getId() : -1L)));
         // Don't fail on the first error - collect ALL issues
         List<String> violations = new ArrayList<>();
         // For each parent group, check:
@@ -134,15 +130,15 @@ public class TaskHierarchyValidationServiceImpl implements TaskHierarchyValidati
             }
             List<Task> tasksInGroup = entry.getValue();
             // - No huge gaps in sequence
-            List<Integer> sortOrders = tasksInGroup.stream()
+            List<Integer> sortOrdersRaw = tasksInGroup.stream()
                     .map(Task::getSortOrder)
-                    .sorted()
                     .toList();
             // - No null sort orders
-            if (sortOrders.stream().anyMatch(Objects::isNull)) {
+            if (sortOrdersRaw.stream().anyMatch(Objects::isNull)) {
                 violations.add("Null sort order found for parent task " + entry.getKey());
                 continue; // avoid NPEs in the checks below
             }
+            List<Integer> sortOrders = sortOrdersRaw.stream().sorted().toList();
             // - No duplicate sort orders
             Set<Integer> orders = new HashSet<>(sortOrders);
             if( orders.size() < tasksInGroup.size() ){

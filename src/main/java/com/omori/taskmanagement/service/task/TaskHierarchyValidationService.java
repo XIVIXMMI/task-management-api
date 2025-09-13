@@ -7,7 +7,7 @@ import com.omori.taskmanagement.model.project.Task;
 
 import java.util.List;
 
-public interface TaskHierarchyValidation {
+public interface TaskHierarchyValidationService {
 
     /**
      * Validates the integrity of an Epic's complete hierarchy structure.

@@ -198,8 +198,15 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
                 "WHERE s.task.id = :taskId AND s.isCompleted = true AND s.deletedAt IS NULL")
         Long countCompletedSubtasksByTaskId(@Param("taskId") Long taskId);
 
+
         @Query("SELECT p.id FROM Task t JOIN t.parentTask p " +
                 "WHERE t.id = :taskId AND t.deletedAt IS NULL AND p.deletedAt IS NULL")
         Long findParentTaskIdByTaskId(@Param("taskId") Long taskId);
+
+        @Query("SELECT t FROM Task t WHERE t.parentTask.id = :parentTaskId AND t.deletedAt IS NULL")
+        List<Task> findAllChildrenByParentTaskId(Long parentTaskId);
+
+        @Query("SELECT t FROM Task t WHERE t.id = :taskId AND t.deletedAt IS NULL")
+        Optional<Task> findByIdAndDeletedAtIsNull(Long taskId);
 
 }
