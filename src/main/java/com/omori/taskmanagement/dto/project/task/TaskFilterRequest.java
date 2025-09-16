@@ -19,4 +19,13 @@ public class TaskFilterRequest {
     private int size = 20;
     private String sortBy = "createdAt";
     private String sortDirection = "desc";
+
+    public TaskFilterRequest createDefaultFilter() {
+        TaskFilterRequest filter = new TaskFilterRequest();
+        filter.page = 0;
+        filter.size = 20;
+        filter.sortBy = "createdAt";
+        filter.sortDirection = "desc";
+        return filter;
+    }
 }

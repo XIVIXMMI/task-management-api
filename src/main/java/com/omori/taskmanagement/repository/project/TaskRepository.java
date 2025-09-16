@@ -26,6 +26,15 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
         @Query("SELECT t FROM Task t WHERE t.uuid = :uuid AND t.deletedAt IS NULL")
         Optional<Task> findByUuid(@Param("uuid") UUID uuid);
 
+
+        @Query("SELECT t FROM Task t " +
+                "LEFT JOIN FETCH t.category " +
+                "LEFT JOIN FETCH t.assignedTo " +
+                "LEFT JOIN FETCH t.workspace " +
+                "LEFT JOIN FETCH t.user " +
+                "WHERE t.uuid = :uuid")
+        Optional<Task> findByUuidWithRelations(@Param("uuid") UUID Uuid);
+
         /**
          * Retrieves user's tasks with pagination.
          * Performance: Composite index on (user_id, deleted_at), efficient pagination
@@ -75,7 +84,9 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
          */
         @Query("SELECT t FROM Task t " +
                 "WHERE t.user.id = :userId AND t.dueDate < :now AND t.status != 'completed' AND t.deletedAt IS NULL")
-        List<Task> findOverdueTasksByUserId(@Param("userId") Long userId, @Param("now") LocalDateTime now);
+        Page<Task> findOverdueTasksByUserId(@Param("userId") Long userId,
+                                            @Param("now") LocalDateTime now,
+                                            Pageable pageable);
 
         /**
          * Retrieves workspace tasks with pagination.
@@ -209,4 +220,15 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
         @Query("SELECT t FROM Task t WHERE t.id = :taskId AND t.deletedAt IS NULL")
         Optional<Task> findByIdAndDeletedAtIsNull(Long taskId);
 
+        @Query("SELECT t FROM Task t WHERE t.uuid = :uuid AND t.deletedAt IS NULL")
+        Optional<Task> findByUuidAndDeletedAtIsNull(@Param("uuid") UUID uuid);
+
+        /**
+         * Finds active (non-deleted) tasks by status with pagination.
+         *
+         * Performance: Uses composite index on (status, deleted_at)
+         * Use case: Status-based task filtering in UI
+         */
+        @Query("SELECT t FROM Task t WHERE t.status = :status AND t.deletedAt IS NULL")
+        Page<Task> findActiveTasksByStatus(@Param("status") Task.TaskStatus status, Pageable pageable);
 }
