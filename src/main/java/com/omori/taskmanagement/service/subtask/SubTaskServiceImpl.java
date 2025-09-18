@@ -123,11 +123,12 @@ public class SubTaskServiceImpl implements SubTaskService {
 
         List<Subtask> subtasks = new ArrayList<>();
 
-        for (String subtaskTitle : subtaskTitles) {
+        for (int i = 0; i < subtaskTitles.size(); i++) {
+            String subtaskTitle = subtaskTitles.get(i);
             Subtask subtask = Subtask.builder()
                     .task(task)
                     .title(subtaskTitle)
-                    .sortOrder(startSortOrder + 1)
+                    .sortOrder(Integer.valueOf(startSortOrder + i))
                     .isCompleted(false)
                     .createdAt(LocalDateTime.now())
                     .updatedAt(LocalDateTime.now())

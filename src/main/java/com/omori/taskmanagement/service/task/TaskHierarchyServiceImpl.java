@@ -4,6 +4,7 @@ import com.omori.taskmanagement.dto.project.subtask.SubtaskResponse;
 import com.omori.taskmanagement.dto.project.task.HierarchyEpicDto;
 import com.omori.taskmanagement.dto.project.task.StoryWithTaskDto;
 import com.omori.taskmanagement.dto.project.task.TaskResponse;
+import com.omori.taskmanagement.exceptions.task.InvalidTaskTypeException;
 import com.omori.taskmanagement.exceptions.task.TaskNotFoundException;
 import com.omori.taskmanagement.exceptions.task.TaskValidationException;
 import com.omori.taskmanagement.model.project.Subtask;
@@ -13,7 +14,9 @@ import com.omori.taskmanagement.repository.project.TaskRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -25,6 +28,9 @@ public class TaskHierarchyServiceImpl implements TaskHierarchyService{
 
     private final TaskRepository taskRepository;
     private final SubtaskRepository subtaskRepository;
+
+    private final TaskHierarchyValidationService taskHierarchyValidationService;
+    private final TaskProgressService taskProgressService;
 
     private static final Task.TaskType EPIC = Task.TaskType.EPIC;
     private static final Task.TaskType STORY = Task.TaskType.STORY;
@@ -42,7 +48,7 @@ public class TaskHierarchyServiceImpl implements TaskHierarchyService{
                 .findFirst()
                 .orElseThrow(() -> new TaskNotFoundException("Task not found with ID: " + epicId));
 
-        if (epic.getTaskType() != Task.TaskType.EPIC) {
+        if (epic.getTaskType() != EPIC) {
             throw new TaskValidationException("Task with id " + epicId + " is not an EPIC task",
                     Map.of("taskType", "Expected EPIC but found " + epic.getTaskType()));
         }
@@ -92,7 +98,7 @@ public class TaskHierarchyServiceImpl implements TaskHierarchyService{
                 .findFirst()
                 .orElseThrow( () -> new TaskNotFoundException("Task not found with uuid: " + epicUuid) );
 
-        if(epic.getTaskType() != Task.TaskType.EPIC){
+        if(epic.getTaskType() != EPIC){
             throw new TaskValidationException("Task with id " + epicUuid + " is not an EPIC task",
                     Map.of("taskType","Excepted EPIC but found " + epic.getTaskType()));
         }
@@ -183,9 +189,43 @@ public class TaskHierarchyServiceImpl implements TaskHierarchyService{
     }
 
     @Override
+    @Transactional
     public void moveTaskToParent(Long taskId, Long parentId) {
-        //TODO: complete the function
-        throw new UnsupportedOperationException("moveTaskToParent not implemented yet");
+        log.debug("Moving task with ID {} to parent with ID {}", taskId, parentId);
+        Task task = taskRepository.findByIdAndDeletedAtIsNull(taskId)
+                .orElseThrow( () -> new TaskNotFoundException("Task not found with ID: " + taskId) );
+
+        Task newParent = null;
+        if(parentId != null) {
+            newParent = taskRepository.findByIdAndDeletedAtIsNull(parentId)
+                    .orElseThrow( () -> new TaskNotFoundException("Task not found with ID: " + parentId) );
+        }
+
+        Task oldParent = task.getParentTask();
+        taskHierarchyValidationService.validateTaskType(task);
+        validateMoveOperation(task,newParent);
+        preventInfiniteLoop(taskId, parentId);
+
+        if(parentId != null ) {
+            int currentParentDepth = getHierarchyDepth(parentId);
+            int taskCurrentParentDepth = getHierarchyDepth(taskId);
+            // Check if move would exceed depth limit
+            if(currentParentDepth + 1 > 3) {
+                throw new TaskValidationException("Moving task would exceed maximum allowed depth of 3");
+            }
+        }
+
+        task.setParentTask(newParent);
+        if( newParent != null ) {
+            task.setSortOrder(getNextSortOrderForParent(newParent.getId()));
+        }
+        task.setUpdatedAt(LocalDateTime.now());
+        taskRepository.save(task);
+
+        recalculateProgress(task,oldParent,newParent);
+
+        log.info("Successfully moved Task {} from parent {} to parent {}",
+                taskId, oldParent != null ? oldParent.getId() : null, parentId);
     }
 
     @Override
@@ -205,8 +245,86 @@ public class TaskHierarchyServiceImpl implements TaskHierarchyService{
     public Integer getNextSortOrderForParent(Long parentTaskId) {
         // Implementation to get next sort order
         return taskRepository.findMaxSortOrderByParentTaskId(parentTaskId)
-                .map(max -> max + 1)
-                .orElse(0);
+                .map(max -> (Integer) (max + 1))
+                .orElse(Integer.valueOf(0));
+    }
+
+    /*
+    ========== HELPER METHODS ==========
+    */
+
+    private void validateMoveOperation(Task task, Task newParent){
+        switch (task.getTaskType()) {
+            case EPIC -> throw new InvalidTaskTypeException("EPIC tasks cannot be moved");
+            case STORY -> {
+                if (newParent != null && newParent.getTaskType() != EPIC) {
+                    throw new TaskValidationException("STORY can only be moved under EPIC");
+                }
+            }
+            case TASK -> {
+                if (newParent == null || newParent.getTaskType() != STORY) {
+                    throw new TaskValidationException("TASK must have STORY parent");
+                }
+            }
+        }
+    }
+
+    private void preventInfiniteLoop(Long taskId, Long parentId){
+        if(parentId == null) return;
+
+        // Method 1: Check if parentId is descendant of taskId
+        if (isDescendantOf(parentId, taskId)) {
+            throw new TaskValidationException("Cannot move task under its own descendant");
+        }
+
+        // Method 2: Additional safety - traverse upward from new parent
+        Task ancestor = taskRepository.findByIdAndDeletedAtIsNull(parentId).orElse(null);
+        Set<Long> visited = new HashSet<>();
+        int depth = 0;
+        final int MAX_DEPTH = 10;
+        while( ancestor != null && depth < MAX_DEPTH) {
+            if(visited.contains(ancestor.getId())) {
+                throw new TaskValidationException(("Circular reference detected in task hierarchy"));
+            }
+            if(ancestor.getId().equals(taskId)) {
+                throw new TaskValidationException("Cannot move task under its own descendant");
+            }
+            visited.add(ancestor.getId());
+            ancestor = ancestor.getParentTask();
+            depth++;
+        }
+        if(depth >= MAX_DEPTH) {
+            throw new TaskValidationException("Task hierarchy depth exceeds maximum allowed");
+        }
+
+    }
+
+    private boolean isDescendantOf(Long potentialDescendant, Long ancestorId){
+        List<Task> allChildren =  taskRepository.findAllChildrenByParentTaskId(ancestorId);
+        return allChildren.stream()
+                .anyMatch(child -> child.getId().equals(potentialDescendant));
+    }
+
+    private void recalculateProgress(Task task, Task currentParent, Task newParent){
+        try {
+            // Recalculation progress for old hierarchy
+            if(currentParent != null) {
+                switch (currentParent.getTaskType()) {
+                    case STORY -> taskProgressService.propagateProgressToParent(currentParent.getId());
+                    case EPIC -> taskProgressService.updateHierarchyProgress(currentParent.getId());
+                }
+            }
+            // Recalculation progress for new hierarchy
+            if(newParent != null) {
+                switch (newParent.getTaskType()) {
+                    case STORY -> taskProgressService.propagateProgressToParent(newParent.getId());
+                    case EPIC -> taskProgressService.updateHierarchyProgress(newParent.getId());
+                }
+            }
+        } catch (Exception e){
+            log.error("Error recalculating progress for task {}: {}", task.getId(), e.getMessage());
+            // Don't fail the entire operation for progress calculation errors, but log them for monitoring
+        }
     }
 
     private void loadSubtasksForHierarchy(HierarchyEpicDto hierarchy) {
@@ -254,6 +372,6 @@ public class TaskHierarchyServiceImpl implements TaskHierarchyService{
                 );
             });
         });
-        log.debug("Loading subtasks for {} tasks: {}", allTaskIds.size(), allTaskIds);
+        log.debug("Loading subtasks for {} tasks: {}", Optional.of(allTaskIds.size()), allTaskIds);
     }
 }
