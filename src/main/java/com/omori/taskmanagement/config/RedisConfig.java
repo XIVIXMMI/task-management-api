@@ -120,9 +120,25 @@ public class RedisConfig {
                                 .serializeValuesWith(RedisSerializationContext.SerializationPair
                                                 .fromSerializer(serializer)));
 
-                // Configuration for taskDetails cache
-                cacheConfigurations.put("taskDetails", RedisCacheConfiguration.defaultCacheConfig()
-                                .entryTtl(Duration.ofHours(1))
+                // Configuration for task-details cache (matches @Cacheable value)
+                cacheConfigurations.put("task-details", RedisCacheConfiguration.defaultCacheConfig()
+                                .entryTtl(Duration.ofMinutes(15)) // Shorter TTL for better consistency
+                                .serializeKeysWith(RedisSerializationContext.SerializationPair
+                                                .fromSerializer(new StringRedisSerializer()))
+                                .serializeValuesWith(RedisSerializationContext.SerializationPair
+                                                .fromSerializer(serializer)));
+
+                // Configuration for task counts (frequently accessed, can be stale)
+                cacheConfigurations.put("task-counts", RedisCacheConfiguration.defaultCacheConfig()
+                                .entryTtl(Duration.ofMinutes(5))
+                                .serializeKeysWith(RedisSerializationContext.SerializationPair
+                                                .fromSerializer(new StringRedisSerializer()))
+                                .serializeValuesWith(RedisSerializationContext.SerializationPair
+                                                .fromSerializer(serializer)));
+
+                // Configuration for user sessions (longer TTL)
+                cacheConfigurations.put("user-sessions", RedisCacheConfiguration.defaultCacheConfig()
+                                .entryTtl(Duration.ofHours(2))
                                 .serializeKeysWith(RedisSerializationContext.SerializationPair
                                                 .fromSerializer(new StringRedisSerializer()))
                                 .serializeValuesWith(RedisSerializationContext.SerializationPair

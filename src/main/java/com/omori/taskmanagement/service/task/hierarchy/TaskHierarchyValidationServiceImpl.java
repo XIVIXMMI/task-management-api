@@ -1,4 +1,4 @@
-package com.omori.taskmanagement.service.task;
+package com.omori.taskmanagement.service.task.hierarchy;
 
 import com.omori.taskmanagement.exceptions.task.InvalidTaskTypeException;
 import com.omori.taskmanagement.exceptions.task.TaskValidationException;
@@ -48,7 +48,7 @@ public class TaskHierarchyValidationServiceImpl implements TaskHierarchyValidati
         }
         // SortOder checks
         try{
-            // Filter out top-level task before sort validation
+            // Filter out a top-level task before sort validation
             List<Task> taskWithParent = allTasks.stream()
                     .filter(t -> t.getParentTask() != null)
                     .toList();
@@ -96,14 +96,14 @@ public class TaskHierarchyValidationServiceImpl implements TaskHierarchyValidati
             case STORY -> {
                 if (parentTask != null && parentTask.getTaskType() != Task.TaskType.EPIC) {
                     throw new TaskValidationException(
-                            "Parent task is null! This STORY task must have a parent task of type EPIC",
+                            "STORY task must have a parent task of type EPIC",
                             createValidationDetails(task, parentTask, "EPIC"));
                 }
             }
             case TASK -> {
                 if (parentTask != null && parentTask.getTaskType() != Task.TaskType.STORY) {
                     throw new TaskValidationException(
-                            "Parent task is null! This TASK task must have a parent task of type STORY",
+                            "TASK task must have a parent task of type STORY",
                             createValidationDetails(task, parentTask, "STORY"));
                 }
             }

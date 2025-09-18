@@ -9,7 +9,7 @@ import com.omori.taskmanagement.model.project.Task;
 import com.omori.taskmanagement.model.usermgmt.User;
 import com.omori.taskmanagement.repository.project.TaskRepository;
 import com.omori.taskmanagement.repository.usermgmt.UserRepository;
-import com.omori.taskmanagement.service.task.TaskHierarchyService;
+import com.omori.taskmanagement.service.task.hierarchy.TaskHierarchyService;
 import com.omori.taskmanagement.service.task.TaskRelationsService;
 import com.omori.taskmanagement.service.task.TaskValidationService;
 import lombok.RequiredArgsConstructor;

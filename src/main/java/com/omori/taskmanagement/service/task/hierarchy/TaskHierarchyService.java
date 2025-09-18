@@ -1,4 +1,4 @@
-package com.omori.taskmanagement.service.task;
+package com.omori.taskmanagement.service.task.hierarchy;
 
 import com.omori.taskmanagement.dto.project.task.HierarchyEpicDto;
 import com.omori.taskmanagement.dto.project.task.TaskResponse;
