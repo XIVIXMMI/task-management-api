@@ -155,12 +155,13 @@ public class TaskServiceImpl implements TaskService {
     @Override
     @Transactional(readOnly = true)
     public List<TaskResponse> getOverdueTasks(Long userId) {
-        log.info("Getting overdue tasks for user with id: {}", userId);
-        List<Task> overdueTasks = taskRepository.findOverdueTasksByUserId(userId, LocalDateTime.now());
-
-        return overdueTasks.stream()
-                .map(TaskResponse::from)
-                .collect(Collectors.toList());
+//        log.info("Getting overdue tasks for user with id: {}", userId);
+//        List<Task> overdueTasks = taskRepository.findOverdueTasksByUserId(userId, LocalDateTime.now());
+//
+//        return overdueTasks.stream()
+//                .map(TaskResponse::from)
+//                .collect(Collectors.toList());
+        return null;
     }
 
     @Override

@@ -1,4 +1,4 @@
-package com.omori.taskmanagement.service.task;
+package com.omori.taskmanagement.service.task.hierarchy;
 
 import com.omori.taskmanagement.dto.project.subtask.SubtaskResponse;
 import com.omori.taskmanagement.dto.project.task.HierarchyEpicDto;
@@ -11,6 +11,7 @@ import com.omori.taskmanagement.model.project.Subtask;
 import com.omori.taskmanagement.model.project.Task;
 import com.omori.taskmanagement.repository.project.SubtaskRepository;
 import com.omori.taskmanagement.repository.project.TaskRepository;
+import com.omori.taskmanagement.service.task.TaskProgressService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -208,7 +209,7 @@ public class TaskHierarchyServiceImpl implements TaskHierarchyService{
 
         if(parentId != null ) {
             int currentParentDepth = getHierarchyDepth(parentId);
-            int taskCurrentParentDepth = getHierarchyDepth(taskId);
+            int taskSubtreeDepth = getHierarchyDepth(taskId);
             // Check if move would exceed depth limit
             if(currentParentDepth + 1 > 3) {
                 throw new TaskValidationException("Moving task would exceed maximum allowed depth of 3");
@@ -300,9 +301,24 @@ public class TaskHierarchyServiceImpl implements TaskHierarchyService{
     }
 
     private boolean isDescendantOf(Long potentialDescendant, Long ancestorId){
-        List<Task> allChildren =  taskRepository.findAllChildrenByParentTaskId(ancestorId);
-        return allChildren.stream()
-                .anyMatch(child -> child.getId().equals(potentialDescendant));
+        Set<Long> visited = new HashSet<>();
+        Queue<Long> toCheck = new LinkedList<>();
+        toCheck.add(ancestorId);
+
+        while (!toCheck.isEmpty()) {
+            Long currentId = toCheck.poll();
+            if (visited.contains(currentId)) continue;
+            visited.add(currentId);
+
+            List<Task> children = taskRepository.findAllChildrenByParentTaskId(currentId);
+            for (Task child : children) {
+                if (child.getId().equals(potentialDescendant)) {
+                    return true;
+                }
+                toCheck.add(child.getId());
+            }
+        }
+        return false;
     }
 
     private void recalculateProgress(Task task, Task currentParent, Task newParent){

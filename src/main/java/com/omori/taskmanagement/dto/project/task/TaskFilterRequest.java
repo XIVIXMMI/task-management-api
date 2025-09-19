@@ -1,12 +1,19 @@
 package com.omori.taskmanagement.dto.project.task;
 
 import com.omori.taskmanagement.model.project.Task;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.Instant;
 
 @Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class TaskFilterRequest {
+
     private Task.TaskStatus status;
     private Task.TaskPriority priority;
     private Long categoryId;

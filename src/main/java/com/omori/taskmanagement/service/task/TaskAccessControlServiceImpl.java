@@ -19,7 +19,10 @@ public class TaskAccessControlServiceImpl implements TaskAccessControlService{
         if(task == null){
             return;
         }
-        if(!task.getUser().getId().equals(userId) &&
+        if( userId == null ){
+            throw new IllegalArgumentException("User ID must be provided to validate access");
+        }
+        if(task.getUser() == null || !task.getUser().getId().equals(userId) &&
                 (task.getAssignedTo() == null || !task.getAssignedTo().getId().equals(userId))){
             throw new TaskAccessDeniedException("Access denied user" + userId + " with task id: " + task);
         }
