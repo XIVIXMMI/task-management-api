@@ -15,7 +15,7 @@ public interface TaskBulkOperationService {
     List<TaskResponse> updateMultipleTasksPriority(List<Long> taskIds, Long userId, Task.TaskPriority priority);
 
     // Deletion operations
-    void deleteMultipleTasks(List<Long> taskIds, Long userId);
+    void softDeleteMultipleTasks(List<Long> taskIds, Long userId);
     void archiveMultipleTasks(List<Long> taskIds, Long userId);
 
     // Hierarchy operations
