@@ -347,13 +347,13 @@ public class TaskHybridServiceImpl implements TaskHybridService {
      * Event listener that handles task progress updates triggered by subtask changes.
      * This breaks the circular dependency between SubTaskService and TaskHybridService.
      */
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void handleTaskProgressUpdateEvent(TaskProgressUpdateEvent event) {
-        log.debug("Handling task progress update event for task ID: {} - Reason: {}", 
-                event.getTaskId(), event.getReason());
-        updateTaskProgressFromSubtasks(event.getTaskId());
-    }
-
+//    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+//    public void handleTaskProgressUpdateEvent(TaskProgressUpdateEvent event) {
+//        log.debug("Handling task progress update event for task ID: {} - Reason: {}",
+//                event.getTaskId(), event.getReason());
+//        updateTaskProgressFromSubtasks(event.getTaskId());
+//    }
+//
     /**
      * =========UTILITIES========
      **/

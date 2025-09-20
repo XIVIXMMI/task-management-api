@@ -46,7 +46,7 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     @Transactional
-    @CacheEvict(value = {"tasks", "taskDetails"}, allEntries = true)
+//    @CacheEvict(value = {"tasks", "taskDetails"}, allEntries = true)
     public Task createTask(Long id, TaskCreateRequest request) {
         log.info("Creating task for user with id: {}", id);
 
@@ -117,7 +117,7 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     @Transactional(readOnly = true)
-    @Cacheable(value = "taskDetails", key = "'task:' + #taskId")
+//    @Cacheable(value = "taskDetails", key = "'task:' + #taskId")
     //NOTE: could separate for user's owner or user assigned
     public TaskResponse getTaskById(Long taskId, Long userId) {
         log.info("Getting task with id: {} for user {}", taskId, userId);
@@ -133,7 +133,7 @@ public class TaskServiceImpl implements TaskService {
     // NOTE: Why we need to pass the userId to get uuid ??
     @Override
     @Transactional(readOnly = true)
-    @Cacheable(value = "taskDetails", key = "#uuid.toString() + '_' + #userId")
+//    @Cacheable(value = "taskDetails", key = "#uuid.toString() + '_' + #userId")
     public TaskResponse getTaskByUuid(UUID uuid, Long userId) {
         log.info("Getting task with uuid: {} for user {}", uuid, userId);
 
@@ -145,7 +145,7 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     @Transactional(readOnly = true)
-    @Cacheable(value = "tasks", key = "#userId + '_' + T(java.util.Objects).hash(#filter)")
+//    @Cacheable(value = "tasks", key = "#userId + '_' + T(java.util.Objects).hash(#filter)")
     public Page<TaskResponse> getTasksByUser(Long userId, TaskFilterRequest filter) {
         log.info("Getting tasks for user with id: {}", userId);
         Pageable pageable = createPageable(filter);
@@ -167,8 +167,8 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     @Transactional
-    @CacheEvict(value = {"tasks", "taskDetails"}, key = "#taskId + '_' + #userId")
-    @CachePut(value = "taskDetails", key = "#taskId + '_' + #userId")
+//    @CacheEvict(value = {"tasks", "taskDetails"}, key = "#taskId + '_' + #userId")
+//    @CachePut(value = "taskDetails", key = "#taskId + '_' + #userId")
     public TaskResponse updateTask(Long taskId, Long userId, TaskUpdateRequest request) {
         log.info("Updating task with id: {} for user {}", taskId, userId);
 
@@ -230,8 +230,8 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     @Transactional
-    @CacheEvict(value = {"tasks", "taskDetails"}, key = "#taskId + '_' + #userId")
-    @CachePut(value = "taskDetails", key = "#taskId + '_' + #userId")
+//    @CacheEvict(value = {"tasks", "taskDetails"}, key = "#taskId + '_' + #userId")
+//    @CachePut(value = "taskDetails", key = "#taskId + '_' + #userId")
     public TaskResponse updateTaskStatus(Long taskId, Long userId, Task.TaskStatus status) {
         log.info("Updating task status: {} to {} for user: {}", taskId, status, userId);
 
@@ -276,8 +276,8 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     @Transactional
-    @CacheEvict(value = {"tasks", "taskDetails"}, key = "#taskId + '_' + #userId")
-    @CachePut(value = "taskDetails", key = "#taskId + '_' + #userId")
+//    @CacheEvict(value = {"tasks", "taskDetails"}, key = "#taskId + '_' + #userId")
+//    @CachePut(value = "taskDetails", key = "#taskId + '_' + #userId")
     public TaskResponse updateTaskProgress(Long taskId, Long userId, Integer progress) {
         log.info("Updating task progress: {} to {}% for user: {}", taskId, progress, userId);
 
@@ -321,7 +321,7 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     @Transactional
-    @CacheEvict(value = {"tasks", "taskDetails"}, key = "#taskId + '_' + #userId")
+//    @CacheEvict(value = {"tasks", "taskDetails"}, key = "#taskId + '_' + #userId")
     public void softDeleteTask(Long taskId, Long userId) {
         log.info("Soft deleting task: {} for user: {}", taskId, userId);
 
@@ -337,7 +337,7 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     @Transactional
-    @CacheEvict(value = {"tasks", "taskDetails"}, allEntries = true)
+//    @CacheEvict(value = {"tasks", "taskDetails"}, allEntries = true)
     public List<TaskResponse> updateMultipleTasksStatus(List<Long> taskIds, Long userId, Task.TaskStatus status) {
         log.info("Updating multiple tasks status: {} to {} for user: {}", taskIds, status, userId);
 
@@ -369,7 +369,7 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     @Transactional
-    @CacheEvict(value = {"tasks", "taskDetails"}, allEntries = true)
+//    @CacheEvict(value = {"tasks", "taskDetails"}, allEntries = true)
     public void deleteMultipleTasks(List<Long> taskIds, Long userId) {
         log.info("Deleting multiple tasks: {} for user: {}", taskIds, userId);
 
