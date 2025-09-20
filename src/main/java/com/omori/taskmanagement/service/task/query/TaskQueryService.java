@@ -261,5 +261,5 @@ public interface TaskQueryService {
      * @throws IllegalArgumentException if daysBack is not positive
      * @since 1.0.0
      */
-    Page<TaskResponse> getRecentlyUpdatedTasks(Long userId, int daysBack, TaskFilterRequest filter);
+    Page<TaskResponse> getRecentlyUpdatedTasks(Long userId, Integer daysBack, TaskFilterRequest filter);
 }

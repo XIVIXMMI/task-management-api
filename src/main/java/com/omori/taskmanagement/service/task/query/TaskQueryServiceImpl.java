@@ -49,6 +49,9 @@ public class TaskQueryServiceImpl implements TaskQueryService{
             TaskQueryFunction queryFunction
     ){
         log.debug("Executing {} for user: {}",operator,userid);
+        if(userid == null){
+            throw new IllegalArgumentException("User ID must be provided to execute query");
+        }
         TaskFilterRequest effectiveFilter = taskFilterConfigService.resolveFilter(filterRequest);
         Pageable pageable = taskFilterConfigService.createPageable(effectiveFilter);
         Page<Task> tasks = queryFunction.execute(userid,pageable);
@@ -110,6 +113,7 @@ public class TaskQueryServiceImpl implements TaskQueryService{
                 (uid, pageable) -> taskRepository.findOverdueTasksByUserId(
                         uid,
                         LocalDateTime.now(),
+                        Task.TaskStatus.completed,
                         pageable
                 )
         );
@@ -165,7 +169,7 @@ public class TaskQueryServiceImpl implements TaskQueryService{
                 "Getting all task due today for user " + userId,
                 userId,
                 filter,
-                (uid, pageable) -> taskRepository.findActiveTasksByDueDay(
+                (uid, pageable) -> taskRepository.findActiveTasksDueOnDay(
                         uid,
                         endOfDay,
                         pageable
@@ -189,14 +193,15 @@ public class TaskQueryServiceImpl implements TaskQueryService{
     }
 
     @Override
-    public Page<TaskResponse> getRecentlyUpdatedTasks(Long userId, int daysBack, TaskFilterRequest filter) {
+    public Page<TaskResponse> getRecentlyUpdatedTasks(Long userId, Integer daysBack, TaskFilterRequest filter) {
+        LocalDateTime threshold = LocalDateTime.now().minusDays(daysBack);
         return getPaginatedTasks(
                 "Getting all recently updated task for user " + userId + " with days back: " + daysBack,
                 userId,
                 filter,
                 (uid,pageable)-> taskRepository.findActiveTasksFromNowToDaysBack(
                         uid,
-                        daysBack,
+                        threshold,
                         pageable
                 )
         );

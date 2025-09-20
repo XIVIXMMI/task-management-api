@@ -22,10 +22,10 @@ public class TaskFilterRequest {
     private Instant dueDateTo;
     private String keyword;
     private Boolean isOverdue;
-    private int page = 0;
-    private int size = 20;
-    private String sortBy = "createdAt";
-    private String sortDirection = "desc";
+    @Builder.Default private int page = 0;
+    @Builder.Default private int size = 20;
+    @Builder.Default private String sortBy = "createdAt";
+    @Builder.Default private String sortDirection = "desc";
 
     public TaskFilterRequest createDefaultFilter() {
         TaskFilterRequest filter = new TaskFilterRequest();
