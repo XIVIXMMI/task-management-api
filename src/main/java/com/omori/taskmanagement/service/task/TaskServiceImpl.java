@@ -14,6 +14,7 @@ import com.omori.taskmanagement.repository.project.CategoryRepository;
 import com.omori.taskmanagement.repository.project.TaskRepository;
 import com.omori.taskmanagement.repository.project.WorkspaceRepository;
 import com.omori.taskmanagement.repository.usermgmt.UserRepository;
+import com.omori.taskmanagement.service.task.utils.TaskValidationServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;

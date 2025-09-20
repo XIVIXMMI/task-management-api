@@ -1,4 +1,4 @@
-package com.omori.taskmanagement.service.task;
+package com.omori.taskmanagement.service.task.bulkOperation;
 
 import com.omori.taskmanagement.dto.project.task.TaskResponse;
 import com.omori.taskmanagement.model.project.Task;

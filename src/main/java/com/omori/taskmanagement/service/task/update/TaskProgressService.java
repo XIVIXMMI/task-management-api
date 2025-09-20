@@ -1,4 +1,4 @@
-package com.omori.taskmanagement.service.task;
+package com.omori.taskmanagement.service.task.update;
 
 import com.omori.taskmanagement.exceptions.task.TaskBusinessException;
 import com.omori.taskmanagement.exceptions.task.TaskNotFoundException;

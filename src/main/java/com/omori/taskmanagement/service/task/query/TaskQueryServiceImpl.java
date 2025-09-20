@@ -5,7 +5,7 @@ import com.omori.taskmanagement.dto.project.task.TaskResponse;
 import com.omori.taskmanagement.exceptions.task.TaskNotFoundException;
 import com.omori.taskmanagement.model.project.Task;
 import com.omori.taskmanagement.repository.project.TaskRepository;
-import com.omori.taskmanagement.service.task.TaskAccessControlService;
+import com.omori.taskmanagement.service.task.utils.TaskAccessControlService;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
