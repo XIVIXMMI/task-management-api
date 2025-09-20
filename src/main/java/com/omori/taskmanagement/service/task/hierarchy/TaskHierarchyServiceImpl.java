@@ -11,7 +11,7 @@ import com.omori.taskmanagement.model.project.Subtask;
 import com.omori.taskmanagement.model.project.Task;
 import com.omori.taskmanagement.repository.project.SubtaskRepository;
 import com.omori.taskmanagement.repository.project.TaskRepository;
-import com.omori.taskmanagement.service.task.TaskProgressService;
+import com.omori.taskmanagement.service.task.update.TaskProgressService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

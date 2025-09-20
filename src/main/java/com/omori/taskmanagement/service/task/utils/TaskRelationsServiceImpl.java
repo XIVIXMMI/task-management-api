@@ -1,4 +1,4 @@
-package com.omori.taskmanagement.service.task;
+package com.omori.taskmanagement.service.task.utils;
 
 import com.omori.taskmanagement.exceptions.UserNotFoundException;
 import com.omori.taskmanagement.exceptions.task.TaskBusinessException;

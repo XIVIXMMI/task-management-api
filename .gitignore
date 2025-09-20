@@ -76,3 +76,4 @@ getTaskwFilter.json
 
 # unuse file
 docs/
+/src/main/resources/db/migration/TEMPLATE__enum_modification.sql

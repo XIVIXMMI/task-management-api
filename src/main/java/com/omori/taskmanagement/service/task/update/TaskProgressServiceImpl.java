@@ -1,4 +1,4 @@
-package com.omori.taskmanagement.service.task;
+package com.omori.taskmanagement.service.task.update;
 
 import com.omori.taskmanagement.exceptions.task.TaskBusinessException;
 import com.omori.taskmanagement.exceptions.task.TaskNotFoundException;
@@ -8,7 +8,6 @@ import com.omori.taskmanagement.model.project.Subtask;
 import com.omori.taskmanagement.model.project.Task;
 import com.omori.taskmanagement.repository.project.TaskRepository;
 import com.omori.taskmanagement.service.subtask.SubTaskService;
-import com.omori.taskmanagement.service.task.hierarchy.TaskHierarchyService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
@@ -31,7 +30,6 @@ public class TaskProgressServiceImpl implements TaskProgressService{
     private final TaskRepository taskRepository;
     private final SubTaskService subTaskService;
 
-    private final TaskHierarchyService taskHierarchyService;
 
     private final Task.TaskType EPIC = Task.TaskType.EPIC;
     private final Task.TaskType STORY = Task.TaskType.STORY;
@@ -118,7 +116,7 @@ public class TaskProgressServiceImpl implements TaskProgressService{
         int avgSubtaskProgress = calculateTaskProgress(storyTaskId);
 
         // Get child tasks average progress: 0-100%
-        List<Task> tasks = taskHierarchyService.getChildTasks(storyTaskId);
+        List<Task> tasks = taskRepository.findByParentTaskIdAndTaskTypeAndDeletedAtIsNull(storyTaskId, Task.TaskType.TASK);
         log.debug("Found {} child tasks for story ID {}: {}",
                 tasks.size(), storyTaskId,
                 tasks.stream().map(Task::getId).collect(Collectors.toList()));
@@ -151,7 +149,7 @@ public class TaskProgressServiceImpl implements TaskProgressService{
         }
         int ownProgress = calculateTaskProgress(epicTaskId);
 
-        List<Task> stories = taskHierarchyService.getChildTasks(epicTaskId);
+        List<Task> stories = taskRepository.findByParentTaskIdAndTaskTypeAndDeletedAtIsNull(epicTaskId, Task.TaskType.STORY);
 
         int finalProgress;
         if(stories.isEmpty()){

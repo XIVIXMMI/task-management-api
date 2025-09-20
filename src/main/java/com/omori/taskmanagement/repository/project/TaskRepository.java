@@ -1,6 +1,5 @@
 package com.omori.taskmanagement.repository.project;
 
-import com.omori.taskmanagement.dto.project.task.TaskResponse;
 import com.omori.taskmanagement.model.project.Task;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -83,13 +82,18 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
          * @param now current timestamp for comparison
          * @return list of overdue tasks requiring attention
          */
+        @EntityGraph(attributePaths = {"user", "workspace", "category", "assignedTo"})
         @Query("SELECT t FROM Task t " +
-                "WHERE t.user.id = :userId AND t.dueDate < :now AND t.status != 'completed' AND t.deletedAt IS NULL")
+                "WHERE t.user.id = :userId " +
+                "AND t.dueDate < :now " +
+                "AND t.status != :excludeStatus " +
+                "AND t.deletedAt IS NULL " +
+                "ORDER BY t.dueDate ASC")
         Page<Task> findOverdueTasksByUserId(@Param("userId") Long userId,
                                             @Param("now") LocalDateTime now,
-                                            Pageable pageable);
+                                            @Param("excludeStatus") Task.TaskStatus excludeStatus,
+                                            Pageable pageable);        /**
 
-        /**
          * Retrieves workspace tasks with pagination.
          * Performance: Composite index on (workspace_id, deleted_at)
          * Use case: Team workspace views, collaborative task management
@@ -231,22 +235,43 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
          * Use case: Status-based task filtering in UI
          */
         @EntityGraph(attributePaths = {"user", "workspace", "category", "assignedTo"})
-        @Query("SELECT t FROM Task t WHERE t.user.id = :userId AND t.status = :status AND t.deletedAt IS NULL")
-        Page<Task> findActiveTasksByStatus(@Param("userId") Long userId, @Param("status") Task.TaskStatus status, Pageable pageable);
+        @Query("SELECT t FROM Task t WHERE t.user.id = :userId " +
+                "AND t.status = :status " +
+                "AND t.deletedAt IS NULL")
+        Page<Task> findActiveTasksByStatus(@Param("userId") Long userId,
+                                           @Param("status") Task.TaskStatus status,
+                                           Pageable pageable);
 
         @EntityGraph(attributePaths = {"user", "workspace", "category", "assignedTo"})
-        @Query("SELECT t FROM Task t WHERE t.user.id = :userId AND t.priority = :priority AND t.deletedAt IS NULL")
-        Page<Task> findActiveTasksByPriority(@Param("userId") Long userId, @Param("priority") Task.TaskPriority priority, Pageable pageable);
+        @Query("SELECT t FROM Task t WHERE t.user.id = :userId " +
+                "AND t.priority = :priority " +
+                "AND t.deletedAt IS NULL")
+        Page<Task> findActiveTasksByPriority(@Param("userId") Long userId,
+                                             @Param("priority") Task.TaskPriority priority,
+                                             Pageable pageable);
 
         @EntityGraph(attributePaths = {"user", "workspace", "category", "assignedTo"})
-        @Query("SELECT t FROM Task t WHERE t.user.id = :userId AND DATE(t.dueDate) = DATE(:dueDate) AND t.deletedAt IS NULL")
-        Page<Task> findActiveTasksByDueDay(@Param("userId") Long userId, @Param("dueDate") LocalDateTime dueToDay, Pageable pageable);
+        @Query("SELECT t FROM Task t WHERE t.user.id = :userId " +
+                "AND t.dueDate >= :start AND t.dueDate < :end " +
+                "AND t.deletedAt IS NULL")
+        Page<Task> findActiveTasksDueOnDay(@Param("userId") Long userId,
+                                           @Param("dueDate") LocalDateTime dueToDay,
+                                           Pageable pageable);
 
         @EntityGraph(attributePaths = {"user", "workspace", "category", "assignedTo"})
-        @Query("SELECT t FROM Task t WHERE t.user.id = :userId AND t.dueDate BETWEEN :from AND :to AND t.deletedAt IS NULL")
-        Page<Task> findActiveTaskBetweenDueDay(@Param("userId") Long userId, @Param("from") LocalDateTime from, @Param("to") LocalDateTime to, Pageable pageable);
+        @Query("SELECT t FROM Task t WHERE t.user.id = :userId " +
+                "AND t.dueDate BETWEEN :from AND :to " +
+                "AND t.deletedAt IS NULL")
+        Page<Task> findActiveTaskBetweenDueDay(@Param("userId") Long userId,
+                                               @Param("from") LocalDateTime from,
+                                               @Param("to") LocalDateTime to,
+                                               Pageable pageable);
 
         @EntityGraph(attributePaths = {"user", "workspace", "category", "assignedTo"})
-        @Query("SELECT t FROM Task t WHERE t.user.id = :userId AND t.updatedAt >= (CURRENT_DATE - :days) AND t.deletedAt IS NULL")
-        Page<Task> findActiveTasksFromNowToDaysBack(@Param("userId") Long userId, @Param("days") Integer days, Pageable pageable);
+        @Query("SELECT t FROM Task t WHERE t.user.id = :userId " +
+                "AND t.updatedAt >= :threshold " +
+                "AND t.deletedAt IS NULL")
+        Page<Task> findActiveTasksFromNowToDaysBack(@Param("userId") Long userId,
+                                                    @Param("threshold") LocalDateTime threshold,
+                                                    Pageable pageable);
 }
