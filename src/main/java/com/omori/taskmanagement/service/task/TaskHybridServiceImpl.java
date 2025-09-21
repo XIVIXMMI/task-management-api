@@ -22,6 +22,7 @@ import com.omori.taskmanagement.repository.project.TaskRepository;
 import com.omori.taskmanagement.repository.project.WorkspaceRepository;
 import com.omori.taskmanagement.repository.usermgmt.UserRepository;
 import com.omori.taskmanagement.service.subtask.SubTaskService;
+import com.omori.taskmanagement.service.task.utils.TaskValidationServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
@@ -346,13 +347,13 @@ public class TaskHybridServiceImpl implements TaskHybridService {
      * Event listener that handles task progress updates triggered by subtask changes.
      * This breaks the circular dependency between SubTaskService and TaskHybridService.
      */
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void handleTaskProgressUpdateEvent(TaskProgressUpdateEvent event) {
-        log.debug("Handling task progress update event for task ID: {} - Reason: {}", 
-                event.getTaskId(), event.getReason());
-        updateTaskProgressFromSubtasks(event.getTaskId());
-    }
-
+//    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+//    public void handleTaskProgressUpdateEvent(TaskProgressUpdateEvent event) {
+//        log.debug("Handling task progress update event for task ID: {} - Reason: {}",
+//                event.getTaskId(), event.getReason());
+//        updateTaskProgressFromSubtasks(event.getTaskId());
+//    }
+//
     /**
      * =========UTILITIES========
      **/

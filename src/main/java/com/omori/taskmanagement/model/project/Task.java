@@ -122,7 +122,7 @@ public class Task {
     }
 
     public enum TaskStatus {
-        pending, in_progress, completed, cancelled, on_hold
+        pending, in_progress, completed, cancelled, on_hold, suspended;
     }
 
     @Getter

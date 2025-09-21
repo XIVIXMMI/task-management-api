@@ -1,4 +1,4 @@
-package com.omori.taskmanagement.service.task;
+package com.omori.taskmanagement.service.task.utils;
 
 import com.omori.taskmanagement.dto.project.task.TaskCreateRequest;
 import com.omori.taskmanagement.exceptions.task.TaskValidationException;

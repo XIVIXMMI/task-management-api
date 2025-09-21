@@ -1,4 +1,4 @@
-package com.omori.taskmanagement.service.task;
+package com.omori.taskmanagement.service.task.utils;
 
 import com.omori.taskmanagement.exceptions.task.TaskAccessDeniedException;
 import com.omori.taskmanagement.model.project.Task;
@@ -22,8 +22,8 @@ public class TaskAccessControlServiceImpl implements TaskAccessControlService{
         if( userId == null ){
             throw new IllegalArgumentException("User ID must be provided to validate access");
         }
-        if(task.getUser() == null || !task.getUser().getId().equals(userId) &&
-                (task.getAssignedTo() == null || !task.getAssignedTo().getId().equals(userId))){
+        if((task.getUser() == null || !task.getUser().getId().equals(userId)) &&
+                (task.getAssignedTo() == null || !task.getAssignedTo().getId().equals(userId))) {
             throw new TaskAccessDeniedException("Access denied user" + userId + " with task id: " + task);
         }
     }
