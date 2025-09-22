@@ -19,6 +19,7 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,6 +40,8 @@ public class TaskUpdateServiceImpl implements TaskUpdateService{
 
     @Override
     @Transactional
+    @CachePut(value = "task-details", key = "#taskId + ':' + #userId")
+    @CacheEvict(value = "tasks", allEntries = true)
     public TaskResponse updateTask(Long taskId, Long userId, TaskUpdateRequest request) {
         log.info("Updating task with id: {} for user {}", taskId, userId);
 
@@ -54,12 +57,15 @@ public class TaskUpdateServiceImpl implements TaskUpdateService{
         log.info("Task updated successfully: {}", taskId);
 
         TaskResponse response = TaskResponse.from(updatedTask);
-        return cacheUpdatedTask(taskId, userId, response);
+        // No need to call cacheUpdatedTask anymore since we handle caching directly
+        return response;
     }
 
     @Override
     @CachePut(value = "task-details", key = "#taskId + ':' + #userId")
+    @CacheEvict(value = "tasks", allEntries = true)
     public TaskResponse cacheUpdatedTask(Long taskId, Long userId, TaskResponse response) {
+        log.debug("Caching updated task: {} for user: {}", taskId, userId);
         return response;
     }
 
