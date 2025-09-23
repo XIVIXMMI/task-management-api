@@ -21,8 +21,11 @@ import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.time.LocalDateTime;
 
@@ -36,12 +39,13 @@ public class TaskUpdateServiceImpl implements TaskUpdateService{
     private final CategoryRepository categoryRepository;
     private final WorkspaceRepository workspaceRepository;
 
+    @Lazy
+    private final TaskUpdateService self;
+
     private final TaskAccessControlService taskAccessControlService;
 
     @Override
     @Transactional
-    @CachePut(value = "task-details", key = "#taskId + ':' + #userId")
-    @CacheEvict(value = "tasks", allEntries = true)
     public TaskResponse updateTask(Long taskId, Long userId, TaskUpdateRequest request) {
         log.info("Updating task with id: {} for user {}", taskId, userId);
 
@@ -57,8 +61,26 @@ public class TaskUpdateServiceImpl implements TaskUpdateService{
         log.info("Task updated successfully: {}", taskId);
 
         TaskResponse response = TaskResponse.from(updatedTask);
-        // No need to call cacheUpdatedTask anymore since we handle caching directly
+        runAfterCommit(() -> self.cacheUpdatedTask(taskId, userId, response));
         return response;
+    }
+
+    /**
+     * Register a callback that updates the cache only after a successful transaction commit.
+     * <p>
+     * This prevents dirty cache issues:
+     * - If the transaction rolls back → no cache update
+     * - If the transaction commits → cache is safely updated
+     */
+    private void runAfterCommit(Runnable action) {
+        TransactionSynchronizationManager.registerSynchronization(
+                new TransactionSynchronization() {
+                    @Override
+                    public void afterCommit() {
+                        action.run();
+                    }
+                }
+        );
     }
 
     @Override

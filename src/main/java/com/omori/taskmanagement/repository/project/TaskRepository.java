@@ -252,11 +252,11 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
 
         @EntityGraph(attributePaths = {"user", "workspace", "category", "assignedTo"})
         @Query("SELECT t FROM Task t WHERE t.user.id = :userId " +
-                "AND t.dueDate >= :startOfDay AND t.dueDate <= :endOfDay " +
+                "AND t.dueDate >= :startOfDay AND t.dueDate <= :startOfNextDay " +
                 "AND t.deletedAt IS NULL")
         Page<Task> findActiveTasksDueOnDay(@Param("userId") Long userId,
                                            @Param("startOfDay") LocalDateTime startOfDay,
-                                           @Param("endOfDay") LocalDateTime endOfDay,
+                                           @Param("startOfNextDay") LocalDateTime startOfNextDay,
                                            Pageable pageable);
 
         @EntityGraph(attributePaths = {"user", "workspace", "category", "assignedTo"})
