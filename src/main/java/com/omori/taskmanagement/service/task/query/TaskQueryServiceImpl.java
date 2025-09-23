@@ -164,6 +164,7 @@ public class TaskQueryServiceImpl implements TaskQueryService{
     @Override
     public Page<TaskResponse> getTasksDueToday(Long userId, TaskFilterRequest filter) {
         LocalDate today = LocalDate.now();
+        LocalDateTime startOfDay = today.atStartOfDay();
         LocalDateTime endOfDay = today.atTime(23, 59, 59);
         return getPaginatedTasks(
                 "Getting all task due today for user " + userId,
@@ -171,6 +172,7 @@ public class TaskQueryServiceImpl implements TaskQueryService{
                 filter,
                 (uid, pageable) -> taskRepository.findActiveTasksDueOnDay(
                         uid,
+                        startOfDay,
                         endOfDay,
                         pageable
                 )
@@ -194,6 +196,9 @@ public class TaskQueryServiceImpl implements TaskQueryService{
 
     @Override
     public Page<TaskResponse> getRecentlyUpdatedTasks(Long userId, Integer daysBack, TaskFilterRequest filter) {
+        if(daysBack == null || daysBack < 0){
+            throw new IllegalArgumentException("Days back must be a positive integer");
+        }
         LocalDateTime threshold = LocalDateTime.now().minusDays(daysBack);
         return getPaginatedTasks(
                 "Getting all recently updated task for user " + userId + " with days back: " + daysBack,

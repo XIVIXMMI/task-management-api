@@ -75,26 +75,64 @@ BEGIN
 
     RAISE NOTICE 'Removing duplicate enums from public schema...';
 
-    -- Remove public.taskstatus if it exists (with CASCADE to handle casts)
+    -- Remove public.taskstatus if it exists (with safe dependency check)
     IF EXISTS (
         SELECT 1 FROM pg_type t
         JOIN pg_namespace n ON t.typnamespace = n.oid
         WHERE t.typname = 'taskstatus' AND n.nspname = 'public'
     ) THEN
-        DROP TYPE public.taskstatus CASCADE;
-        RAISE NOTICE 'Removed duplicate enum: public.taskstatus (with CASCADE for casts)';
+        -- Check for dependencies using pg_depend
+        DECLARE
+            dep_count INTEGER;
+        BEGIN
+            SELECT COUNT(*) INTO dep_count
+            FROM pg_depend d
+            JOIN pg_type t ON d.refobjid = t.oid
+            JOIN pg_namespace n ON t.typnamespace = n.oid
+            WHERE t.typname = 'taskstatus'
+            AND n.nspname = 'public'
+            AND d.deptype IN ('n', 'a'); -- normal and auto dependencies (excludes internal dependencies)
+
+            RAISE NOTICE 'Found % dependencies on public.taskstatus', dep_count;
+
+            IF dep_count > 0 THEN
+                RAISE EXCEPTION 'Cannot drop public.taskstatus: % dependent objects exist. Manual investigation required.', dep_count;
+            ELSE
+                DROP TYPE public.taskstatus RESTRICT;
+                RAISE NOTICE 'Successfully removed duplicate enum: public.taskstatus (no dependencies found)';
+            END IF;
+        END;
     ELSE
         RAISE NOTICE 'Enum public.taskstatus does not exist (already clean)';
     END IF;
 
-    -- Remove public.taskpriority if it exists (with CASCADE to handle casts)
+    -- Remove public.taskpriority if it exists (with safe dependency check)
     IF EXISTS (
         SELECT 1 FROM pg_type t
         JOIN pg_namespace n ON t.typnamespace = n.oid
         WHERE t.typname = 'taskpriority' AND n.nspname = 'public'
     ) THEN
-        DROP TYPE public.taskpriority CASCADE;
-        RAISE NOTICE 'Removed duplicate enum: public.taskpriority (with CASCADE for casts)';
+        -- Check for dependencies using pg_depend
+        DECLARE
+            dep_count INTEGER;
+        BEGIN
+            SELECT COUNT(*) INTO dep_count
+            FROM pg_depend d
+            JOIN pg_type t ON d.refobjid = t.oid
+            JOIN pg_namespace n ON t.typnamespace = n.oid
+            WHERE t.typname = 'taskpriority'
+            AND n.nspname = 'public'
+            AND d.deptype IN ('n', 'a'); -- normal and auto dependencies (excludes internal dependencies)
+
+            RAISE NOTICE 'Found % dependencies on public.taskpriority', dep_count;
+
+            IF dep_count > 0 THEN
+                RAISE EXCEPTION 'Cannot drop public.taskpriority: % dependent objects exist. Manual investigation required.', dep_count;
+            ELSE
+                DROP TYPE public.taskpriority RESTRICT;
+                RAISE NOTICE 'Successfully removed duplicate enum: public.taskpriority (no dependencies found)';
+            END IF;
+        END;
     ELSE
         RAISE NOTICE 'Enum public.taskpriority does not exist (already clean)';
     END IF;
@@ -111,8 +149,27 @@ BEGIN
         WHERE udt_name = 'task_status' AND udt_schema = 'public';
 
         IF table_count = 0 THEN
-            DROP TYPE public.task_status CASCADE;
-            RAISE NOTICE 'Removed duplicate enum: public.task_status (with CASCADE)';
+            -- Check for other dependencies using pg_depend
+            DECLARE
+                dep_count INTEGER;
+            BEGIN
+                SELECT COUNT(*) INTO dep_count
+                FROM pg_depend d
+                JOIN pg_type t ON d.refobjid = t.oid
+                JOIN pg_namespace n ON t.typnamespace = n.oid
+                WHERE t.typname = 'task_status'
+                AND n.nspname = 'public'
+                AND d.deptype IN ('n', 'a');
+
+                RAISE NOTICE 'Found % dependencies on public.task_status', dep_count;
+
+                IF dep_count > 0 THEN
+                    RAISE EXCEPTION 'Cannot drop public.task_status: % dependent objects exist. Manual investigation required.', dep_count;
+                ELSE
+                    DROP TYPE public.task_status RESTRICT;
+                    RAISE NOTICE 'Successfully removed duplicate enum: public.task_status (no dependencies found)';
+                END IF;
+            END;
         ELSE
             RAISE WARNING 'Cannot remove public.task_status: % tables still use it', table_count;
         END IF;
@@ -129,8 +186,27 @@ BEGIN
         WHERE udt_name = 'task_priority' AND udt_schema = 'public';
 
         IF table_count = 0 THEN
-            DROP TYPE public.task_priority CASCADE;
-            RAISE NOTICE 'Removed duplicate enum: public.task_priority (with CASCADE)';
+            -- Check for other dependencies using pg_depend
+            DECLARE
+                dep_count INTEGER;
+            BEGIN
+                SELECT COUNT(*) INTO dep_count
+                FROM pg_depend d
+                JOIN pg_type t ON d.refobjid = t.oid
+                JOIN pg_namespace n ON t.typnamespace = n.oid
+                WHERE t.typname = 'task_priority'
+                AND n.nspname = 'public'
+                AND d.deptype IN ('n', 'a');
+
+                RAISE NOTICE 'Found % dependencies on public.task_priority', dep_count;
+
+                IF dep_count > 0 THEN
+                    RAISE EXCEPTION 'Cannot drop public.task_priority: % dependent objects exist. Manual investigation required.', dep_count;
+                ELSE
+                    DROP TYPE public.task_priority RESTRICT;
+                    RAISE NOTICE 'Successfully removed duplicate enum: public.task_priority (no dependencies found)';
+                END IF;
+            END;
         ELSE
             RAISE WARNING 'Cannot remove public.task_priority: % tables still use it', table_count;
         END IF;
