@@ -42,9 +42,9 @@ BEGIN
         -- 1. parent_task_id: High selectivity, most commonly filtered
         -- 2. task_type: Medium selectivity, frequently used in hierarchy queries
         -- 3. deleted_at: Low selectivity but important for filtering active records
-        -- Build a covering, filtered index without blocking writers
-        -- Note: CONCURRENTLY cannot run inside a transaction/DO block
-        CREATE INDEX CONCURRENTLY IF NOT EXISTS project.idx_tasks_parent_type_deleted
+        -- Build a covering, filtered index
+        -- Note: Running inside transaction for consistency with migration framework
+        CREATE INDEX IF NOT EXISTS idx_tasks_parent_type_deleted
         ON project.tasks (parent_task_id, task_type)
         WHERE deleted_at IS NULL;
 
@@ -116,7 +116,7 @@ END $$;
 -- =====================================================
 
 -- Add comment to document the index purpose
-COMMENT ON INDEX project.idx_tasks_parent_type_deleted IS
+COMMENT ON INDEX idx_tasks_parent_type_deleted IS
 'Composite index to optimize task hierarchy queries. Used by TaskRepository.findByParentTaskIdAndTaskTypeAndDeletedAtIsNull() method in TaskProgressServiceImpl, TaskHierarchyServiceImpl, and TaskHybridServiceImpl.';
 
 -- Update table statistics to help query planner

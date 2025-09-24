@@ -1,7 +1,7 @@
 package com.omori.taskmanagement.controller;
 
 import com.omori.taskmanagement.annotations.LogActivity;
-import com.omori.taskmanagement.dto.common.ApiResponse;
+import com.omori.taskmanagement.dto.common.ApiResult;
 import com.omori.taskmanagement.dto.project.task.*;
 import com.omori.taskmanagement.model.audit.ActionType;
 import com.omori.taskmanagement.model.project.Task;
@@ -35,39 +35,39 @@ public class TaskController {
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")      
     @PostMapping("/create")
     @Operation(summary = "Create task", description = "Create new task for user")
-    public ResponseEntity<ApiResponse<TaskCreateResponse>> createTask(
+    public ResponseEntity<ApiResult<TaskCreateResponse>> createTask(
             @Valid @RequestBody TaskCreateRequest request,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         Long userId = userDetails.getId();
         Task task = taskService.createTask(userId, request);
         TaskCreateResponse response = TaskCreateResponse.from(task);
-        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(response));
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResult.success(response));
     }
 
     @LogActivity(ActionType.VIEW)
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")      
     @GetMapping("/{taskId}")
     @Operation(summary = "Get task by id", description = "Get detail task by id")
-    public ResponseEntity<ApiResponse<TaskResponse>> getTaskById(
+    public ResponseEntity<ApiResult<TaskResponse>> getTaskById(
             @PathVariable Long taskId,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         Long userId = userDetails.getId();
         TaskResponse response = taskService.getTaskById(taskId, userId);
-        return ResponseEntity.ok(ApiResponse.success(response));
+        return ResponseEntity.ok(ApiResult.success(response));
     }
 
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")      
     @LogActivity(ActionType.VIEW)
     @GetMapping("/uuid/{uuid}")
     @Operation(summary = "Get task by uuid", description = "Get detail task by uuid")
-    public ResponseEntity<ApiResponse<TaskResponse>> getTaskByUuid(
+    public ResponseEntity<ApiResult<TaskResponse>> getTaskByUuid(
             @PathVariable UUID uuid,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         Long userId = userDetails.getId();
         TaskResponse response = taskService.getTaskByUuid(uuid, userId);
-        return ResponseEntity.ok(ApiResponse.success(response));
+        return ResponseEntity.ok(ApiResult.success(response));
     }
 
     // Get task with filter and pagination, (sort order by, etc.)
@@ -88,12 +88,12 @@ public class TaskController {
     @LogActivity(ActionType.VIEW)
     @GetMapping("/overdue")
     @Operation( summary = "Get overdue tasks", description = "Get user's overdue tasks")
-    public ResponseEntity<ApiResponse<List<TaskResponse>>> getOverdueTasks(
+    public ResponseEntity<ApiResult<List<TaskResponse>>> getOverdueTasks(
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         Long userId = userDetails.getId();
         List<TaskResponse> response = taskService.getOverdueTasks(userId);
-        return ResponseEntity.ok(ApiResponse.success(response));
+        return ResponseEntity.ok(ApiResult.success(response));
     }
 
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")      
@@ -114,63 +114,63 @@ public class TaskController {
     @LogActivity(ActionType.UPDATE)
     @PutMapping("/{taskId}")
     @Operation( summary = "Update task", description = "Update user's task detail")
-    public ResponseEntity<ApiResponse<TaskResponse>> updateTask(
+    public ResponseEntity<ApiResult<TaskResponse>> updateTask(
             @PathVariable Long taskId,
             @Valid @RequestBody TaskUpdateRequest request,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         Long userId = userDetails.getId();
         TaskResponse response = taskService.updateTask(taskId, userId, request);
-        return ResponseEntity.ok(ApiResponse.success(response));
+        return ResponseEntity.ok(ApiResult.success(response));
     }
 
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")      
     @LogActivity(ActionType.UPDATE)
     @PatchMapping("/{taskId}/status")
     @Operation( summary = "Update task status", description = "Update user's task status")
-    public ResponseEntity<ApiResponse<TaskResponse>> updateTaskStatus(
+    public ResponseEntity<ApiResult<TaskResponse>> updateTaskStatus(
             @PathVariable Long taskId,
             @RequestParam Task.TaskStatus status,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         Long userId = userDetails.getId();
         TaskResponse response = taskService.updateTaskStatus(taskId, userId, status);
-        return ResponseEntity.ok(ApiResponse.success(response));
+        return ResponseEntity.ok(ApiResult.success(response));
     }
 
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")      
     @LogActivity(ActionType.UPDATE)
     @PatchMapping("/batch/status")
     @Operation( summary = "Update multiple tasks status", description = "Update status for multiple tasks")
-    public ResponseEntity<ApiResponse<List<TaskResponse>>> updateMultipleTasksStatus(
+    public ResponseEntity<ApiResult<List<TaskResponse>>> updateMultipleTasksStatus(
             @RequestBody List<Long> taskId,
             @RequestParam Task.TaskStatus status,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         Long userId = userDetails.getId();
         List<TaskResponse> response = taskService.updateMultipleTasksStatus(taskId, userId, status);
-        return ResponseEntity.ok(ApiResponse.success(response));
+        return ResponseEntity.ok(ApiResult.success(response));
     }
 
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")      
     @LogActivity(ActionType.UPDATE)
     @PatchMapping("/{taskId}/progress")
     @Operation( summary = "Update task progress", description = "Update user's task progress")
-    public ResponseEntity<ApiResponse<TaskResponse>> updateTaskProgress(
+    public ResponseEntity<ApiResult<TaskResponse>> updateTaskProgress(
             @PathVariable Long taskId,
             @RequestParam Integer progress,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         Long userId = userDetails.getId();
         TaskResponse response = taskService.updateTaskProgress(taskId, userId, progress);
-        return ResponseEntity.ok(ApiResponse.success(response));
+        return ResponseEntity.ok(ApiResult.success(response));
     }
 
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")      
     @LogActivity(ActionType.DELETE)
     @DeleteMapping("/{taskId}")
     @Operation( summary = "Delete task", description = "Delete user's task")
-    public ResponseEntity<ApiResponse<Void>> deleteTask(
+    public ResponseEntity<ApiResult<Void>> deleteTask(
             @PathVariable Long taskId,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
@@ -188,7 +188,7 @@ public class TaskController {
     @LogActivity(ActionType.DELETE)
     @DeleteMapping("/{taskId}/soft")
     @Operation( summary = "Soft delete task", description = "Soft delete user's task")
-    public ResponseEntity<ApiResponse<Void>> softDeleteTask(
+    public ResponseEntity<ApiResult<Void>> softDeleteTask(
             @PathVariable Long taskId,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
@@ -201,7 +201,7 @@ public class TaskController {
     @LogActivity(ActionType.DELETE)
     @DeleteMapping("/batch")
     @Operation( summary = "Delete multiple tasks", description = "Delete multiple tasks by list of ids")
-    public ResponseEntity<ApiResponse<Void>> deleteMultipleTasks(
+    public ResponseEntity<ApiResult<Void>> deleteMultipleTasks(
             @RequestBody List<Long> taskIds,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {

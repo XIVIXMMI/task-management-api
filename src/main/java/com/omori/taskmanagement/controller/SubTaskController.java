@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import com.omori.taskmanagement.annotations.LogActivity;
-import com.omori.taskmanagement.dto.common.ApiResponse;
+import com.omori.taskmanagement.dto.common.ApiResult;
 import com.omori.taskmanagement.dto.project.subtask.SubtaskReorderDTO;
 import com.omori.taskmanagement.dto.project.subtask.SubtaskRequest;
 import com.omori.taskmanagement.dto.project.subtask.SubtaskResponse;
@@ -44,21 +44,21 @@ public class SubTaskController {
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @PostMapping("/tasks/{taskId}")
     @Operation(summary = "Create subtask", description = "Create new subtask for a specific task id")
-    public ResponseEntity<ApiResponse<SubtaskResponse>> createSubtask(
+    public ResponseEntity<ApiResult<SubtaskResponse>> createSubtask(
             @Valid @RequestBody SubtaskRequest request,
             @PathVariable @NotNull Long taskId) {
         request.setTaskId(taskId);
         Subtask subtask = subTaskService.createSubtask(request);
         SubtaskResponse response = SubtaskResponse.from(subtask);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(response));
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResult.success(response));
     }
 
     @LogActivity(ActionType.VIEW)
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @GetMapping("/task/{taskId}")
     @Operation(summary = "List subtask", description = "Get all subtasks of task by task id")
-    public ResponseEntity<ApiResponse<List<SubtaskResponse>>> getAllSubtaskByTaskId(
+    public ResponseEntity<ApiResult<List<SubtaskResponse>>> getAllSubtaskByTaskId(
             @PathVariable @NotNull Long taskId) {
 
         List<Subtask> subtask = subTaskService.getSubtasksByTaskId(taskId);
@@ -66,29 +66,29 @@ public class SubTaskController {
                 .map(SubtaskResponse::from)
                 .toList();
 
-        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(response));
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResult.success(response));
     }
 
     @LogActivity(ActionType.UPDATE)
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @PutMapping("/{subtaskId}")
     @Operation(summary = "Update Subtask", description = "Update subtask by specific taskId")
-    public ResponseEntity<ApiResponse<SubtaskResponse>> updateSubtaskById(
+    public ResponseEntity<ApiResult<SubtaskResponse>> updateSubtaskById(
             @PathVariable @NotNull Long subtaskId,
             @Valid @RequestBody SubtaskUpdateRequest request) {
         Subtask subtask = subTaskService.updateSubtask(subtaskId, request);
         SubtaskResponse response = SubtaskResponse.from(subtask);
-        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(response));
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResult.success(response));
     }
 
     @LogActivity(ActionType.UPDATE)
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @PatchMapping("/{subtaskId}/toggle")
-    public ResponseEntity<ApiResponse<SubtaskResponse>> toggleCompletion(
+    public ResponseEntity<ApiResult<SubtaskResponse>> toggleCompletion(
             @PathVariable @NotNull Long subtaskId) {
         Subtask subtask = subTaskService.toggleSubtaskCompletion(subtaskId);
         SubtaskResponse response = SubtaskResponse.from(subtask);
-        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(response));
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResult.success(response));
     }
 
     @PutMapping("/task/{taskId}/reorder")
