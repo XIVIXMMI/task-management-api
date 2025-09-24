@@ -165,7 +165,7 @@ public class TaskQueryServiceImpl implements TaskQueryService{
     public Page<TaskResponse> getTasksDueToday(Long userId, TaskFilterRequest filter) {
         LocalDate today = LocalDate.now();
         LocalDateTime startOfDay = today.atStartOfDay();
-        LocalDateTime endOfDay = today.atTime(23, 59, 59);
+        LocalDateTime startOfNextDay = startOfDay.plusDays(1);
         return getPaginatedTasks(
                 "Getting all task due today for user " + userId,
                 userId,
@@ -173,7 +173,7 @@ public class TaskQueryServiceImpl implements TaskQueryService{
                 (uid, pageable) -> taskRepository.findActiveTasksDueOnDay(
                         uid,
                         startOfDay,
-                        endOfDay,
+                        startOfNextDay,
                         pageable
                 )
         );
