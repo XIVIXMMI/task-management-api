@@ -21,7 +21,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
-import org.springframework.context.annotation.Lazy;
+import org.springframework.cache.annotation.Caching;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
@@ -38,10 +39,7 @@ public class TaskUpdateServiceImpl implements TaskUpdateService{
     private final TaskRepository taskRepository;
     private final CategoryRepository categoryRepository;
     private final WorkspaceRepository workspaceRepository;
-
-    @Lazy
-    private final TaskUpdateService self;
-
+    private final ApplicationContext applicationContext;
     private final TaskAccessControlService taskAccessControlService;
 
     @Override
@@ -61,8 +59,16 @@ public class TaskUpdateServiceImpl implements TaskUpdateService{
         log.info("Task updated successfully: {}", taskId);
 
         TaskResponse response = TaskResponse.from(updatedTask);
-        runAfterCommit(() -> self.cacheUpdatedTask(taskId, userId, response));
+        runAfterCommit(() -> getProxiedSelf().cacheUpdatedTask(taskId, userId, response));
         return response;
+    }
+
+    /**
+     * Get the proxied self to ensure cache annotations work properly.
+     * This avoids circular dependency while maintaining AOP functionality.
+     */
+    private TaskUpdateService getProxiedSelf() {
+        return applicationContext.getBean(TaskUpdateService.class);
     }
 
     /**
@@ -83,9 +89,19 @@ public class TaskUpdateServiceImpl implements TaskUpdateService{
         );
     }
 
+    @Caching(put = {
+            @CachePut(
+                    value = "task-details",
+                    key = "#taskId + ':' + #userId"),
+            @CachePut(
+                    value = "task-details",
+                    key = "#response.uuid + ':' + #userId")},
+            evict = {
+            @CacheEvict(
+                    value = "tasks",
+                    allEntries = true)}
+    )
     @Override
-    @CachePut(value = "task-details", key = "#taskId + ':' + #userId")
-    @CacheEvict(value = "tasks", allEntries = true)
     public TaskResponse cacheUpdatedTask(Long taskId, Long userId, TaskResponse response) {
         log.debug("Caching updated task: {} for user: {}", taskId, userId);
         return response;

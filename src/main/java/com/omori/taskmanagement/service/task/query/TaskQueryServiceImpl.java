@@ -119,6 +119,7 @@ public class TaskQueryServiceImpl implements TaskQueryService{
         );
     }
 
+    //TODO: When do search the result return even the keyword only one character. Is this reduce performance ?
     @Override
     public Page<TaskResponse> searchTasks(Long userId, String keyword, TaskFilterRequest filter) {
         return getPaginatedTasks(

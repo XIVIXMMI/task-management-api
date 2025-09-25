@@ -16,16 +16,16 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Schema(description = "Generic API response wrapper")
-public class ApiResponse<T> {
+public class ApiResult<T> {
     private boolean success;
     private String message;
     private T data;
     private LocalDateTime timestamp;
     private String traceId;
 
-    public static <T> ApiResponse<T> success(T data, String message) {
+    public static <T> ApiResult<T> success(T data, String message) {
         RequestMetadata metadata = RequestMetadataHolder.getMetadata();
-        return ApiResponse.<T>builder()
+        return ApiResult.<T>builder()
             .success(true)
             .message(message)
             .data(data)
@@ -34,12 +34,12 @@ public class ApiResponse<T> {
             .build();
     }
 
-    public static <T> ApiResponse<T> success(T data) {
+    public static <T> ApiResult<T> success(T data) {
         return success(data, "Operation completed successfully");
     }
 
-    public static <T> ApiResponse<T> error (String message) {
-        return ApiResponse.<T>builder()
+    public static <T> ApiResult<T> error (String message) {
+        return ApiResult.<T>builder()
             .success(false)
             .message(message)
             .data(null)
@@ -47,8 +47,8 @@ public class ApiResponse<T> {
             .build();
     }
 
-    public static <T> ApiResponse<T> error (String message, String traceId) {
-        return ApiResponse.<T>builder()
+    public static <T> ApiResult<T> error (String message, String traceId) {
+        return ApiResult.<T>builder()
             .success(false)
             .message(message)
             .data(null)

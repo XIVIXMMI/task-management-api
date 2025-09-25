@@ -1,7 +1,7 @@
 package com.omori.taskmanagement.controller;
 
 import com.omori.taskmanagement.annotations.LogActivity;
-import com.omori.taskmanagement.dto.common.ApiResponse;
+import com.omori.taskmanagement.dto.common.ApiResult;
 import com.omori.taskmanagement.dto.project.subtask.SubtaskResponse;
 import com.omori.taskmanagement.dto.project.task.HierarchyEpicDto;
 import com.omori.taskmanagement.dto.project.task.TaskCreateRequest;
@@ -38,7 +38,7 @@ public class TaskHierarchyController {
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @PostMapping("/epic")
     @Operation(summary = "Create Epic Task", description = "Create new epic task for user")
-    public ResponseEntity<ApiResponse<TaskCreateResponse>> createEpicTask(
+    public ResponseEntity<ApiResult<TaskCreateResponse>> createEpicTask(
             @Valid @RequestBody TaskCreateRequest request,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
@@ -48,14 +48,14 @@ public class TaskHierarchyController {
                 request);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(ApiResponse.success(TaskCreateResponse.from(epicTask)));
+                .body(ApiResult.success(TaskCreateResponse.from(epicTask)));
     }
 
     @LogActivity(ActionType.CREATE)
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @PostMapping("/story")
     @Operation(summary = "Create Standalone Story Task", description = "Create new story task for user")
-    public ResponseEntity<ApiResponse<TaskCreateResponse>> createStoryTask(
+    public ResponseEntity<ApiResult<TaskCreateResponse>> createStoryTask(
             @Valid @RequestBody TaskCreateRequest request,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
@@ -65,7 +65,7 @@ public class TaskHierarchyController {
                 request);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(ApiResponse.success(TaskCreateResponse.from(storyTask)));
+                .body(ApiResult.success(TaskCreateResponse.from(storyTask)));
     }
 
     // Create STORY under EPIC
@@ -73,7 +73,7 @@ public class TaskHierarchyController {
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @PostMapping("/epic/{epicId}/story")
     @Operation(summary = "Create Story under Epic", description = "Create new story for user")
-    public ResponseEntity<ApiResponse<TaskCreateResponse>> createStoryUnderEpic(
+    public ResponseEntity<ApiResult<TaskCreateResponse>> createStoryUnderEpic(
             @PathVariable Long epicId,
             @Valid @RequestBody TaskCreateRequest request,
             @AuthenticationPrincipal CustomUserDetails userDetails
@@ -87,7 +87,7 @@ public class TaskHierarchyController {
                 request);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(ApiResponse.success(TaskCreateResponse.from(task)));
+                .body(ApiResult.success(TaskCreateResponse.from(task)));
     }
 
     // Create TASK under STORY
@@ -95,7 +95,7 @@ public class TaskHierarchyController {
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @PostMapping("/story/{storyId}/task")
     @Operation(summary = "Create Task under Story", description = "Create new task for user")
-    public ResponseEntity<ApiResponse<TaskCreateResponse>> createTask(
+    public ResponseEntity<ApiResult<TaskCreateResponse>> createTask(
             @PathVariable Long storyId,
             @Valid @RequestBody TaskCreateRequest request,
             @AuthenticationPrincipal CustomUserDetails userDetails
@@ -109,36 +109,36 @@ public class TaskHierarchyController {
                 request);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(ApiResponse.success(TaskCreateResponse.from(task)));
+                .body(ApiResult.success(TaskCreateResponse.from(task)));
     }
 
     @LogActivity(ActionType.VIEW)
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @GetMapping("/epic/{taskId}/hierarchy")
     @Operation(summary = "View all child tasks", description = "Get all child task for an epic task")
-    public ResponseEntity<ApiResponse<HierarchyEpicDto>> getFullHierarchy(
+    public ResponseEntity<ApiResult<HierarchyEpicDto>> getFullHierarchy(
             @PathVariable Long taskId
     ) {
         HierarchyEpicDto hierarchyEpicDto = taskHybridService.getFullHierarchy(taskId);
-        return ResponseEntity.ok(ApiResponse.success(hierarchyEpicDto));
+        return ResponseEntity.ok(ApiResult.success(hierarchyEpicDto));
     }
 
     @LogActivity(ActionType.VIEW)
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @GetMapping("/epic/uuid/{epicUuid}/hierarchy")
     @Operation(summary = "View all child task by Uuid", description = "Get all child task for an epic task by uuid")
-    public ResponseEntity<ApiResponse<HierarchyEpicDto>> getFullHierarchyByUuid(
+    public ResponseEntity<ApiResult<HierarchyEpicDto>> getFullHierarchyByUuid(
             @PathVariable String epicUuid
     ) {
         HierarchyEpicDto hierarchyEpicDto = taskHybridService.getFullHierarchyByUuid(epicUuid);
-        return ResponseEntity.ok(ApiResponse.success(hierarchyEpicDto));
+        return ResponseEntity.ok(ApiResult.success(hierarchyEpicDto));
     }
 
     @LogActivity(ActionType.CREATE)
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @PostMapping("/task/{taskId}/multiple-subtasks")
     @Operation(summary = "Create multiple subtasks", description = "Create multiple subtasks by titles")
-    public ResponseEntity<ApiResponse<List<SubtaskResponse>>> addMultipleSubtasks (
+    public ResponseEntity<ApiResult<List<SubtaskResponse>>> addMultipleSubtasks (
             @PathVariable Long taskId,
             @RequestBody List<String> subtaskTitles
     ) {
@@ -146,7 +146,7 @@ public class TaskHierarchyController {
         List<SubtaskResponse> response = subtasks.stream()
                 .map(SubtaskResponse::from)
                 .collect(Collectors.toList());
-        return ResponseEntity.ok(ApiResponse.success(response));
+        return ResponseEntity.ok(ApiResult.success(response));
     }
 
 
