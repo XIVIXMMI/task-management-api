@@ -37,7 +37,6 @@ public class ActivityLoggingAspect {
 
     private final ActivityLogRepository logRepo;
     private final AuthService authService;
-    //private final ObjectMapper objectMapper;
     private final UserService userService;
 
     @Pointcut("@annotation(com.omori.taskmanagement.annotations.LogActivity)")
@@ -64,15 +63,6 @@ public class ActivityLoggingAspect {
             log.warn("Cannot log activity: missing metadata");
             return joinPoint.proceed();
         }
-
-        // Get the original entity for update operations
-        // Object originalEntity = null;
-        // if (actionType == ActionType.UPDATE) {
-        //     Object[] args = joinPoint.getArgs();
-        //     if (args != null && args.length > 0) {
-        //         originalEntity = getOriginalEntity(args[0]); // Implement this method
-        //     }
-        // }
 
         // Proceed with the original method
         Object result = joinPoint.proceed();
@@ -121,7 +111,6 @@ public class ActivityLoggingAspect {
         } catch (Exception e) {
             log.error("Error saving activity log: {}", e.getMessage(), e);
         }
-
         return result;
     }
 
@@ -163,17 +152,4 @@ public class ActivityLoggingAspect {
         return null;
     }
 
-    // private Object getOriginalEntity(Object id) {
-    //     // Implement this method to load the original entity by ID
-    //     // For example:
-    //     // return repository.findById(id).orElse(null);
-    //     return null; // Replace with actual implementation
-    // }
-
-    // private Map<String, Object> convertToMap(Object obj) {
-    //     if (obj == null) {
-    //         return null;
-    //     }
-    //     return objectMapper.convertValue(obj, new TypeReference<Map<String, Object>>() {});
-    // }
 }

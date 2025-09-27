@@ -4,7 +4,7 @@ import com.omori.taskmanagement.dto.project.subtask.SubtaskRequest;
 import com.omori.taskmanagement.dto.project.subtask.SubtaskResponse;
 import com.omori.taskmanagement.dto.project.task.HierarchyEpicDto;
 import com.omori.taskmanagement.dto.project.task.StoryWithTaskDto;
-import com.omori.taskmanagement.dto.project.task.TaskCreateRequest;
+import com.omori.taskmanagement.dto.project.task.creation.BaseTaskCreateRequest;
 import com.omori.taskmanagement.dto.project.task.TaskResponse;
 import com.omori.taskmanagement.exceptions.task.InvalidTaskTypeException;
 import com.omori.taskmanagement.exceptions.task.TaskBusinessException;
@@ -28,9 +28,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.omori.taskmanagement.model.events.TaskProgressUpdateEvent;
-import org.springframework.transaction.event.TransactionalEventListener;
-import org.springframework.transaction.event.TransactionPhase;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -55,7 +52,7 @@ public class TaskHybridServiceImpl implements TaskHybridService {
     private static final Integer DEFAULT_SORT_ORDER = 0;
 
     @Override
-    public Task createEpicTask(Long userId, Task.TaskType type, TaskCreateRequest request) {
+    public Task createEpicTask(Long userId, Task.TaskType type, BaseTaskCreateRequest request) {
         log.debug("Creating epic task for user {} ", userId);
 
         // Validate that type is actually EPIC
@@ -67,7 +64,7 @@ public class TaskHybridServiceImpl implements TaskHybridService {
     }
 
     @Override
-    public Task createStoryTask(Long userId, Task.TaskType type, TaskCreateRequest request) {
+    public Task createStoryTask(Long userId, Task.TaskType type, BaseTaskCreateRequest request) {
         log.debug("Creating story task for user {} ", userId);
 
         // Validate that type is actually STORY
@@ -79,7 +76,7 @@ public class TaskHybridServiceImpl implements TaskHybridService {
     }
 
     @Override
-    public Task createTask(Long userId, Task.TaskType type, TaskCreateRequest request) {
+    public Task createTask(Long userId, Task.TaskType type, BaseTaskCreateRequest request) {
         log.debug("Creating task for user {} ", userId);
 
         // Validate that type is actually TASK
@@ -359,7 +356,7 @@ public class TaskHybridServiceImpl implements TaskHybridService {
      **/
 
     @Transactional
-    private Task createHierarchicalTask(Long userId, Task.TaskType type, TaskCreateRequest request) {
+    private Task createHierarchicalTask(Long userId, Task.TaskType type, BaseTaskCreateRequest request) {
         log.debug("Creating hierarchical task for user {} ", userId);
 
         taskValidationServiceImpl.validateCreateTaskRequest(request, userId);
@@ -381,8 +378,8 @@ public class TaskHybridServiceImpl implements TaskHybridService {
                 .user(user)
                 .sortOrder(Optional.ofNullable(request.getSortOrder()).orElse(DEFAULT_SORT_ORDER))
                 .isRecurring(Optional.ofNullable(request.getIsRecurring()).orElse(false))
-                .recurrencePattern(request.getRecurrencePattern())
-                .metadata(request.getMetadata())
+//                .recurrencePattern(request.getRecurrencePattern())
+//                .metadata(request.getMetadata())
                 .build();
 
         setTaskRelations(epicTask,

@@ -3,6 +3,7 @@ package com.omori.taskmanagement.controller;
 import com.omori.taskmanagement.annotations.LogActivity;
 import com.omori.taskmanagement.dto.common.ApiResult;
 import com.omori.taskmanagement.dto.project.task.*;
+import com.omori.taskmanagement.dto.project.task.creation.BaseTaskCreateRequest;
 import com.omori.taskmanagement.model.audit.ActionType;
 import com.omori.taskmanagement.model.project.Task;
 import com.omori.taskmanagement.security.service.CustomUserDetails;
@@ -36,7 +37,7 @@ public class TaskController {
     @PostMapping("/create")
     @Operation(summary = "Create task", description = "Create new task for user")
     public ResponseEntity<ApiResult<TaskCreateResponse>> createTask(
-            @Valid @RequestBody TaskCreateRequest request,
+            @Valid @RequestBody BaseTaskCreateRequest request,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         Long userId = userDetails.getId();
         Task task = taskService.createTask(userId, request);

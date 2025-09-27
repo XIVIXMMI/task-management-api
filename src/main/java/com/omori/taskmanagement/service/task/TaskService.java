@@ -1,6 +1,6 @@
 package com.omori.taskmanagement.service.task;
 
-import com.omori.taskmanagement.dto.project.task.TaskCreateRequest;
+import com.omori.taskmanagement.dto.project.task.creation.BaseTaskCreateRequest;
 import com.omori.taskmanagement.dto.project.task.TaskFilterRequest;
 import com.omori.taskmanagement.dto.project.task.TaskResponse;
 import com.omori.taskmanagement.dto.project.task.TaskUpdateRequest;
@@ -12,7 +12,7 @@ import java.util.UUID;
 
 public interface TaskService {
     // Create
-    Task createTask(Long userId, TaskCreateRequest request);
+    Task createTask(Long userId, BaseTaskCreateRequest request);
     
     // Read
     TaskResponse getTaskById(Long taskId, Long userId);

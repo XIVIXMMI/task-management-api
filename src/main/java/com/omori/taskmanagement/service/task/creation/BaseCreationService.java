@@ -1,6 +1,9 @@
 package com.omori.taskmanagement.service.task.creation;
 
-import com.omori.taskmanagement.dto.project.task.TaskCreateRequest;
+import com.omori.taskmanagement.dto.project.task.creation.BaseTaskCreateRequest;
+import com.omori.taskmanagement.exceptions.UserNotFoundException;
+import com.omori.taskmanagement.exceptions.task.InvalidTaskTypeException;
+import com.omori.taskmanagement.exceptions.task.TaskValidationException;
 import com.omori.taskmanagement.model.project.Task;
 
 public interface BaseCreationService {
@@ -27,5 +30,5 @@ public interface BaseCreationService {
      * @throws TaskValidationException if the request contains invalid data
      * @since 1.0.0
      */
-    Task createTask(Long userId, Task.TaskType type, TaskCreateRequest request);
+    Task createTask(Long userId, Task.TaskType type, BaseTaskCreateRequest request, boolean ignoreParent);
 }
