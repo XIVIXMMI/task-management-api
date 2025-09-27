@@ -1,7 +1,7 @@
 package com.omori.taskmanagement.service.task;
 
 import com.omori.taskmanagement.dto.project.task.HierarchyEpicDto;
-import com.omori.taskmanagement.dto.project.task.TaskCreateRequest;
+import com.omori.taskmanagement.dto.project.task.creation.BaseTaskCreateRequest;
 import com.omori.taskmanagement.model.project.Subtask;
 import com.omori.taskmanagement.model.project.Task;
 
@@ -10,9 +10,9 @@ import java.util.List;
 public interface TaskHybridService {
 
     // CreationService
-    Task createEpicTask(Long userId, Task.TaskType type, TaskCreateRequest request);
-    Task createStoryTask(Long userId, Task.TaskType type, TaskCreateRequest request);
-    Task createTask(Long userId, Task.TaskType type, TaskCreateRequest request);
+    Task createEpicTask(Long userId, Task.TaskType type, BaseTaskCreateRequest request);
+    Task createStoryTask(Long userId, Task.TaskType type, BaseTaskCreateRequest request);
+    Task createTask(Long userId, Task.TaskType type, BaseTaskCreateRequest request);
 
     List<Subtask> addSubtasksToTask(Long taskId, List<String> subtasksTitles);
     List<Task> getStoriesTaskByEpicId(Long epicTaskId);

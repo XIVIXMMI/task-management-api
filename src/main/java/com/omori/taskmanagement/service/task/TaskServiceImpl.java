@@ -1,6 +1,6 @@
 package com.omori.taskmanagement.service.task;
 
-import com.omori.taskmanagement.dto.project.task.TaskCreateRequest;
+import com.omori.taskmanagement.dto.project.task.creation.BaseTaskCreateRequest;
 import com.omori.taskmanagement.dto.project.task.TaskFilterRequest;
 import com.omori.taskmanagement.dto.project.task.TaskResponse;
 import com.omori.taskmanagement.dto.project.task.TaskUpdateRequest;
@@ -18,8 +18,6 @@ import com.omori.taskmanagement.service.task.utils.TaskValidationServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -47,7 +45,7 @@ public class TaskServiceImpl implements TaskService {
     @Override
     @Transactional
 //    @CacheEvict(value = {"tasks", "taskDetails"}, allEntries = true)
-    public Task createTask(Long id, TaskCreateRequest request) {
+    public Task createTask(Long id, BaseTaskCreateRequest request) {
         log.info("Creating task for user with id: {}", id);
 
         // Validate request
@@ -73,8 +71,8 @@ public class TaskServiceImpl implements TaskService {
                     .user(user)
                     .sortOrder(request.getSortOrder() != null ? request.getSortOrder() : 0)
                     .isRecurring(request.getIsRecurring() != null ? request.getIsRecurring() : false)
-                    .recurrencePattern(request.getRecurrencePattern())
-                    .metadata(request.getMetadata())
+//                    .recurrencePattern(request.getRecurrencePattern())
+//                    .metadata(request.getMetadata())
                     .build();
 
             // Set relate with validation

@@ -4,7 +4,7 @@ import com.omori.taskmanagement.annotations.LogActivity;
 import com.omori.taskmanagement.dto.common.ApiResult;
 import com.omori.taskmanagement.dto.project.subtask.SubtaskResponse;
 import com.omori.taskmanagement.dto.project.task.HierarchyEpicDto;
-import com.omori.taskmanagement.dto.project.task.TaskCreateRequest;
+import com.omori.taskmanagement.dto.project.task.creation.BaseTaskCreateRequest;
 import com.omori.taskmanagement.dto.project.task.TaskCreateResponse;
 import com.omori.taskmanagement.model.audit.ActionType;
 import com.omori.taskmanagement.model.project.Subtask;
@@ -39,7 +39,7 @@ public class TaskHierarchyController {
     @PostMapping("/epic")
     @Operation(summary = "Create Epic Task", description = "Create new epic task for user")
     public ResponseEntity<ApiResult<TaskCreateResponse>> createEpicTask(
-            @Valid @RequestBody TaskCreateRequest request,
+            @Valid @RequestBody BaseTaskCreateRequest request,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         Task epicTask = taskHybridService.createEpicTask(
@@ -56,7 +56,7 @@ public class TaskHierarchyController {
     @PostMapping("/story")
     @Operation(summary = "Create Standalone Story Task", description = "Create new story task for user")
     public ResponseEntity<ApiResult<TaskCreateResponse>> createStoryTask(
-            @Valid @RequestBody TaskCreateRequest request,
+            @Valid @RequestBody BaseTaskCreateRequest request,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         Task storyTask = taskHybridService.createStoryTask(
@@ -75,7 +75,7 @@ public class TaskHierarchyController {
     @Operation(summary = "Create Story under Epic", description = "Create new story for user")
     public ResponseEntity<ApiResult<TaskCreateResponse>> createStoryUnderEpic(
             @PathVariable Long epicId,
-            @Valid @RequestBody TaskCreateRequest request,
+            @Valid @RequestBody BaseTaskCreateRequest request,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         request.setParentId(epicId);
@@ -97,7 +97,7 @@ public class TaskHierarchyController {
     @Operation(summary = "Create Task under Story", description = "Create new task for user")
     public ResponseEntity<ApiResult<TaskCreateResponse>> createTask(
             @PathVariable Long storyId,
-            @Valid @RequestBody TaskCreateRequest request,
+            @Valid @RequestBody BaseTaskCreateRequest request,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         request.setParentId(storyId);

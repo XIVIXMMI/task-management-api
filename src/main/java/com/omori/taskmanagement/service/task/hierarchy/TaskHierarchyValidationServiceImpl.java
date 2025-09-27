@@ -73,7 +73,7 @@ public class TaskHierarchyValidationServiceImpl implements TaskHierarchyValidati
     @Override
     public void validateTaskType(Task task) {
         if(task == null){
-            throw new IllegalArgumentException("Task cannot be null");
+            throw new IllegalArgumentException("Task Hierarchy cannot be null");
         }
         if(task.getTaskType() == null) {
             throw new IllegalArgumentException("Task type cannot be null");
