@@ -1,6 +1,6 @@
 package com.omori.taskmanagement.service.task.utils;
 
-import com.omori.taskmanagement.dto.project.task.TaskCreateRequest;
+import com.omori.taskmanagement.dto.project.task.creation.BaseTaskCreateRequest;
 import com.omori.taskmanagement.exceptions.task.TaskValidationException;
 import com.omori.taskmanagement.model.project.Task;
 import com.omori.taskmanagement.repository.project.CategoryRepository;
@@ -25,7 +25,7 @@ public class TaskValidationServiceImpl implements TaskValidationService{
     private final CategoryRepository categoryRepository;
     private final WorkspaceRepository workspaceRepository;
 
-    public void validateCreateTaskRequest(TaskCreateRequest request, Long userId) {
+    public void validateCreateTaskRequest(BaseTaskCreateRequest request, Long userId) {
         log.debug("Validating create task request for user {}", userId);
 
         if( request == null ){
@@ -43,7 +43,7 @@ public class TaskValidationServiceImpl implements TaskValidationService{
         validateDates(request.getStartDate(), request.getDueDate(), errors);
 
          // Validate status and progress consistency
-        validateStatusProgressConsistency(request.getStatus(), request.getProgress(), errors);
+        // validateStatusProgressConsistency(request.getStatus(), request.getProgress(), errors);
 
         // Validate category
         if( request.getCategoryId() != null && !categoryRepository.existsById(request.getCategoryId()) ) {
@@ -61,9 +61,9 @@ public class TaskValidationServiceImpl implements TaskValidationService{
         }
 
         // Validate progress
-        if(request.getProgress() != null && (request.getProgress() < 0 || request.getProgress() > 100)){
-            errors.put("progress", "Progress must be between 0 and 100");
-        }
+//        if(request.getProgress() != null && (request.getProgress() < 0 || request.getProgress() > 100)){
+//            errors.put("progress", "Progress must be between 0 and 100");
+//        }
 
         // Validate estimate hours
         if(request.getEstimatedHours() != null && request.getEstimatedHours() < 0) {
@@ -71,15 +71,15 @@ public class TaskValidationServiceImpl implements TaskValidationService{
         }
 
         // Validate recurring pattern
-        if(Boolean.TRUE.equals(request.getIsRecurring()) && (request.getRecurrencePattern() == null || request.getRecurrencePattern().isEmpty())) {
-            errors.put("recurrencePattern","Recurrence pattern is required for reccurring tasks");
-        } 
+//        if(Boolean.TRUE.equals(request.getIsRecurring()) && (request.getRecurrencePattern() == null || request.getRecurrencePattern().isEmpty())) {
+//            errors.put("recurrencePattern","Recurrence pattern is required for reccurring tasks");
+//        } 
         
         if(!errors.isEmpty()){
             throw new TaskValidationException("Task validation failed", errors);
         }
 
-        log.debug("Task validation successfull for user {}", userId);
+        log.debug("Task validation successfully for user {}", userId);
     }
 
     public void validateTaskStatusUpdate(Task.TaskStatus currentStatus, Task.TaskStatus newStatus) {
@@ -105,26 +105,31 @@ public class TaskValidationServiceImpl implements TaskValidationService{
 
     public void validateTaskProgress(Integer currentProgress, Integer newProgress, Task.TaskStatus status) {
         log.debug("Validating progress update from {} to {} with status {}", currentProgress, newProgress, status);
-        
-        Map<String, String> errors = new HashMap<>();
-        
-        if (newProgress < 0 || newProgress > 100) {
-            errors.put("progress", "Progress must be between 0 and 100");
-        }
-        
-        if (status == Task.TaskStatus.completed && newProgress != 100) {
-            errors.put("progress", "Completed tasks must have 100% progress");
-        }
-        
-        if (status == Task.TaskStatus.pending && newProgress > 0) {
-            errors.put("progress", "Pending tasks should have 0% progress");
-        }
-        
+
+        Map<String, String> errors = getStringStringMap(newProgress, status);
+
         if (!errors.isEmpty()) {
             throw new TaskValidationException("Progress update validation failed", errors);
         }
         
         log.debug("Progress update validation passed");
+    }
+
+    private static Map<String, String> getStringStringMap(Integer newProgress, Task.TaskStatus status) {
+        Map<String, String> errors = new HashMap<>();
+
+        if (newProgress < 0 || newProgress > 100) {
+            errors.put("progress", "Progress must be between 0 and 100");
+        }
+
+        if (status == Task.TaskStatus.completed && newProgress != 100) {
+            errors.put("progress", "Completed tasks must have 100% progress");
+        }
+
+        if (status == Task.TaskStatus.pending && newProgress > 0) {
+            errors.put("progress", "Pending tasks should have 0% progress");
+        }
+        return errors;
     }
 
     @Override
@@ -186,6 +191,15 @@ public class TaskValidationServiceImpl implements TaskValidationService{
         // TODO: enforce edit permissions (assignee/creator/workspace role).
     }
 
+    @Override
+    public void validateNoParentIdAllowed(BaseTaskCreateRequest request, String taskType) {
+        if (request.getParentId() != null) {
+            throw new TaskValidationException(
+                    String.format("Parent ID is not allowed for %s creation", taskType)
+            );
+        }
+    }
+
     private void validateDates(LocalDateTime startDate, LocalDateTime dueDate, Map<String, String> errors) {
         LocalDateTime now = LocalDateTime.now();
         
@@ -215,5 +229,7 @@ public class TaskValidationServiceImpl implements TaskValidationService{
             errors.put("progress", "In-progress tasks must have progress between 1-99%");
         }
     }
+
+
 
 }

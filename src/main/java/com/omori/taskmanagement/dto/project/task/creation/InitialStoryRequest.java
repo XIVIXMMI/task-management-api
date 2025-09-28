@@ -1,4 +1,4 @@
-package com.omori.taskmanagement.dto.project.task;
+package com.omori.taskmanagement.dto.project.task.creation;
 
 import com.omori.taskmanagement.model.project.Task;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -16,6 +16,9 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class InitialStoryRequest {
 
+    private static final LocalDateTime DEFAULT_START_DATE = LocalDateTime.now();
+    private static final LocalDateTime DEFAULT_DUE_DATE = DEFAULT_START_DATE.plusDays(7);
+
     @NotBlank(message = "Story Title is required")
     @Schema(description = "Title of the story (task level 1)", example = "Task 1.1")
     private String title;
@@ -23,14 +26,11 @@ public class InitialStoryRequest {
     @Schema(description = "Description of the story", example = "Do the things 1.1")
     private String description;
 
-    @Builder.Default
-    @NotNull(message = "Start date is required")
     @Schema(description = "Date start of story, format should be YYYY-MM-DD HH:MM:SS (ISO-8601)",
             example = "2025-07-05T23:59:00",
             accessMode = Schema.AccessMode.READ_ONLY)
-    private LocalDateTime startDate = LocalDateTime.now();
+    private LocalDateTime startDate;
 
-    @NotNull(message = "Due date is required for initial stories")
     @Future(message = "Due date must be in the future")
     @Schema(description = "Story due date", example = "2025-12-31T23:59:59")
     private LocalDateTime dueDate;
@@ -38,14 +38,14 @@ public class InitialStoryRequest {
     @Builder.Default
     private Task.TaskPriority priority = Task.TaskPriority.medium;
 
-    public TaskCreateRequest toTaskCreateRequest() {
-        TaskCreateRequest taskCreateRequest = new TaskCreateRequest();
-        taskCreateRequest.setTitle(title);
-        taskCreateRequest.setDescription(description);
-        taskCreateRequest.setStartDate(startDate == null ? LocalDateTime.now() : startDate);
-        taskCreateRequest.setDueDate(dueDate);
-        taskCreateRequest.setPriority(priority == null ? Task.TaskPriority.medium : priority);
-        taskCreateRequest.setType(Task.TaskType.STORY);
-        return taskCreateRequest;
+    public BaseTaskCreateRequest toTaskCreateRequest() {
+        BaseTaskCreateRequest baseTaskCreateRequest = new BaseTaskCreateRequest();
+        baseTaskCreateRequest.setTitle(title);
+        baseTaskCreateRequest.setDescription(description);
+        baseTaskCreateRequest.setStartDate(startDate == null ? DEFAULT_START_DATE : startDate);
+        baseTaskCreateRequest.setDueDate(dueDate == null ? DEFAULT_DUE_DATE : dueDate);
+        baseTaskCreateRequest.setPriority(priority == null ? Task.TaskPriority.medium : priority);
+        baseTaskCreateRequest.setType(Task.TaskType.STORY);
+        return baseTaskCreateRequest;
     }
 }
