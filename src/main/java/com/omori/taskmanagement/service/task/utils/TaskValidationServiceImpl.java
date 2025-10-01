@@ -72,7 +72,7 @@ public class TaskValidationServiceImpl implements TaskValidationService{
 
         // Validate recurring pattern
         if(Boolean.TRUE.equals(request.getIsRecurring()) && (request.getRecurrencePattern() == null || request.getRecurrencePattern().isEmpty())) {
-            errors.put("recurrencePattern","Recurrence pattern is required for reccurring tasks");
+            errors.put("recurrencePattern","Recurrence pattern is required for recurring tasks");
         }
         
         if(!errors.isEmpty()){

@@ -35,8 +35,6 @@ public class TaskUpdateRequest {
     @Max(value = 100, message = "Progress must be between 0 and 100")
     private Integer progress;
 
-    private LocalDateTime updatedAt;
-    
     private Long categoryId;
     private Long assignedToId;
     private Long workspaceId;

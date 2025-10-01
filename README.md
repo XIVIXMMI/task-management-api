@@ -102,7 +102,7 @@ A comprehensive, enterprise-grade RESTful API for task and project management bu
 | Technology | Version | Purpose |
 |------------|---------|---------|
 | **Auth0 JWT** | 4.4.0 | JWT token management |
-| **Spring Security** | 3.5.0 | Security framework |
+| **Spring Security** | 6.5.x (>=6.5.0) | Security framework (GA release May 19, 2025) |
 | **Spring Session Redis** | Latest | Session management |
 | **BCrypt** | Built-in | Password hashing |
 
@@ -195,8 +195,8 @@ The easiest way to get started is using Docker Compose:
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/XIVIXMMI/task-management.git
-cd task-management
+git clone https://github.com/XIVIXMMI/task-management-api.git
+cd task-management-api
 
 # 2. Create environment file
 cp .env.example .env

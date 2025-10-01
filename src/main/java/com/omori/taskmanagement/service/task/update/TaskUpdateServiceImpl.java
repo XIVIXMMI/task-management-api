@@ -130,7 +130,7 @@ public class TaskUpdateServiceImpl implements TaskUpdateService{
         if (request.getIsRecurring() != null ) task.setIsRecurring(request.getIsRecurring());
         if (request.getRecurrencePattern() != null ) task.setRecurrencePattern(request.getRecurrencePattern());
         if (request.getMetadata() != null ) task.setMetadata(request.getMetadata());
-        request.setUpdatedAt( LocalDateTime.now());
+        task.setUpdatedAt(LocalDateTime.now());
     }
 
     private void updateRelatedEntities(Task task, TaskUpdateRequest request) {
@@ -191,7 +191,7 @@ public class TaskUpdateServiceImpl implements TaskUpdateService{
         if (status == Task.TaskStatus.completed && (progress == null || progress < 100)) {
             task.setProgress(100);
         } else if (status == Task.TaskStatus.in_progress && (progress == null || progress == 0 )) {
-            task.setProgress(0);
+            task.setProgress(10);
         } else if (status == Task.TaskStatus.pending && progress != null && progress > 0) {
             task.setStatus(Task.TaskStatus.in_progress);
         }

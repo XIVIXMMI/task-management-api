@@ -729,10 +729,14 @@ public class TaskQueryController extends BaseController {
             @Parameter(description = "ID of the task to calculate",
                     example = "42",
                     required = true)
-            @PathVariable Long taskId
+            @PathVariable Long taskId,
+            @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        int progress = progressService.calculateTaskProgress(taskId);
-        return ResponseEntity.ok(ApiResult.success(progress));
+        return executeTaskQuery(
+                userDetails.getId(),
+                "CALCULATE_TASK_PROGRESS",
+                () -> progressService.calculateTaskProgress(taskId)
+        );
     }
 
     // ========== HIERARCHY QUERY ENDPOINTS ==========
@@ -805,10 +809,14 @@ public class TaskQueryController extends BaseController {
             @Parameter(description = "ID of the Epic task",
                     example = "17",
                     required = true)
-            @PathVariable Long taskId
+            @PathVariable Long taskId,
+            @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        HierarchyEpicDto tasks = hierarchyService.getFullHierarchy(taskId);
-        return ResponseEntity.ok(ApiResult.success(tasks));
+        return executeTaskQuery(
+                userDetails.getId(),
+                "GET_FULL_HIERARCHY_EPIC",
+                () -> hierarchyService.getFullHierarchy(taskId)
+        );
     }
 
     @LogActivity(ActionType.VIEW)
@@ -977,10 +985,14 @@ public class TaskQueryController extends BaseController {
             @Parameter(description = "ID of the parent task",
                     example = "17",
                     required = true)
-            @PathVariable Long parentTaskId
+            @PathVariable Long parentTaskId,
+            @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        List<TaskResponse> childTasks = hierarchyService.getChildTasks(parentTaskId);
-        return ResponseEntity.ok(ApiResult.success(childTasks));
+        return executeTaskQuery(
+                userDetails.getId(),
+                "GET_CHILD_TASKS",
+                () -> hierarchyService.getChildTasks(parentTaskId)
+        );
     }
 
     @LogActivity(ActionType.VIEW)
@@ -1087,10 +1099,14 @@ public class TaskQueryController extends BaseController {
             @Parameter(description = "ID of the parent task",
                     example = "17",
                     required = true)
-            @PathVariable Long parentTaskId
+            @PathVariable Long parentTaskId,
+            @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        List<TaskResponse> childTasks = hierarchyService.getAllChildTasks(parentTaskId);
-        return ResponseEntity.ok(ApiResult.success(childTasks));
+        return executeTaskQuery(
+                userDetails.getId(),
+                "GET_ALL_CHILD_TASKS",
+                () -> hierarchyService.getAllChildTasks(parentTaskId)
+        );
     }
 
     @LogActivity(ActionType.VIEW)
@@ -1191,10 +1207,14 @@ public class TaskQueryController extends BaseController {
             @Parameter(description = "ID of the child task to find parent for",
                     example = "30",
                     required = true)
-            @PathVariable Long taskId
+            @PathVariable Long taskId,
+            @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        TaskResponse task = hierarchyService.getParentTask(taskId);
-        return ResponseEntity.ok(ApiResult.success(task));
+        return executeTaskQuery(
+                userDetails.getId(),
+                "GET_PARENT_TASK",
+                () -> hierarchyService.getParentTask(taskId)
+        );
     }
 
     @LogActivity(ActionType.VIEW)
@@ -1297,10 +1317,14 @@ public class TaskQueryController extends BaseController {
             @Parameter(description = "ID of the task to calculate depth for",
                     example = "35",
                     required = true)
-            @PathVariable Long taskId
+            @PathVariable Long taskId,
+            @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        int depth = hierarchyService.getHierarchyDepth(taskId);
-        return ResponseEntity.ok(ApiResult.success(depth));
+        return executeTaskQuery(
+                userDetails.getId(),
+                "GET_HIERARCHY_DEPTH",
+                () -> hierarchyService.getHierarchyDepth(taskId)
+        );
     }
 
     @LogActivity(ActionType.VIEW)
@@ -1407,10 +1431,14 @@ public class TaskQueryController extends BaseController {
             @Parameter(description = "ID of the parent task to calculate next sort order for",
                     example = "20",
                     required = true)
-            @PathVariable Long parentTaskId
+            @PathVariable Long parentTaskId,
+            @AuthenticationPrincipal CustomUserDetails userDetails
     ){
-        Integer sortOrder = hierarchyService.getNextSortOrderForParent(parentTaskId);
-        return ResponseEntity.ok(ApiResult.success(sortOrder));
+        return executeTaskQuery(
+                userDetails.getId(),
+                "GET_NEXT_SORT_ORDER_FOR_PARENT",
+                () -> hierarchyService.getNextSortOrderForParent(parentTaskId)
+        );
     }
 
 }
