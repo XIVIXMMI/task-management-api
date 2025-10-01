@@ -1,7 +1,7 @@
 package com.omori.taskmanagement.service.task.update;
 
 import com.omori.taskmanagement.dto.project.task.TaskResponse;
-import com.omori.taskmanagement.dto.project.task.TaskUpdateRequest;
+import com.omori.taskmanagement.dto.project.task.update.TaskUpdateRequest;
 import com.omori.taskmanagement.exceptions.task.TaskAccessDeniedException;
 import com.omori.taskmanagement.exceptions.task.TaskNotFoundException;
 import com.omori.taskmanagement.exceptions.task.TaskBusinessException;

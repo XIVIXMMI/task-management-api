@@ -1,4 +1,4 @@
-package com.omori.taskmanagement.dto.project.task;
+package com.omori.taskmanagement.dto.project.task.update;
 
 import com.omori.taskmanagement.model.project.Task;
 import jakarta.validation.constraints.*;
@@ -34,6 +34,8 @@ public class TaskUpdateRequest {
     @Min(value = 0, message = "Progress must be between 0 and 100")
     @Max(value = 100, message = "Progress must be between 0 and 100")
     private Integer progress;
+
+    private LocalDateTime updatedAt;
     
     private Long categoryId;
     private Long assignedToId;

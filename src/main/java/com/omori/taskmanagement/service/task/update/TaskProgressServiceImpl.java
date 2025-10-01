@@ -30,7 +30,6 @@ public class TaskProgressServiceImpl implements TaskProgressService{
     private final TaskRepository taskRepository;
     private final SubTaskService subTaskService;
 
-
     private final Task.TaskType EPIC = Task.TaskType.EPIC;
     private final Task.TaskType STORY = Task.TaskType.STORY;
 

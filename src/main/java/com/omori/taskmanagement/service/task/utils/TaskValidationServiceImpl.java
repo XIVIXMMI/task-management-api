@@ -61,9 +61,9 @@ public class TaskValidationServiceImpl implements TaskValidationService{
         }
 
         // Validate progress
-//        if(request.getProgress() != null && (request.getProgress() < 0 || request.getProgress() > 100)){
-//            errors.put("progress", "Progress must be between 0 and 100");
-//        }
+        if(request.getProgress() != null && (request.getProgress() < 0 || request.getProgress() > 100)){
+            errors.put("progress", "Progress must be between 0 and 100");
+        }
 
         // Validate estimate hours
         if(request.getEstimatedHours() != null && request.getEstimatedHours() < 0) {
@@ -71,9 +71,9 @@ public class TaskValidationServiceImpl implements TaskValidationService{
         }
 
         // Validate recurring pattern
-//        if(Boolean.TRUE.equals(request.getIsRecurring()) && (request.getRecurrencePattern() == null || request.getRecurrencePattern().isEmpty())) {
-//            errors.put("recurrencePattern","Recurrence pattern is required for reccurring tasks");
-//        } 
+        if(Boolean.TRUE.equals(request.getIsRecurring()) && (request.getRecurrencePattern() == null || request.getRecurrencePattern().isEmpty())) {
+            errors.put("recurrencePattern","Recurrence pattern is required for reccurring tasks");
+        }
         
         if(!errors.isEmpty()){
             throw new TaskValidationException("Task validation failed", errors);
@@ -118,6 +118,10 @@ public class TaskValidationServiceImpl implements TaskValidationService{
     private static Map<String, String> getStringStringMap(Integer newProgress, Task.TaskStatus status) {
         Map<String, String> errors = new HashMap<>();
 
+        if (newProgress == null) {
+            errors.put("progress", "Progress is required");
+            return errors;
+        }
         if (newProgress < 0 || newProgress > 100) {
             errors.put("progress", "Progress must be between 0 and 100");
         }

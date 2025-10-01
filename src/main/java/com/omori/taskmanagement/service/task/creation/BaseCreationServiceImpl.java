@@ -37,8 +37,7 @@ public class BaseCreationServiceImpl implements BaseCreationService{
     private static final Integer DEFAULT_PROGRESS = 0;
     private static final Integer DEFAULT_SORT_ORDER = 0;
 
-    private static final LocalDateTime DEFAULT_START_DATE = LocalDateTime.now();
-    private static final LocalDateTime DEFAULT_DUE_DATE = DEFAULT_START_DATE.plusDays(7);
+    private static final long DEFAULT_DUE_IN_DAYS = 7;
 
     private static final Double DEFAULT_ESTIMATED_HOURS = 1.0;
 
@@ -59,8 +58,10 @@ public class BaseCreationServiceImpl implements BaseCreationService{
         Task task = Task.builder()
                 .title(request.getTitle())
                 .description(request.getDescription())
-                .dueDate(Optional.ofNullable(request.getDueDate()).orElse(DEFAULT_DUE_DATE))
-                .startDate(Optional.ofNullable(request.getStartDate()).orElse(DEFAULT_START_DATE))
+                .startDate(Optional.ofNullable(request.getStartDate()).orElseGet(LocalDateTime::now))
+                .dueDate(Optional.ofNullable(request.getDueDate()).orElseGet(
+                        () -> Optional.ofNullable(request.getStartDate())
+                                .orElseGet(LocalDateTime::now).plusDays(DEFAULT_DUE_IN_DAYS)))
                 .priority(Optional.ofNullable(request.getPriority()).orElse(Task.TaskPriority.medium))
                 .status(Task.TaskStatus.pending)
                 .taskType(type)
@@ -70,8 +71,8 @@ public class BaseCreationServiceImpl implements BaseCreationService{
                 .user(user)
                 .sortOrder(Optional.ofNullable(request.getSortOrder()).orElse(DEFAULT_SORT_ORDER))
                 .isRecurring(Optional.ofNullable(request.getIsRecurring()).orElse(false))
-//                .recurrencePattern(request.getRecurrencePattern())
-//                .metadata(request.getMetadata())
+                .recurrencePattern(request.getRecurrencePattern())
+                .metadata(request.getMetadata())
                 .build();
 
         taskRelationsService.setTaskRelations(task,

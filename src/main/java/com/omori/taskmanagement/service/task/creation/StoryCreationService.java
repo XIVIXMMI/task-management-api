@@ -49,7 +49,7 @@ public interface StoryCreationService {
      * <p>
      * This method creates an independent story that exists at the second level of the task
      * hierarchy. The story can later have child tasks created under it. Any parentId provided
-     * in the request will be ignored to ensure the story remains standalone.
+     * in the request will be rejected (validation error) to ensure the story remains standalone.
      * </p>
      *
      * <h4>Use Cases:</h4>
