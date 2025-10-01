@@ -1,7 +1,7 @@
 package com.omori.taskmanagement.service.task.update;
 
 import com.omori.taskmanagement.dto.project.task.TaskResponse;
-import com.omori.taskmanagement.dto.project.task.TaskUpdateRequest;
+import com.omori.taskmanagement.dto.project.task.update.TaskUpdateRequest;
 import com.omori.taskmanagement.exceptions.UserNotFoundException;
 import com.omori.taskmanagement.exceptions.task.TaskBusinessException;
 import com.omori.taskmanagement.exceptions.task.TaskNotFoundException;
@@ -54,6 +54,7 @@ public class TaskUpdateServiceImpl implements TaskUpdateService{
         updateBasicFields(task, request);
         updateRelatedEntities(task, request);
         updateBusinessLogic(task, request);
+
 
         Task updatedTask = taskRepository.save(task);
         log.info("Task updated successfully: {}", taskId);
@@ -129,6 +130,7 @@ public class TaskUpdateServiceImpl implements TaskUpdateService{
         if (request.getIsRecurring() != null ) task.setIsRecurring(request.getIsRecurring());
         if (request.getRecurrencePattern() != null ) task.setRecurrencePattern(request.getRecurrencePattern());
         if (request.getMetadata() != null ) task.setMetadata(request.getMetadata());
+        task.setUpdatedAt(LocalDateTime.now());
     }
 
     private void updateRelatedEntities(Task task, TaskUpdateRequest request) {
@@ -164,19 +166,32 @@ public class TaskUpdateServiceImpl implements TaskUpdateService{
     private void updateBusinessLogic(Task task, TaskUpdateRequest request) {
         updateCompletionDate(task, request.getStatus());
         updateProgressConsistency(task, request.getStatus(), request.getProgress());
-        triggerWorkflowEvents(task, request); // For future workflow integration
-        recordTaskUpdate(task, request); // For audit purposes
-    }
-
-    private void recordTaskUpdate(Task task, TaskUpdateRequest request) {
+        triggerWorkflowEvents(task, request); // For future workflow integration (automation feature)
     }
 
     private void triggerWorkflowEvents(Task task, TaskUpdateRequest request) {
+//        if (request.getStatus() == TaskStatus.completed) {
+//            eventPublisher.publishEvent(new TaskCompletedEvent(task));
+//            notificationService.notifyTaskCompletion(task);
+//        }
+//
+//        if (request.getAssignedToId() != null) {
+//            notificationService.notifyAssignment(task);
+//        }
     }
 
-    private void updateProgressConsistency(Task task, Task.@NotNull(message = "Status is required") TaskStatus status, @Min(value = 0, message = "Progress must be between 0 and 100") @Max(value = 100, message = "Progress must be between 0 and 100") Integer progress) {
+    private void updateProgressConsistency(Task task,
+                                            Task.@NotNull(message = "Status is required")
+                                                    TaskStatus status,
+                                            @Min(value = 0,
+                                                    message = "Progress must be between 0 and 100")
+                                            @Max(value = 100,
+                                                    message = "Progress must be between 0 and 100")
+                                            Integer progress) {
         if (status == Task.TaskStatus.completed && (progress == null || progress < 100)) {
             task.setProgress(100);
+        } else if (status == Task.TaskStatus.in_progress && (progress == null || progress == 0 )) {
+            task.setProgress(10);
         } else if (status == Task.TaskStatus.pending && progress != null && progress > 0) {
             task.setStatus(Task.TaskStatus.in_progress);
         }

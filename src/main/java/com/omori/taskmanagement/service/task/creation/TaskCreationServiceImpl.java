@@ -34,6 +34,13 @@ public class TaskCreationServiceImpl implements TaskCreationService{
         if (parentTask.getTaskType() != Task.TaskType.STORY) {
             throw new InvalidTaskTypeException("TASK can only be created under STORY parent, found: " + parentTask.getTaskType());
         }
+        if (type != Task.TaskType.TASK) {
+            throw new InvalidTaskTypeException("Only TASK type is allowed under STORY");
+            }
+        if (request.getType() != null && request.getType() != Task.TaskType.TASK) {
+            throw new TaskValidationException("Request type must be TASK when creating under STORY");
+            }
+        request.setType(Task.TaskType.TASK);
         return baseCreationService.createTask(userId, type, request, false);
     }
 

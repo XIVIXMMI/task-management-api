@@ -5,7 +5,7 @@ import com.omori.taskmanagement.dto.common.ApiResult;
 import com.omori.taskmanagement.dto.project.subtask.SubtaskResponse;
 import com.omori.taskmanagement.dto.project.task.HierarchyEpicDto;
 import com.omori.taskmanagement.dto.project.task.creation.BaseTaskCreateRequest;
-import com.omori.taskmanagement.dto.project.task.TaskCreateResponse;
+import com.omori.taskmanagement.dto.project.task.creation.TaskCreateResponse;
 import com.omori.taskmanagement.model.audit.ActionType;
 import com.omori.taskmanagement.model.project.Subtask;
 import com.omori.taskmanagement.model.project.Task;

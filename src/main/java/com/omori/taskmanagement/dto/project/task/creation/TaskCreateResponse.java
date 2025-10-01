@@ -1,4 +1,4 @@
-package com.omori.taskmanagement.dto.project.task;
+package com.omori.taskmanagement.dto.project.task.creation;
 
 import com.omori.taskmanagement.model.project.Task;
 

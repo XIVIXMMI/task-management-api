@@ -4,7 +4,6 @@ import com.omori.taskmanagement.model.project.Task;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -15,9 +14,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class InitialStoryRequest {
-
-    private static final LocalDateTime DEFAULT_START_DATE = LocalDateTime.now();
-    private static final LocalDateTime DEFAULT_DUE_DATE = DEFAULT_START_DATE.plusDays(7);
 
     @NotBlank(message = "Story Title is required")
     @Schema(description = "Title of the story (task level 1)", example = "Task 1.1")
@@ -42,10 +38,19 @@ public class InitialStoryRequest {
         BaseTaskCreateRequest baseTaskCreateRequest = new BaseTaskCreateRequest();
         baseTaskCreateRequest.setTitle(title);
         baseTaskCreateRequest.setDescription(description);
-        baseTaskCreateRequest.setStartDate(startDate == null ? DEFAULT_START_DATE : startDate);
-        baseTaskCreateRequest.setDueDate(dueDate == null ? DEFAULT_DUE_DATE : dueDate);
+        LocalDateTime effectiveStartDate = startDate != null ? startDate : defaultStartDate();
+        baseTaskCreateRequest.setStartDate(effectiveStartDate);
+        baseTaskCreateRequest.setDueDate(dueDate != null ? dueDate : defaultDueDate(effectiveStartDate));
         baseTaskCreateRequest.setPriority(priority == null ? Task.TaskPriority.medium : priority);
         baseTaskCreateRequest.setType(Task.TaskType.STORY);
         return baseTaskCreateRequest;
+    }
+
+    private static LocalDateTime defaultStartDate() {
+        return LocalDateTime.now();
+    }
+
+    private static LocalDateTime defaultDueDate(LocalDateTime start) {
+        return start.plusDays(7);
     }
 }

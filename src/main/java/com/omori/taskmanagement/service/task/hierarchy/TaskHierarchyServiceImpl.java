@@ -38,6 +38,7 @@ public class TaskHierarchyServiceImpl implements TaskHierarchyService{
     private static final Task.TaskType TASK = Task.TaskType.TASK;
 
     @Override
+    @Transactional(readOnly = true)
     public HierarchyEpicDto getFullHierarchy(Long epicId) {
         log.debug("Getting full hierarchy for epic task with ID {} ", epicId);
 
@@ -81,6 +82,7 @@ public class TaskHierarchyServiceImpl implements TaskHierarchyService{
     }
 
     @Override
+    @Transactional(readOnly = true)
     public HierarchyEpicDto getFullHierarchyByUuid(String epicUuid) {
         log.debug("Getting full hierarchy for epic task with Uuid {} ", epicUuid);
         UUID uuid;
@@ -128,6 +130,7 @@ public class TaskHierarchyServiceImpl implements TaskHierarchyService{
     }
 
     @Override
+    @Transactional(readOnly = true)
     public TaskResponse getParentTask(Long taskId) {
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new TaskNotFoundException("Task not found with ID: " + taskId));
@@ -142,14 +145,25 @@ public class TaskHierarchyServiceImpl implements TaskHierarchyService{
     }
 
     @Override
-    public List<Task> getChildTasks(Long parentTaskId) {
+    @Transactional(readOnly = true)
+    public List<TaskResponse> getChildTasks(Long parentTaskId) {
         log.debug("Getting children for task with ID {} ", parentTaskId);
         Task parentTask = taskRepository.findById(parentTaskId)
                 .orElseThrow(() -> new TaskNotFoundException("Task not found with ID: " + parentTaskId));
 
         return switch (parentTask.getTaskType()) {
-            case EPIC -> taskRepository.findByParentTaskIdAndTaskTypeAndDeletedAtIsNull(parentTaskId, STORY);
-            case STORY -> taskRepository.findByParentTaskIdAndTaskTypeAndDeletedAtIsNull(parentTaskId, TASK);
+            case EPIC -> {
+                List<Task> childTasks = taskRepository.findByParentTaskIdAndTaskTypeAndDeletedAtIsNull(parentTaskId, STORY);
+                yield childTasks.stream()
+                        .map(TaskResponse::from)
+                        .collect(Collectors.toList());
+            }
+            case STORY -> {
+                List<Task> childTasks = taskRepository.findByParentTaskIdAndTaskTypeAndDeletedAtIsNull(parentTaskId, TASK);
+                yield childTasks.stream()
+                        .map(TaskResponse::from)
+                        .collect(Collectors.toList());
+            }
             case TASK -> {
                 log.debug("Task {} is the TASK level, no children found (only subtask)", parentTaskId);
                 yield Collections.emptyList();
@@ -162,7 +176,8 @@ public class TaskHierarchyServiceImpl implements TaskHierarchyService{
     }
 
     @Override
-    public List<Task> getAllChildTasks(Long parentTaskId) {
+    @Transactional(readOnly = true)
+    public List<TaskResponse> getAllChildTasks(Long parentTaskId) {
         log.debug("Getting all descendant tasks for parent task with ID {}", parentTaskId);
         Task parentTask = taskRepository.findById(parentTaskId)
                 .orElseThrow(() -> new TaskNotFoundException("Task not found with ID: " + parentTaskId));
@@ -172,11 +187,15 @@ public class TaskHierarchyServiceImpl implements TaskHierarchyService{
                 List<Task> allTasks = taskRepository.findAllTasksUnderEpic(parentTaskId);
                 // Return all descendants, excluding the epic itself
                 yield allTasks.stream()
+                        .map(TaskResponse::from)
                         .filter(t -> !Objects.equals(t.getId(), parentTaskId))
                         .collect(Collectors.toList());
             }
             case STORY -> {
-                yield taskRepository.findByParentTaskIdAndTaskTypeAndDeletedAtIsNull(parentTaskId, TASK);
+                List<Task> allTask = taskRepository.findByParentTaskIdAndTaskTypeAndDeletedAtIsNull(parentTaskId, TASK);
+                yield allTask.stream()
+                        .map(TaskResponse::from)
+                        .collect(Collectors.toList());
             }
             case TASK -> {
                 log.debug("Id {} is the TASK level, no children found (only subtask)", parentTaskId);
@@ -230,6 +249,7 @@ public class TaskHierarchyServiceImpl implements TaskHierarchyService{
     }
 
     @Override
+    @Transactional(readOnly = true)
     public int getHierarchyDepth(Long taskId) {
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new TaskNotFoundException("Task not found with ID: " + taskId));
@@ -243,11 +263,12 @@ public class TaskHierarchyServiceImpl implements TaskHierarchyService{
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Integer getNextSortOrderForParent(Long parentTaskId) {
         // Implementation to get next sort order
         return taskRepository.findMaxSortOrderByParentTaskId(parentTaskId)
                 .map(max -> (Integer) (max + 1))
-                .orElse(Integer.valueOf(0));
+                .orElse(0);
     }
 
     /*

@@ -81,7 +81,7 @@ public interface TaskHierarchyService {
      * @throws TaskNotFoundException if no task exists with the given parent ID
      * @since 1.0.0
      */
-    List<Task> getChildTasks(Long parentTaskId);
+    List<TaskResponse> getChildTasks(Long parentTaskId);
 
     /**
      * Retrieves all descendant tasks of a parent task recursively.
@@ -99,7 +99,7 @@ public interface TaskHierarchyService {
      * @throws TaskNotFoundException if no task exists with the given parent ID
      * @since 1.0.0
      */
-    List<Task> getAllChildTasks(Long parentTaskId);
+    List<TaskResponse> getAllChildTasks(Long parentTaskId);
 
     /**
      * Retrieves the parent task of the specified task.

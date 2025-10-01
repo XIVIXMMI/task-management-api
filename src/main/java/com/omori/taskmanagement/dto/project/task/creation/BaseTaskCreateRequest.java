@@ -1,5 +1,6 @@
 package com.omori.taskmanagement.dto.project.task.creation;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.omori.taskmanagement.model.project.Task;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
@@ -40,6 +41,9 @@ public class BaseTaskCreateRequest {
     @Schema(description = "Important level of task (low,medium,high,urgent)", example = "medium")
     private Task.TaskPriority priority;
 
+    @JsonIgnore
+    private Integer progress;
+
     @Schema(description = "Estimated completion time", example = "3.5")
     private Double estimatedHours;
 
@@ -62,11 +66,11 @@ public class BaseTaskCreateRequest {
     @Schema(description = "Recurring task flag", example = "false")
     private Boolean isRecurring;
 
-//    @Schema(description = "Recurring pattern of task, e.g., daily, weekly, monthly")
-//    private Map<String, Object> recurrencePattern;
-//
-//    @Schema(description = "Metadata for task, can be used for additional information",
-//            example = "{\"key\":\"value\"}")
-//    private Map<String, Object> metadata;
+    @Schema(description = "Recurring pattern of task, e.g., daily, weekly, monthly")
+    private Map<String, Object> recurrencePattern;
+
+    @Schema(description = "Metadata for task, can be used for additional information",
+            example = "{\"key\":\"value\"}")
+    private Map<String, Object> metadata;
 
 }
