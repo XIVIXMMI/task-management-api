@@ -3,14 +3,16 @@ server:
     enabled: true
 
 spring:
-  devtools:
-    add-properties: false
-    restart:
-      enabled: false
-      exclude: static/**,public/**,templates/**
-    livereload:
-      enabled: true
-      port: 35729
+#  profiles:
+#    active: dev
+  # devtools:
+  #   add-properties: false
+  #   restart:
+  #     enabled: false
+  #     exclude: static/**,public/**,templates/**
+  #   livereload:
+  #     enabled: true
+  #     port: 35729
   datasource:
     url: ${DB_URL}
     username: ${DB_USERNAME}
@@ -27,18 +29,18 @@ spring:
     locations: classpath:db/migration
     baseline-on-migrate: true
     baseline-version: 1
-    postgresql:
-      transactional-lock: false
+    clean-disabled: false
     validate-on-migrate: false
     out-of-order: true
+    schemas: public,user_mgmt,project,notification,collaboration,audit,analytics
   jpa:
     hibernate:
-      ddl-auto: none
-    #show-sql: true
+      ddl-auto: none # Don't validate since we use custom schemas
     open-in-view: false
     properties:
       hibernate:
         format_sql: true
+        default_schema: public
         jdbc:
           time_zone: UTC
           batch_size: 50
@@ -61,6 +63,7 @@ spring:
 
 springdoc:
   show-actuator: true
+
 
 management:
   endpoint:
@@ -87,6 +90,8 @@ logging:
     com.omori.taskmanagement: INFO
     com.fasterxml.jackson.databind: DEBUG
     com.omori.taskmanagement.springboot.aspect: DEBUG
+    org.flywaydb: DEBUG
+    org.springframework.boot.autoconfigure.flyway: DEBUG
 
 jwt:
   secretKey: ${JWT_SECRET_KEY}
