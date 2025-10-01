@@ -84,7 +84,7 @@ A comprehensive, enterprise-grade RESTful API for task and project management bu
 | **Java** | 21 | Programming language |
 | **Spring Boot** | 3.5.0 | Application framework |
 | **Spring Data JPA** | 3.5.0 | Data persistence |
-| **Spring Security** | 3.5.0 | Authentication & authorization |
+| **Spring Security** | 6.5.x (>=6.5.0)  | Authentication & authorization |
 | **Spring Validation** | 3.5.0 | Input validation |
 | **Spring Cache** | 3.5.0 | Caching abstraction |
 | **Spring Actuator** | 3.5.0 | Monitoring & health checks |
@@ -135,13 +135,13 @@ A comprehensive, enterprise-grade RESTful API for task and project management bu
 │         Service Layer                   │
 │  (Business Logic, Validation, Caching)  │
 │                                         │
-│  ├─ Creation Services                  │
-│  ├─ Query Services                     │
-│  ├─ Update Services                    │
-│  ├─ Deletion Services                  │
-│  ├─ Validation Services                │
-│  ├─ Access Control Services            │
-│  └─ Hierarchy Services                 │
+│  ├─ Creation Services                   │
+│  ├─ Query Services                      │
+│  ├─ Update Services                     │
+│  ├─ Deletion Services                   │
+│  ├─ Validation Services                 │
+│  ├─ Access Control Services             │
+│  └─ Hierarchy Services                  │
 └──────────────┬──────────────────────────┘
                │
 ┌──────────────▼──────────────────────────┐
