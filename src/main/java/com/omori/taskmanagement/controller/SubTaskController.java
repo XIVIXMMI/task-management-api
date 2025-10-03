@@ -38,7 +38,7 @@ import lombok.RequiredArgsConstructor;
 @Tag(name = "Subtask", description = "Subtask management")
 public class SubTaskController {
 
-    private final SubTaskService subTaskService;
+    private final SubTaskService subtaskService;
 
     @LogActivity(ActionType.CREATE)
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
@@ -48,7 +48,7 @@ public class SubTaskController {
             @Valid @RequestBody SubtaskRequest request,
             @PathVariable @NotNull Long taskId) {
         request.setTaskId(taskId);
-        Subtask subtask = subTaskService.createSubtask(request);
+        Subtask subtask = subtaskService.createSubtask(request);
         SubtaskResponse response = SubtaskResponse.from(subtask);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResult.success(response));
@@ -61,7 +61,7 @@ public class SubTaskController {
     public ResponseEntity<ApiResult<List<SubtaskResponse>>> getAllSubtaskByTaskId(
             @PathVariable @NotNull Long taskId) {
 
-        List<Subtask> subtask = subTaskService.getSubtasksByTaskId(taskId);
+        List<Subtask> subtask = subtaskService.getSubtasksByTaskId(taskId);
         List<SubtaskResponse> response = subtask.stream()
                 .map(SubtaskResponse::from)
                 .toList();
@@ -76,7 +76,7 @@ public class SubTaskController {
     public ResponseEntity<ApiResult<SubtaskResponse>> updateSubtaskById(
             @PathVariable @NotNull Long subtaskId,
             @Valid @RequestBody SubtaskUpdateRequest request) {
-        Subtask subtask = subTaskService.updateSubtask(subtaskId, request);
+        Subtask subtask = subtaskService.updateSubtask(subtaskId, request);
         SubtaskResponse response = SubtaskResponse.from(subtask);
         return ResponseEntity.status(HttpStatus.OK).body(ApiResult.success(response));
     }
@@ -86,7 +86,7 @@ public class SubTaskController {
     @PatchMapping("/{subtaskId}/toggle")
     public ResponseEntity<ApiResult<SubtaskResponse>> toggleCompletion(
             @PathVariable @NotNull Long subtaskId) {
-        Subtask subtask = subTaskService.toggleSubtaskCompletion(subtaskId);
+        Subtask subtask = subtaskService.toggleSubtaskCompletion(subtaskId);
         SubtaskResponse response = SubtaskResponse.from(subtask);
         return ResponseEntity.status(HttpStatus.OK).body(ApiResult.success(response));
     }
@@ -96,7 +96,7 @@ public class SubTaskController {
         @PathVariable @NotNull Long taskId,
         @RequestBody SubtaskReorderDTO dto
     ) {
-        subTaskService.reorderSubtasks(taskId, dto.getSubtaskIds());
+        subtaskService.reorderSubtasks(taskId, dto.getSubtaskIds());
         return ResponseEntity.ok().build();
     }
 
@@ -106,7 +106,7 @@ public class SubTaskController {
     @Operation(summary = "Delete Subtask", description = "Delete subtask by id")
     public ResponseEntity<Void> deleteSubtaskById(
             @PathVariable @NotNull Long subtaskId) {
-        subTaskService.deleteSubtask(subtaskId);
+        subtaskService.deleteSubtask(subtaskId);
         return ResponseEntity.noContent().build();
     }
 
@@ -116,7 +116,7 @@ public class SubTaskController {
     @Operation(summary = "Soft delete Subtask", description = "Soft delete subtask by id")
     public ResponseEntity<Void> softDeleteSubtaskById(
             @PathVariable @NotNull Long subtaskId) {
-        subTaskService.softDeleteSubtask(subtaskId);
+        subtaskService.softDeleteSubtask(subtaskId);
         return ResponseEntity.noContent().build();
     }
 

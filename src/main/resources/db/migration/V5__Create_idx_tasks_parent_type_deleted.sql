@@ -116,7 +116,7 @@ END $$;
 -- =====================================================
 
 -- Add comment to document the index purpose
-COMMENT ON INDEX idx_tasks_parent_type_deleted IS
+COMMENT ON INDEX project.idx_tasks_parent_type_deleted IS
 'Composite index to optimize task hierarchy queries. Used by TaskRepository.findByParentTaskIdAndTaskTypeAndDeletedAtIsNull() method in TaskProgressServiceImpl, TaskHierarchyServiceImpl, and TaskHybridServiceImpl.';
 
 -- Update table statistics to help query planner

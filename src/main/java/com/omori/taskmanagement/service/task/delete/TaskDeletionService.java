@@ -1,5 +1,7 @@
 package com.omori.taskmanagement.service.task.delete;
 
+import com.omori.taskmanagement.model.project.Task;
+
 import java.util.List;
 
 public interface TaskDeletionService {
@@ -29,5 +31,5 @@ public interface TaskDeletionService {
     /**
      * Checks if user has permission to delete the specified task.
      */
-    boolean canDeleteTask(Long taskId, Long userId);
+    boolean canDeleteTask(Task task, Long userId);
 }
