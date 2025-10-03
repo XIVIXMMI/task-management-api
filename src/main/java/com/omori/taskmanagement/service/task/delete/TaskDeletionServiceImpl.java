@@ -1,14 +1,24 @@
 package com.omori.taskmanagement.service.task.delete;
 
+import com.omori.taskmanagement.exceptions.task.TaskAccessDeniedException;
+import com.omori.taskmanagement.exceptions.task.TaskNotFoundException;
+import com.omori.taskmanagement.model.project.Task;
+import com.omori.taskmanagement.repository.project.TaskRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class TaskDeletionServiceImpl implements TaskDeletionService {
+
+    private final TaskRepository taskRepository;
 
     /**
      * Validates a single taskId parameter.
@@ -57,16 +67,21 @@ public class TaskDeletionServiceImpl implements TaskDeletionService {
     public void softDeleteTask(Long taskId, Long userId) {
         log.debug("Attempting soft delete for taskId: {}, userId: {}", taskId, userId);
 
-        // Input validation
         validateTaskId(taskId);
         validateUserId(userId);
 
-        // Fail fast - method not implemented yet
-        throw new UnsupportedOperationException(
-                String.format("softDeleteTask(taskId=%d, userId=%d) is not implemented yet. " +
-                        "This method should set the deletedAt timestamp for the specified task.",
-                        taskId, userId)
-        );
+        Task task = taskRepository.findByIdAndDeletedAtIsNull(taskId)
+                .orElseThrow(() -> new TaskNotFoundException("Task not found with ID: " + taskId));
+
+        if(!canDeleteTask(task, userId)){
+            throw new TaskAccessDeniedException(
+                    String.format("User %d does not have permission to delete task %d", userId, taskId)
+            );
+        }
+
+        task.setDeletedAt(LocalDateTime.now());
+        taskRepository.save(task);
+        log.debug("Task {} soft deleted by user {}", taskId, userId);
     }
 
     @Override
@@ -78,12 +93,34 @@ public class TaskDeletionServiceImpl implements TaskDeletionService {
         validateTaskIds(taskIds);
         validateUserId(userId);
 
-        // Fail fast - method not implemented yet
-        throw new UnsupportedOperationException(
-                String.format("softDeleteMultipleTasks(taskIds=%s, userId=%d) is not implemented yet. " +
-                        "This method should batch soft delete %d tasks by setting their deletedAt timestamps.",
-                        taskIds, userId, taskIds.size())
-        );
+        List<Task> tasks = taskRepository.findAllById(taskIds);
+
+        List<Task> activeTasks = tasks.stream()
+                .filter( t -> t.getDeletedAt() == null)
+                .toList();
+
+        List<Task> authorizedTasks = new ArrayList<>();
+        List<Long> unauthorizedTaskIds = new ArrayList<>();
+
+        for( Task task : activeTasks){
+            if(canDeleteTask(task, userId)){
+                authorizedTasks.add(task);
+            } else {
+                unauthorizedTaskIds.add(task.getId());
+            }
+        }
+
+        if (!unauthorizedTaskIds.isEmpty()) {
+            throw new TaskAccessDeniedException(
+                    String.format("User %d lacks permission to delete tasks: %s",
+                            userId, unauthorizedTaskIds)
+            );
+        }
+
+        authorizedTasks.forEach( t -> t.setDeletedAt(LocalDateTime.now()));
+        taskRepository.saveAll(authorizedTasks);
+
+        log.debug("Soft deleted {} tasks by user {}", authorizedTasks.size(), userId);
     }
 
     @Override
@@ -95,12 +132,24 @@ public class TaskDeletionServiceImpl implements TaskDeletionService {
         validateTaskId(taskId);
         validateUserId(userId);
 
-        // Fail fast - method not implemented yet
-        throw new UnsupportedOperationException(
-                String.format("restoreTask(taskId=%d, userId=%d) is not implemented yet. " +
-                        "This method should clear the deletedAt timestamp for the specified task.",
-                        taskId, userId)
-        );
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new TaskNotFoundException("Task not found with ID: " + taskId));
+
+        if(task.getDeletedAt() == null){
+            throw new IllegalStateException(
+                    String.format("Task %d is not deleted", taskId)
+            );
+        }
+
+        if(!canDeleteTask(task, userId)){
+            throw new TaskAccessDeniedException(
+                    String.format("User %d does not have permission to restore task %d", userId, taskId)
+            );
+        }
+
+        task.setDeletedAt(null);
+        taskRepository.save(task);
+        log.info("Restored task {} by user {}", taskId, userId);
     }
 
     @Override
@@ -112,27 +161,42 @@ public class TaskDeletionServiceImpl implements TaskDeletionService {
         validateTaskIds(taskIds);
         validateUserId(userId);
 
-        // Fail fast - method not implemented yet
-        throw new UnsupportedOperationException(
-                String.format("restoreMultipleTasks(taskIds=%s, userId=%d) is not implemented yet. " +
-                        "This method should batch restore %d tasks by clearing their deletedAt timestamps.",
-                        taskIds, userId, taskIds.size())
-        );
+        List<Task> tasks = taskRepository.findAllById(taskIds);
+
+        List<Task> activeTasks = tasks.stream()
+                .filter( t -> t.getDeletedAt() != null)
+                .toList();
+
+        List<Task> authorizedTasks = new ArrayList<>();
+        List<Task> unauthorizedTasks = new ArrayList<>();
+
+        for( Task task : activeTasks){
+            if(canDeleteTask(task, userId)){
+                authorizedTasks.add(task);
+            } else {
+                unauthorizedTasks.add(task);
+            }
+        }
+
+        if (!unauthorizedTasks.isEmpty()) {
+            throw new TaskAccessDeniedException(
+                    String.format("User %d lacks permission to delete tasks: %s",
+                            userId, unauthorizedTasks)
+            );
+        }
+
+        authorizedTasks.forEach( t -> t.setDeletedAt(null));
+        taskRepository.saveAll(authorizedTasks);
+
+        log.debug("Restore {} tasks by user {}", authorizedTasks.size(), userId);
     }
 
     @Override
-    public boolean canDeleteTask(Long taskId, Long userId) {
-        log.debug("Checking delete permission for taskId: {}, userId: {}", taskId, userId);
-
-        // Input validation
-        validateTaskId(taskId);
-        validateUserId(userId);
-
-        // Fail fast - method not implemented yet
-        throw new UnsupportedOperationException(
-                String.format("canDeleteTask(taskId=%d, userId=%d) is not implemented yet. " +
-                        "This method should check if the user has permission to delete the specified task.",
-                        taskId, userId)
-        );
+    public boolean canDeleteTask(Task task, Long userId) {
+        boolean isOwner = task.getUser() != null &&
+                task.getUser().getId().equals(userId);
+        boolean isAssignee = task.getAssignedTo() != null &&
+                task.getAssignedTo().getId().equals(userId);
+        return isOwner || isAssignee;
     }
 }

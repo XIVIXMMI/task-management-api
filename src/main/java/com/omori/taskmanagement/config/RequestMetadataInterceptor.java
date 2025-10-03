@@ -1,4 +1,4 @@
-package com.omori.taskmanagement.interceptor;
+package com.omori.taskmanagement.config;
 
 import java.util.UUID;
 

@@ -53,7 +53,7 @@ public abstract class BaseController {
     }
 
     // Wrapper method for common task query pattern
-    protected <T> ResponseEntity<ApiResult<T>> executeTaskQuery(
+    protected <T> ResponseEntity<ApiResult<T>> executeMethod(
             Long userId,
             String operation,
             Supplier<T> querySupplier) {

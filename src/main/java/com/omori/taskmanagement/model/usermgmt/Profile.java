@@ -1,6 +1,5 @@
 package com.omori.taskmanagement.model.usermgmt;
 
-import com.omori.taskmanagement.hibernate.UserStatusType;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;

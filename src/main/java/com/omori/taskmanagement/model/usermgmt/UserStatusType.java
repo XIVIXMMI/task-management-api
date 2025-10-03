@@ -1,6 +1,5 @@
-package com.omori.taskmanagement.hibernate;
+package com.omori.taskmanagement.model.usermgmt;
 
-import com.omori.taskmanagement.model.usermgmt.UserStatus;
 import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.usertype.UserType;
 
