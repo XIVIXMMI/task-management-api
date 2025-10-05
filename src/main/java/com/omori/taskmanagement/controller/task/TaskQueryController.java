@@ -102,7 +102,7 @@ public class TaskQueryController extends BaseController {
             @PathVariable @Positive Long taskId,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        return executeTaskQuery(
+        return executeMethod(
                 userDetails.getId(),
                 "GET_TASK_BY_ID",
                 () -> taskQueryService.getTaskById(taskId, userDetails.getId())
@@ -171,7 +171,7 @@ public class TaskQueryController extends BaseController {
             @PathVariable UUID uuid,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        return executeTaskQuery(
+        return executeMethod(
                 userDetails.getId(),
                 "GET_TASK_BY_UUID",
                 () -> taskQueryService.getTaskByUuid(uuid, userDetails.getId())
@@ -258,7 +258,7 @@ public class TaskQueryController extends BaseController {
     public ResponseEntity<ApiResult<Page<TaskResponse>>> getMyTasks(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @ModelAttribute TaskFilterRequest filter) {
-        return executeTaskQuery(
+        return executeMethod(
                 userDetails.getId(),
                 "GET_MY_TASKS",
                 () -> taskQueryService.getTasksByUserId(userDetails.getId(), filter)
@@ -317,7 +317,7 @@ public class TaskQueryController extends BaseController {
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @ModelAttribute TaskFilterRequest filter
     ){
-        return executeTaskQuery(
+        return executeMethod(
                 userDetails.getId(),
                 "GET_MY_OVERDUE_TASKS",
                 () -> taskQueryService.getOverdueTasks(userDetails.getId(), filter)
@@ -378,7 +378,7 @@ public class TaskQueryController extends BaseController {
             @RequestParam @NotBlank String keyword,
             @ModelAttribute TaskFilterRequest filter
     ){
-        return executeTaskQuery(
+        return executeMethod(
                 userDetails.getId(),
                 "SEARCH_TASK",
                 () -> taskQueryService.searchTasks(userDetails.getId(), keyword, filter)
@@ -431,7 +431,7 @@ public class TaskQueryController extends BaseController {
             @RequestParam Task.TaskStatus status,
             @ModelAttribute TaskFilterRequest filter
             ){
-        return executeTaskQuery(
+        return executeMethod(
                 userDetails.getId(),
                 "GET_TASKS_BY_STATUS",
                 () -> taskQueryService.getTasksByStatus(userDetails.getId(), status, filter)
@@ -483,7 +483,7 @@ public class TaskQueryController extends BaseController {
             @RequestParam Task.TaskPriority priority,
             @ModelAttribute TaskFilterRequest filter
             ){
-        return executeTaskQuery(
+        return executeMethod(
                 userDetails.getId(),
                 "GET_TASKS_BY_PRIORITY",
                 () -> taskQueryService.getTasksByPriority(userDetails.getId(), priority, filter)
@@ -537,7 +537,7 @@ public class TaskQueryController extends BaseController {
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @ModelAttribute TaskFilterRequest filter
             ){
-        return executeTaskQuery(
+        return executeMethod(
                 userDetails.getId(),
                 "GET_TASKS_DUE_TODAY",
                 () -> taskQueryService.getTasksDueToday(userDetails.getId(), filter)
@@ -603,7 +603,7 @@ public class TaskQueryController extends BaseController {
             @RequestParam String end,
             @ModelAttribute TaskFilterRequest filter
     ) {
-        return executeTaskQuery(
+        return executeMethod(
                 userDetails.getId(),
                 "GET_TASKS_DUE_BETWEEN",
                 () -> taskQueryService.getTasksDueBetween(
@@ -675,7 +675,7 @@ public class TaskQueryController extends BaseController {
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @ModelAttribute TaskFilterRequest filter
     ) {
-        return executeTaskQuery(
+        return executeMethod(
                 userDetails.getId(),
                 "GET_RECENTLY_UPDATED_TASKS",
                 () -> taskQueryService.getRecentlyUpdatedTasks(userDetails.getId(), daysBack, filter)
@@ -732,7 +732,7 @@ public class TaskQueryController extends BaseController {
             @PathVariable Long taskId,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        return executeTaskQuery(
+        return executeMethod(
                 userDetails.getId(),
                 "CALCULATE_TASK_PROGRESS",
                 () -> progressService.calculateTaskProgress(taskId)
@@ -812,7 +812,7 @@ public class TaskQueryController extends BaseController {
             @PathVariable Long taskId,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        return executeTaskQuery(
+        return executeMethod(
                 userDetails.getId(),
                 "GET_FULL_HIERARCHY_EPIC",
                 () -> hierarchyService.getFullHierarchy(taskId)
@@ -988,7 +988,7 @@ public class TaskQueryController extends BaseController {
             @PathVariable Long parentTaskId,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        return executeTaskQuery(
+        return executeMethod(
                 userDetails.getId(),
                 "GET_CHILD_TASKS",
                 () -> hierarchyService.getChildTasks(parentTaskId)
@@ -1102,7 +1102,7 @@ public class TaskQueryController extends BaseController {
             @PathVariable Long parentTaskId,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        return executeTaskQuery(
+        return executeMethod(
                 userDetails.getId(),
                 "GET_ALL_CHILD_TASKS",
                 () -> hierarchyService.getAllChildTasks(parentTaskId)
@@ -1210,7 +1210,7 @@ public class TaskQueryController extends BaseController {
             @PathVariable Long taskId,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        return executeTaskQuery(
+        return executeMethod(
                 userDetails.getId(),
                 "GET_PARENT_TASK",
                 () -> hierarchyService.getParentTask(taskId)
@@ -1320,7 +1320,7 @@ public class TaskQueryController extends BaseController {
             @PathVariable Long taskId,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        return executeTaskQuery(
+        return executeMethod(
                 userDetails.getId(),
                 "GET_HIERARCHY_DEPTH",
                 () -> hierarchyService.getHierarchyDepth(taskId)
@@ -1434,7 +1434,7 @@ public class TaskQueryController extends BaseController {
             @PathVariable Long parentTaskId,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ){
-        return executeTaskQuery(
+        return executeMethod(
                 userDetails.getId(),
                 "GET_NEXT_SORT_ORDER_FOR_PARENT",
                 () -> hierarchyService.getNextSortOrderForParent(parentTaskId)

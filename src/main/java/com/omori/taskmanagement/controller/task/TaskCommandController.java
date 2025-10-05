@@ -1,6 +1,7 @@
 package com.omori.taskmanagement.controller.task;
 
 import com.omori.taskmanagement.annotations.LogActivity;
+import com.omori.taskmanagement.controller.BaseController;
 import com.omori.taskmanagement.dto.common.ApiResult;
 import com.omori.taskmanagement.dto.project.task.TaskResponse;
 import com.omori.taskmanagement.dto.project.task.creation.*;
@@ -29,12 +30,14 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/tasks")
 @Slf4j
 @Tag(name = "Task Management")
-public class TaskCommandController {
+public class TaskCommandController extends BaseController {
 
     private final TaskCreationService creationService;
     private final StoryCreationService storyCreationService;
@@ -105,9 +108,14 @@ public class TaskCommandController {
             @Valid @RequestBody StandaloneTaskRequest request,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        Task task = creationService.createStandaloneTask(userDetails.getId(), request);
-        TaskCreateResponse response = TaskCreateResponse.from(task);
-        return ResponseEntity.status(201).body(ApiResult.success(response));
+        return executeMethod(
+                userDetails.getId(),
+                "CREATE_STANDALONE_TASK",
+                () -> {
+                    Task task = creationService.createStandaloneTask(userDetails.getId(), request);
+                    return TaskCreateResponse.from(task);
+                }
+        );
     }
 
     @LogActivity(ActionType.CREATE)
@@ -173,9 +181,14 @@ public class TaskCommandController {
         @Valid @RequestBody TaskCreateRequest request,
         @AuthenticationPrincipal CustomUserDetails userDetails
     ){
-        Task task = creationService.createTaskUnderStory(userDetails.getId(), Task.TaskType.TASK, request);
-        TaskCreateResponse response = TaskCreateResponse.from(task);
-        return ResponseEntity.status(201).body(ApiResult.success(response));
+        return executeMethod(
+                userDetails.getId(),
+                "CREATE_TASK_UNDER_STORY",
+                () -> {
+                    Task task = creationService.createTaskUnderStory(userDetails.getId(), Task.TaskType.TASK, request);
+                    return TaskCreateResponse.from(task);
+                }
+        );
     }
 
     @LogActivity(ActionType.CREATE)
@@ -255,9 +268,14 @@ public class TaskCommandController {
             @Valid @RequestBody StoryCreateRequest request,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        Task task = storyCreationService.createStoryTask(userDetails.getId(), request);
-        TaskCreateResponse response = TaskCreateResponse.from(task);
-        return ResponseEntity.status(201).body(ApiResult.success(response));
+        return executeMethod(
+                userDetails.getId(),
+                "CREATE_STANDALONE_STORY_TASK",
+                () -> {
+                    Task task = storyCreationService.createStoryTask(userDetails.getId(), request);
+                    return TaskCreateResponse.from(task);
+                }
+        );
     }
 
     @LogActivity(ActionType.CREATE)
@@ -340,9 +358,14 @@ public class TaskCommandController {
             @Valid @RequestBody StoryCreateRequest request,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        Task task = storyCreationService.createStoryUnderEpic(userDetails.getId(), Task.TaskType.STORY, request);
-        TaskCreateResponse response = TaskCreateResponse.from(task);
-        return ResponseEntity.status(201).body(ApiResult.success(response));
+        return executeMethod(
+                userDetails.getId(),
+                "CREATE_STORY_UNDER_EPIC",
+                () -> {
+                    Task task = storyCreationService.createStoryUnderEpic(userDetails.getId(), Task.TaskType.STORY, request);
+                    return  TaskCreateResponse.from(task);
+                }
+        );
     }
 
     @LogActivity(ActionType.CREATE)
@@ -445,9 +468,14 @@ public class TaskCommandController {
             @Valid @RequestBody EpicCreateRequest request,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        Task task = epicCreationService.createEpicTask(userDetails.getId(),request);
-        TaskCreateResponse response = TaskCreateResponse.from(task);
-        return ResponseEntity.status(201).body(ApiResult.success(response));
+        return executeMethod(
+                userDetails.getId(),
+                "CREATE_EPIC_TASK",
+                () -> {
+                    Task task = epicCreationService.createEpicTask(userDetails.getId(),request);
+                    return TaskCreateResponse.from(task);
+                }
+        );
     }
 
     @LogActivity(ActionType.CREATE)
@@ -562,9 +590,14 @@ public class TaskCommandController {
             @Valid @RequestBody EpicWithStoriesRequest request,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        Task task = epicCreationService.createEpicWithInitialStories(userDetails.getId(), request);
-        TaskCreateResponse response = TaskCreateResponse.from(task);
-        return ResponseEntity.status(201).body(ApiResult.success(response));
+        return executeMethod(
+                userDetails.getId(),
+                "CREATE_EPIC_WITH_INITIAL_STORIES",
+                () -> {
+                    Task task = epicCreationService.createEpicWithInitialStories(userDetails.getId(), request);
+                    return TaskCreateResponse.from(task);
+                }
+        );
     }
 
     @LogActivity(ActionType.UPDATE)
@@ -700,8 +733,11 @@ public class TaskCommandController {
             @Valid @RequestBody TaskUpdateRequest request,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        TaskResponse task = updateService.updateTask(taskId, userDetails.getId(), request);
-        return ResponseEntity.ok(ApiResult.success(task));
+        return executeMethod(
+                userDetails.getId(),
+                "UPDATE_TASK",
+                () -> updateService.updateTask(taskId, userDetails.getId(), request)
+            );
     }
 
     @LogActivity(ActionType.UPDATE)
@@ -759,9 +795,16 @@ public class TaskCommandController {
             @Parameter(description = "ID of the task to recalculate",
             example = "42",
             required = true)
-            @PathVariable Long taskId) {
-        progressService.updateProgressFromSubtasks(taskId);
-        return ResponseEntity.noContent().build();
+            @PathVariable Long taskId,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        return executeMethod(
+                userDetails.getId(),
+                "RECALCULATE_TASK_PROGRESS",
+                () -> {
+                    progressService.updateProgressFromSubtasks(taskId);
+                    return null;
+                }
+        );
     }
 
     @LogActivity(ActionType.UPDATE)
@@ -838,9 +881,16 @@ public class TaskCommandController {
             @Parameter(description = "ID of the Epic to refresh progress",
             example = "40",
             required = true)
-            @PathVariable Long epicId) {
-        progressService.updateHierarchyProgress(epicId);
-        return ResponseEntity.noContent().build();
+            @PathVariable Long epicId,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        return executeMethod(
+                userDetails.getId(),
+                "REFRESH_EPIC_PROGRESS",
+                () -> {
+                    progressService.updateHierarchyProgress(epicId);
+                    return null;
+                }
+        );
     }
 
     @LogActivity(ActionType.UPDATE)
@@ -962,10 +1012,455 @@ public class TaskCommandController {
             @Parameter(description = "ID of the new parent task",
             example = "32",
             required = true)
-            @PathVariable Long parentId
+            @PathVariable Long parentId,
+            @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        hierarchyService.moveTaskToParent(taskId, parentId);
-        return ResponseEntity.noContent().build();
+        return executeMethod(
+                userDetails.getId(),
+                "MOVE_TASK_TO_PARENT",
+                () -> {
+                    hierarchyService.moveTaskToParent(taskId, parentId);
+                    return null;
+                }
+        );
     }
 
+    @LogActivity(ActionType.DELETE)
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    @DeleteMapping("/softDelete/{taskId}")
+    @Operation(summary = "Soft delete a task by setting deletedAt timestamp",
+            description = """
+          Performs a soft delete on a task by setting the deletedAt timestamp.
+          The task remains in the database but is excluded from queries.
+          Child tasks are not affected and become orphaned.
+          
+          Soft Delete Process:
+          1. Validates task exists and is not already deleted
+          2. Checks user has permission (owner, assignee, or admin)
+          3. Sets deletedAt to current timestamp
+          4. Saves task to database
+          
+          Authorization Rules:
+          User must be ONE of:
+          - Task owner (created the task)
+          - Assigned to the task
+          - Has ADMIN role
+          
+          Child Task Behavior:
+          - Child tasks are NOT automatically deleted
+          - They become orphaned (parent reference remains but parent is soft-deleted)
+          - To delete entire hierarchy, delete children first
+          
+          Use Cases:
+          - Archiving completed tasks
+          - Removing outdated tasks without losing data
+          - Compliance requirements (audit trail)
+          - Accidental deletion recovery
+          
+          Restoration:
+          - Use POST /tasks/{taskId}/restore to undo soft delete
+          - Restoring a task does NOT restore its children
+          
+          Performance:
+          - Single database update operation
+          - Typical response time: 50-100ms
+          
+          Transaction Safety:
+          - Entire operation is transactional
+          - Rollback on permission check failure
+          
+          Important Notes:
+          - Soft-deleted tasks don't appear in standard queries
+          - Task UUID remains reserved (cannot be reused)
+          - Progress calculations exclude soft-deleted tasks
+          - Parent task progress may need recalculation
+          """)
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Task soft deleted successfully"),
+            @ApiResponse(responseCode = "403", description = "Forbidden - user lacks permission to delete task"),
+            @ApiResponse(responseCode = "404", description = "Task not found or already deleted")
+    })
+    public ResponseEntity<ApiResult<Void>> softDelete(
+            @Parameter(description = "ID of the task to delete",
+            example = "43",
+            required = true)
+            @PathVariable Long taskId,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        return executeMethod(
+                userDetails.getId(),
+                "SOFT_DELETE_TASK",
+                () -> {
+                    deletionService.softDeleteTask(taskId, userDetails.getId(), userDetails.getAuthorities());
+                    return null;
+                }
+        );
+    }
+
+    @LogActivity(ActionType.UPDATE)
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    @PostMapping("/restore/{taskId}")
+    @Operation(summary = "Restore a soft-deleted task by clearing deletedAt timestamp",
+            description = """
+      Restores a previously soft-deleted task by clearing the deletedAt timestamp.
+      The task becomes active again and appears in standard queries.
+      Child tasks are not automatically restored if they were also deleted.
+
+      Restore Process:
+      1. Validates task exists and is currently soft-deleted (has deletedAt timestamp)
+      2. Checks user has permission (owner, assignee, or admin)
+      3. Clears deletedAt timestamp (sets to null)
+      4. Saves task to database
+
+      Authorization Rules:
+      User must be ONE of:
+      - Task owner (created the task)
+      - Assigned to the task
+      - Has ADMIN role
+
+      Child Task Behavior:
+      - Child tasks are NOT automatically restored
+      - If children were also soft-deleted, they remain deleted
+      - Restore each child individually if needed
+      - Parent-child relationships remain intact
+
+      Use Cases:
+      - Recovering accidentally deleted tasks
+      - Undoing archive operations
+      - Reactivating tasks that were prematurely closed
+      - Compliance requirements (restoring for audit review)
+
+      Prerequisites:
+      - Task must exist in database
+      - Task must be currently soft-deleted (deletedAt is not null)
+      - User must have appropriate permissions
+
+      Performance:
+      - Single database update operation
+      - Typical response time: 50-100ms
+
+      Transaction Safety:
+      - Entire operation is transactional
+      - Rollback on permission check failure
+      - Rollback if task is not in deleted state
+
+      Important Notes:
+      - Cannot restore a task that is not deleted (throws IllegalStateException)
+      - Restored tasks immediately appear in queries
+      - Task UUID remains unchanged
+      - Progress calculations will include restored task
+      - Parent task progress may need recalculation after restore
+      - Task metadata (created date, updated date, etc.) remains unchanged
+
+      Error Conditions:
+      - Task not found: Returns 404
+      - Task not deleted: Returns 400 (IllegalStateException)
+      - User lacks permission: Returns 403
+      - User not authenticated: Returns 401
+      """)
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Task restored successfully - no content returned"),
+            @ApiResponse(responseCode = "400", description = "Bad Request - task is not currently deleted"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized - user not authenticated"),
+            @ApiResponse(responseCode = "403", description = "Forbidden - user lacks permission to restore task"),
+            @ApiResponse(responseCode = "404", description = "Task not found with given ID")
+    })
+    public ResponseEntity<ApiResult<Void>> restoreTask(
+            @Parameter(description = "ID of the task to restore",
+            example = "43",
+            required = true)
+            @PathVariable Long taskId,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        return executeMethod(
+                userDetails.getId(),
+                "RESTORE_TASK",
+                () -> {
+                    deletionService.restoreTask(taskId, userDetails.getId(), userDetails.getAuthorities());
+                    return null;
+                }
+        );
+    }
+
+    @LogActivity(ActionType.DELETE)
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    @PostMapping("/softDelete/batch")
+    @Operation(summary = "Soft delete multiple tasks in a single batch operation",
+            description = """
+      Performs soft delete on multiple tasks atomically by setting deletedAt timestamp for each task.
+      All tasks must pass authorization checks or the entire operation fails (all-or-nothing behavior).
+      Tasks remain in the database but are excluded from standard queries.
+
+      Batch Delete Process:
+      1. Validates taskIds list is not null or empty
+      2. Validates all tasks exist and are not already deleted
+      3. Checks user has permission for EVERY task (owner, assignee, or admin)
+      4. If ANY task fails authorization, entire operation fails (no partial deletes)
+      5. Sets deletedAt to current timestamp for all authorized tasks
+      6. Saves all tasks to database in single transaction
+
+      Authorization Rules:
+      User must be ONE of the following for EACH task:
+      - Task owner (created the task)
+      - Assigned to the task
+      - Has ADMIN role
+
+      Authorization Behavior:
+      - If user lacks permission for ANY task, entire operation fails
+      - All tasks are authorized before any deletions occur
+      - Returns 403 Forbidden with list of unauthorized task IDs
+      - No partial deletions - either all tasks deleted or none
+
+      Child Task Behavior:
+      - Child tasks are NOT automatically deleted
+      - Children become orphaned if parent is deleted
+      - To delete entire hierarchies, delete children first
+      - Consider using hierarchy-aware deletion if needed
+
+      Use Cases:
+      - Bulk archiving of completed tasks
+      - Cleaning up multiple outdated tasks at once
+      - Administrative cleanup operations
+      - Batch task management during project closure
+      - Removing multiple test or duplicate tasks
+
+      Transaction Safety:
+      - Entire operation runs in single database transaction
+      - All tasks deleted together or operation fails completely
+      - Rollback on any authorization or validation failure
+      - Maintains database consistency
+
+      Performance Considerations:
+      - Batch size recommended: 1-100 tasks
+      - For very large batches (>100), consider chunking
+      - Single database query fetches all tasks
+      - Single batch update for deletions
+      - Typical response time: 100-500ms depending on batch size
+
+      Validation Rules:
+      - taskIds: Cannot be null, empty, or contain null values
+      - Each taskId must reference existing task
+      - Tasks already deleted are filtered out (not counted as error)
+      - User must be authenticated
+
+      Request Body Format:
+      POST /api/v1/tasks/softDelete/batch
+      Content-Type: application/json
+      Body: [42, 43, 44, 45]
+
+      Example Request Body:
+      [42, 43, 44]
+      Deletes tasks with IDs 42, 43, and 44
+
+      Response Behavior:
+      - Success: 204 No Content (no response body)
+      - All tasks in list are soft deleted
+      - No indication of how many were already deleted vs newly deleted
+
+      Error Handling:
+      - Empty list: 400 Bad Request (validation failure)
+      - Null list: 400 Bad Request (validation failure)
+      - Task not found: Filtered out (not error unless all missing)
+      - Unauthorized for any task: 403 Forbidden with task IDs listed
+      - Database error: 500 Internal Server Error (complete rollback)
+
+      Important Notes:
+      - This is an atomic operation (all-or-nothing)
+      - No partial success - authorization must pass for ALL tasks
+      - Soft-deleted tasks excluded from standard queries
+      - Task UUIDs remain reserved after deletion
+      - Parent task progress may need manual recalculation
+      - Children are NOT deleted automatically
+      - Consider impact on Epic/Story progress calculations
+
+      Restoration:
+      - Individual restoration: POST /tasks/{taskId}/restore per task
+      - No batch restore endpoint currently available
+      - Must restore each task individually
+
+      Comparison with Single Delete:
+      - Single: DELETE /tasks/softDelete/{taskId}
+      - Batch: POST /tasks/softDelete/batch (this endpoint)
+      - Batch is more efficient for multiple tasks
+      - Batch guarantees atomic all-or-nothing behavior
+      - Single allows partial success in sequential operations
+
+      Best Practices:
+      - Verify task ownership before bulk operations
+      - Consider hierarchy when deleting parent tasks
+      - Test authorization with small batch first
+      - Monitor performance with large batches
+      - Log task IDs before deletion for audit trail
+      """)
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "All tasks soft deleted successfully - no content returned"),
+            @ApiResponse(responseCode = "400", description = "Bad Request - invalid task IDs list (null, empty, or validation failure)"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized - user not authenticated"),
+            @ApiResponse(responseCode = "403", description = "Forbidden - user lacks permission for one or more tasks (returns list of unauthorized task IDs)"),
+            @ApiResponse(responseCode = "404", description = "Not Found - one or more tasks not found or already deleted"),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error - database or transaction failure")
+    })
+    public ResponseEntity<ApiResult<Void>> softDeleteMultipleTasks(
+            @RequestBody @Valid List<Long> taskIds,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        return executeMethod(
+                userDetails.getId(),
+                "MULTIPLE_SOFT_DELETE",
+                () -> {
+                    deletionService.softDeleteMultipleTasks(taskIds, userDetails.getId(), userDetails.getAuthorities());
+                    return null;
+                }
+        );
+    }
+
+
+    @LogActivity(ActionType.UPDATE)
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    @PostMapping("/restore/batch")
+    @Operation(summary = "Restore multiple soft-deleted tasks in a single batch operation",
+            description = """
+      Restores multiple previously soft-deleted tasks atomically by clearing deletedAt timestamps.
+      All tasks must pass authorization checks or the entire operation fails (all-or-nothing behavior).
+      Restored tasks become active again and appear in standard queries.
+
+      Batch Restore Process:
+      1. Validates taskIds list is not null or empty
+      2. Validates all tasks exist and are currently soft-deleted (have deletedAt timestamp)
+      3. Checks user has permission for EVERY task (owner, assignee, or admin)
+      4. If ANY task fails authorization, entire operation fails (no partial restores)
+      5. Clears deletedAt timestamp (sets to null) for all authorized tasks
+      6. Saves all tasks to database in single transaction
+
+      Authorization Rules:
+      User must be ONE of the following for EACH task:
+      - Task owner (created the task)
+      - Assigned to the task
+      - Has ADMIN role
+
+      Authorization Behavior:
+      - If user lacks permission for ANY task, entire operation fails
+      - All tasks are authorized before any restores occur
+      - Returns 403 Forbidden with list of unauthorized task IDs
+      - No partial restores - either all tasks restored or none
+
+      Child Task Behavior:
+      - Child tasks are NOT automatically restored
+      - If children were also soft-deleted, they remain deleted
+      - Must restore each child individually if needed
+      - Parent-child relationships remain intact after restore
+
+      Use Cases:
+      - Bulk recovery of accidentally deleted tasks
+      - Undoing batch archive operations
+      - Reactivating multiple tasks after review
+      - Administrative restoration operations
+      - Compliance requirements (restoring multiple tasks for audit)
+
+      Transaction Safety:
+      - Entire operation runs in single database transaction
+      - All tasks restored together or operation fails completely
+      - Rollback on any authorization or validation failure
+      - Maintains database consistency
+
+      Performance Considerations:
+      - Batch size recommended: 1-100 tasks
+      - For very large batches (>100), consider chunking
+      - Single database query fetches all tasks
+      - Single batch update for restorations
+      - Typical response time: 100-500ms depending on batch size
+
+      Validation Rules:
+      - taskIds: Cannot be null, empty, or contain null values
+      - Each taskId must reference existing task
+      - Each task must be currently soft-deleted (deletedAt not null)
+      - Tasks not deleted are filtered out (not counted as error)
+      - User must be authenticated
+
+      State Validation:
+      - If task is not deleted: filtered out from batch (not error)
+      - Only actually deleted tasks are restored
+      - Operation succeeds even if some tasks already active
+      - No error for mixed active/deleted task lists
+
+      Request Body Format:
+      POST /api/v1/tasks/restore/batch
+      Content-Type: application/json
+      Body: [42, 43, 44, 45]
+
+      Example Request Body:
+      [42, 43, 44]
+      Restores tasks with IDs 42, 43, and 44
+
+      Response Behavior:
+      - Success: 204 No Content (no response body)
+      - All deleted tasks in list are restored
+      - Already active tasks are ignored (not error)
+      - No indication of how many were restored vs already active
+
+      Error Handling:
+      - Empty list: 400 Bad Request (validation failure)
+      - Null list: 400 Bad Request (validation failure)
+      - Task not found: 404 Not Found
+      - Unauthorized for any task: 403 Forbidden with task IDs listed
+      - Database error: 500 Internal Server Error (complete rollback)
+
+      Important Notes:
+      - This is an atomic operation (all-or-nothing)
+      - No partial success - authorization must pass for ALL tasks
+      - Restored tasks immediately appear in standard queries
+      - Task UUIDs remain unchanged after restore
+      - Progress calculations will include restored tasks
+      - Parent task progress may need manual recalculation
+      - Children are NOT restored automatically
+      - Task metadata (created date, updated date) remains unchanged
+
+      Impact on Hierarchy:
+      - Restored tasks reappear in hierarchy queries
+      - Parent progress calculations may need refresh
+      - Epic/Story progress may be affected by restored children
+      - Consider recalculating parent progress after bulk restore
+
+      Comparison with Single Restore:
+      - Single: POST /tasks/restore/{taskId}
+      - Batch: POST /tasks/restore/batch (this endpoint)
+      - Batch is more efficient for multiple tasks
+      - Batch guarantees atomic all-or-nothing behavior
+      - Single allows partial success in sequential operations
+
+      Best Practices:
+      - Verify task ownership before bulk operations
+      - Test authorization with small batch first
+      - Monitor performance with large batches
+      - Log task IDs before restoration for audit trail
+      - Recalculate parent progress after restore if needed
+      - Verify restored tasks are in expected state
+
+      Post-Restore Actions:
+      - Consider refreshing Epic progress if restoring many tasks
+      - Verify task status and progress are as expected
+      - Check parent-child relationships are intact
+      - Update any external systems that track task state
+      """)
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "All tasks restored successfully - no content returned"),
+            @ApiResponse(responseCode = "400", description = "Bad Request - invalid task IDs list (null, empty, or validation failure)"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized - user not authenticated"),
+            @ApiResponse(responseCode = "403", description = "Forbidden - user lacks permission for one or more tasks (returns list of unauthorized task IDs)"),
+            @ApiResponse(responseCode = "404", description = "Not Found - one or more tasks not found"),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error - database or transaction failure")
+    })
+    public ResponseEntity<ApiResult<Void>> restoreMultipleTasks(
+            @RequestBody @Valid List<Long> taskIds,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        return executeMethod(
+                userDetails.getId(),
+                "RESTORE_MULTIPLE_TASK",
+                () -> {
+                    deletionService.restoreMultipleTasks(taskIds, userDetails.getId(), userDetails.getAuthorities());
+                    return null;
+                }
+        );
+    }
 }
