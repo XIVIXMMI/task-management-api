@@ -1074,7 +1074,8 @@ public class TaskCommandController extends BaseController {
           - Task UUID remains reserved (cannot be reused)
           - Progress calculations exclude soft-deleted tasks
           - Parent task progress may need recalculation
-          """)    @ApiResponses(value = {
+          """)
+    @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Task soft deleted successfully"),
             @ApiResponse(responseCode = "403", description = "Forbidden - user lacks permission to delete task"),
             @ApiResponse(responseCode = "404", description = "Task not found or already deleted")
@@ -1090,7 +1091,7 @@ public class TaskCommandController extends BaseController {
                 userDetails.getId(),
                 "SOFT_DELETE_TASK",
                 () -> {
-                    deletionService.softDeleteTask(taskId,userDetails.getId());
+                    deletionService.softDeleteTask(taskId, userDetails.getId(), userDetails.getAuthorities());
                     return null;
                 }
         );
@@ -1175,7 +1176,7 @@ public class TaskCommandController extends BaseController {
                 userDetails.getId(),
                 "RESTORE_TASK",
                 () -> {
-                    deletionService.restoreTask(taskId, userDetails.getId());
+                    deletionService.restoreTask(taskId, userDetails.getId(), userDetails.getAuthorities());
                     return null;
                 }
         );
@@ -1307,7 +1308,7 @@ public class TaskCommandController extends BaseController {
                 userDetails.getId(),
                 "MULTIPLE_SOFT_DELETE",
                 () -> {
-                    deletionService.softDeleteMultipleTasks(taskIds, userDetails.getId());
+                    deletionService.softDeleteMultipleTasks(taskIds, userDetails.getId(), userDetails.getAuthorities());
                     return null;
                 }
         );
@@ -1457,7 +1458,7 @@ public class TaskCommandController extends BaseController {
                 userDetails.getId(),
                 "RESTORE_MULTIPLE_TASK",
                 () -> {
-                    deletionService.restoreMultipleTasks(taskIds, userDetails.getId());
+                    deletionService.restoreMultipleTasks(taskIds, userDetails.getId(), userDetails.getAuthorities());
                     return null;
                 }
         );

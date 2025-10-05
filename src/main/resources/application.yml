@@ -56,6 +56,9 @@ spring:
       use-key-prefix: true
 
 springdoc:
+  swagger-ui:
+    operations-sorter: alpha  # alpha, method
+    tags-sorter: alpha
   show-actuator: true
 
 

@@ -9,7 +9,7 @@ BEGIN
     BEGIN
         IF EXISTS (SELECT 1 FROM pg_type t JOIN pg_namespace n ON t.typnamespace = n.oid
                    WHERE t.typname = 'taskstatus' AND n.nspname = 'public') THEN
-            DROP TYPE IF EXISTS public.taskstatus CASCADE;
+            DROP TYPE IF EXISTS public.taskstatus;
             RAISE NOTICE 'Removed enum: public.taskstatus';
         END IF;
     EXCEPTION WHEN OTHERS THEN
@@ -20,7 +20,7 @@ BEGIN
     BEGIN
         IF EXISTS (SELECT 1 FROM pg_type t JOIN pg_namespace n ON t.typnamespace = n.oid
                    WHERE t.typname = 'taskpriority' AND n.nspname = 'public') THEN
-            DROP TYPE IF EXISTS public.taskpriority CASCADE;
+            DROP TYPE IF EXISTS public.taskpriority;
             RAISE NOTICE 'Removed enum: public.taskpriority';
         END IF;
     EXCEPTION WHEN OTHERS THEN
@@ -31,7 +31,7 @@ BEGIN
     BEGIN
         IF EXISTS (SELECT 1 FROM pg_type t JOIN pg_namespace n ON t.typnamespace = n.oid
                    WHERE t.typname = 'task_status' AND n.nspname = 'public') THEN
-            DROP TYPE IF EXISTS public.task_status CASCADE;
+            DROP TYPE IF EXISTS public.task_status;
             RAISE NOTICE 'Removed enum: public.task_status';
         END IF;
     EXCEPTION WHEN OTHERS THEN
@@ -42,7 +42,7 @@ BEGIN
     BEGIN
         IF EXISTS (SELECT 1 FROM pg_type t JOIN pg_namespace n ON t.typnamespace = n.oid
                    WHERE t.typname = 'task_priority' AND n.nspname = 'public') THEN
-            DROP TYPE IF EXISTS public.task_priority CASCADE;
+            DROP TYPE IF EXISTS public.task_priority;
             RAISE NOTICE 'Removed enum: public.task_priority';
         END IF;
     EXCEPTION WHEN OTHERS THEN

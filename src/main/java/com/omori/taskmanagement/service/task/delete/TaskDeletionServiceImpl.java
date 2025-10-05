@@ -6,11 +6,13 @@ import com.omori.taskmanagement.model.project.Task;
 import com.omori.taskmanagement.repository.project.TaskRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @Service
@@ -64,7 +66,8 @@ public class TaskDeletionServiceImpl implements TaskDeletionService {
 
     @Override
     @Transactional
-    public void softDeleteTask(Long taskId, Long userId) {
+    public void softDeleteTask(Long taskId, Long userId,
+                                Collection<? extends GrantedAuthority> authorities) {
         log.debug("Attempting soft delete for taskId: {}, userId: {}", taskId, userId);
 
         validateTaskId(taskId);
@@ -73,7 +76,13 @@ public class TaskDeletionServiceImpl implements TaskDeletionService {
         Task task = taskRepository.findByIdAndDeletedAtIsNull(taskId)
                 .orElseThrow(() -> new TaskNotFoundException("Task not found with ID: " + taskId));
 
-        if(!canDeleteTask(task, userId)){
+        if (task.getDeletedAt() != null) {
+            throw new IllegalStateException(
+                    String.format("Task %d is deleted", taskId)
+            );
+        }
+
+        if(!canDeleteTask(task, userId, authorities)){
             throw new TaskAccessDeniedException(
                     String.format("User %d does not have permission to delete task %d", userId, taskId)
             );
@@ -86,7 +95,8 @@ public class TaskDeletionServiceImpl implements TaskDeletionService {
 
     @Override
     @Transactional
-    public void softDeleteMultipleTasks(List<Long> taskIds, Long userId) {
+    public void softDeleteMultipleTasks(List<Long> taskIds, Long userId,
+                                        Collection<? extends GrantedAuthority> authorities) {
         log.debug("Attempting soft delete for taskIds: {}, userId: {}", taskIds, userId);
 
         // Input validation
@@ -103,7 +113,7 @@ public class TaskDeletionServiceImpl implements TaskDeletionService {
         List<Long> unauthorizedTaskIds = new ArrayList<>();
 
         for( Task task : activeTasks){
-            if(canDeleteTask(task, userId)){
+            if(canDeleteTask(task, userId, authorities)){
                 authorizedTasks.add(task);
             } else {
                 unauthorizedTaskIds.add(task.getId());
@@ -125,7 +135,8 @@ public class TaskDeletionServiceImpl implements TaskDeletionService {
 
     @Override
     @Transactional
-    public void restoreTask(Long taskId, Long userId) {
+    public void restoreTask(Long taskId, Long userId,
+                            Collection<? extends GrantedAuthority> authorities) {
         log.debug("Attempting restore for taskId: {}, userId: {}", taskId, userId);
 
         // Input validation
@@ -141,7 +152,7 @@ public class TaskDeletionServiceImpl implements TaskDeletionService {
             );
         }
 
-        if(!canDeleteTask(task, userId)){
+        if(!canDeleteTask(task, userId, authorities)){
             throw new TaskAccessDeniedException(
                     String.format("User %d does not have permission to restore task %d", userId, taskId)
             );
@@ -154,7 +165,8 @@ public class TaskDeletionServiceImpl implements TaskDeletionService {
 
     @Override
     @Transactional
-    public void restoreMultipleTasks(List<Long> taskIds, Long userId) {
+    public void restoreMultipleTasks(List<Long> taskIds, Long userId,
+                                        Collection<? extends GrantedAuthority> authorities) {
         log.debug("Attempting restore for taskIds: {}, userId: {}", taskIds, userId);
 
         // Input validation
@@ -171,7 +183,7 @@ public class TaskDeletionServiceImpl implements TaskDeletionService {
         List<Task> unauthorizedTasks = new ArrayList<>();
 
         for( Task task : activeTasks){
-            if(canDeleteTask(task, userId)){
+            if(canDeleteTask(task, userId, authorities)){
                 authorizedTasks.add(task);
             } else {
                 unauthorizedTasks.add(task);
@@ -192,7 +204,17 @@ public class TaskDeletionServiceImpl implements TaskDeletionService {
     }
 
     @Override
-    public boolean canDeleteTask(Task task, Long userId) {
+    public boolean canDeleteTask(Task task, Long userId,
+                                    Collection<? extends GrantedAuthority> authorities) {
+        // Check if user has ROLE_ADMIN
+        boolean isAdmin = authorities.stream()
+                .anyMatch(auth -> "ROLE_ADMIN".equals(auth.getAuthority()));
+
+        if (isAdmin) {
+            return true;
+        }
+
+        // Check if user is owner or assignee
         boolean isOwner = task.getUser() != null &&
                 task.getUser().getId().equals(userId);
         boolean isAssignee = task.getAssignedTo() != null &&
