@@ -192,7 +192,7 @@ public class TaskDeletionServiceImpl implements TaskDeletionService {
 
         if (!unauthorizedTasks.isEmpty()) {
             throw new TaskAccessDeniedException(
-                    String.format("User %d lacks permission to delete tasks: %s",
+                    String.format("User %d lacks permission to restore tasks: %s",
                             userId, unauthorizedTasks)
             );
         }
